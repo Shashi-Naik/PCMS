@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Vendors from Excel</title>
+</head>
+<body>
+    <h1>Upload Vendors from Excel</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".xlsx">
+        <button type="submit">Upload</button>
+    </form>
+    <a href="{% url 'vendor_list' %}">Cancel</a>
+</body>
+</html>

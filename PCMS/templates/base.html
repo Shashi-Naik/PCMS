@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="icon" href="/static_files/images/favicon.png" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/dd5559ee21.js" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+  <style>
+    /* Font styles */
+    .fontStyle2 {
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .fontStyle1 {
+      font-family: 'Anton', sans-serif;
+    }
+
+    /* General styles */
+    .compact {
+      line-height: 1.5em;
+    }
+
+    a.customNav {
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+      min-width: 80px;
+      text-align: center;
+      border-right: 1px solid #e55c69;
+      padding: 14px 18px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    a.active,
+    a.customNav:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: transparent;
+    }
+
+    .form-control {
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .form-check-input {
+      cursor: pointer;
+    }
+
+    .table thead th {
+      background-color: #343a40;
+      color: #fff;
+      text-transform: uppercase;
+    }
+
+    .table-bordered td,
+    .table-bordered th {
+      border-color: #dee2e6;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    .btn-danger {
+      background-color: #e55c69;
+      border-color: #e55c69;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+
+    .navbar-brand img {
+      transition: transform 0.3s;
+    }
+
+    .navbar-brand img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Dropdown styles */
+    .dropdown-menu {
+      background-color: #dc3545;
+      border: none;
+      box-shadow: none;
+    }
+
+    .dropdown-item {
+      color: #fff;
+      padding: 10px 20px;
+    }
+
+    .dropdown-item:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .dropdown-menu .dropdown-submenu {
+      position: relative;
+    }
+
+    .dropdown-menu .dropdown-submenu .dropdown-menu {
+      top: 0;
+      left: 100%;
+      margin-top: -6px;
+      margin-left: -1px;
+      border-radius: 0.25rem;
+      display: none; /* Hide nested dropdown by default */
+    }
+
+    .dropdown-menu .dropdown-submenu:hover .dropdown-menu {
+      display: block; /* Show nested dropdown on hover */
+    }
+
+    @media screen and (min-width: 797px) {
+      #bottomNavbar.collapse {
+        display: block;
+      }
+    }
+
+    @media screen and (max-width: 796px) {
+      #bottomNavbar {
+        padding: 14px;
+      }
+
+      #bottomNavbar a.customNav {
+        display: block !important;
+        border: none;
+        background: rgba(0, 0, 0, 0.2);
+        margin: 4px 0;
+        margin-left: -5px;
+        margin-right: -5px;
+      }
+
+      #removeFlex {
+        display: block !important;
+        text-align: center;
+      }
+    }
+
+    /* Ensure nested dropdowns are visible on small screens */
+    @media (max-width: 768px) {
+      .dropdown-menu .dropdown-submenu .dropdown-menu {
+        position: static;
+        display: block; /* Always display nested dropdowns */
+        margin-left: 0; /* Reset margin to avoid horizontal scroll */
+      }
+    }
+    
+    
+  </style>
+
+  <title>E-TAG</title>
+  <meta name="description" content="Navbar bottom designed with bootstrap 5">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <!-- Header Section -->
+  <div class="bg-light">
+    <div class="container-fluid">
+      <div class='d-flex justify-content-between align-items-center'>
+        <!-- Updated logo with track.png -->
+        {% block logo %}
+        <div class="p-2"><a class="navbar-brand" href="#"><img src="/static/track.png" height="90" alt="Track Logo"></a>
+        </div>
+        {% endblock %}
+        <!-- Removed "Call Us Today" and "FREE ESTIMATE" sections -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Navbar Section -->
+{% block navbar %}
+<div class="bg-danger fontStyle2">
+  <button type="button" data-bs-toggle="collapse" data-bs-target="#bottomNavbar"
+    class="btn btn-danger w-100 d-lg-none d-md-none d-sm-block d-xs-block rounded-0 p-2">
+    <i class="fas fa-bars me-2"></i> Menu
+  </button>
+
+  <div class="collapse navbar-collapse px-2" id="bottomNavbar">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center" id="removeFlex">
+
+        <!-- Left Side Navigation Items -->
+        <div class="flex-grow-1">
+          <!-- Dropdown for Store Master -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="storeMasterDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Store Master
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="storeMasterDropdown">
+              <li><a class="dropdown-item" href="{% url 'tblProject' %}">Store Details</a></li>
+              <li><a class="dropdown-item" href="#">Floor Plan</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Shelf Master -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="shelfMasterDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Shelf Master
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="shelfMasterDropdown">
+              <li><a class="dropdown-item" href="#">Shelf Details</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Item Master -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="itemMasterDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Item Master
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="itemMasterDropdown">
+              <li><a class="dropdown-item" href="#">Item Details</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Display Master (moved next to Item Master) -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="displayMasterDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Device Master
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="displayMasterDropdown">
+              <li><a class="dropdown-item" href="#">Device Details</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Design Master -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="designMasterDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Design Master
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="designMasterDropdown">
+              <li><a class="dropdown-item" href="#">Display Size</a></li>
+              <li><a class="dropdown-item" href="#">Shelf Size</a></li>
+              <li><a class="dropdown-item" href="#">Upload to device</a></li>
+
+            </ul>
+          </div>
+
+          <!-- Dropdown for Mapping -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="mappingDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Mapping
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="mappingDropdown">
+              <li><a class="dropdown-item" href="#">Item Shelf Mapping</a></li>
+              <li><a class="dropdown-item" href="#">Device Item Mapping</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Update Details -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="updateDetailsDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Update Details
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="updateDetailsDropdown">
+              <li><a class="dropdown-item" href="#">Logs</a></li>
+              <li><a class="dropdown-item" href="#">Update Status</a></li>
+            </ul>
+          </div>
+
+          <!-- Dropdown for Reports -->
+          <div class="dropdown d-inline-block">
+            <a href="#" class="customNav dropdown-toggle" id="reportsDropdown" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">
+              Reports
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="reportsDropdown">
+              <li><a class="dropdown-item" href="#">Update Trail</a></li>
+              <li><a class="dropdown-item" href="#">Last Trail</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="ms-3">
+          <form action="#" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-light btn-sm text-danger border-0">
+              <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<!-- Main Content -->
+<div class="container">
+  {% block content %}
+  <!-- Page-specific content goes here -->
+  {% endblock %}
+</div>
+</body>
+</html>
