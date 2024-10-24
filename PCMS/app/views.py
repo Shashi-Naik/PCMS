@@ -268,44 +268,64 @@ def tblProject_view(request):
     return render(request, 'tblProject.html', {'project_data': page_obj, 'search_query': search_query})
 
 
+#-------------------------------------------------
 
 
+import pandas as pd
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import tblPartNumber
+import datetime
+
+def parse_date(value):
+    """Helper function to parse and format date fields."""
+    try:
+        if pd.isna(value):
+            return None
+        # If it's already a date or datetime object, format it
+        if isinstance(value, (datetime.date, datetime.datetime)):
+            return value.strftime('%Y-%m-%d')
+        # Try converting string dates in various formats
+        return pd.to_datetime(value).strftime('%Y-%m-%d')
+    except Exception:
+        return None
 
 def part_number_view(request):
     if request.method == 'POST':
-        action =request.POST.get('action')
+        action = request.POST.get('action')
         
         if action == 'insert':
-            part_number =request.POST.get('part_number')
-            part_name =request.POST.get('part_name')
-            vendor_name =request.POST.get('vendor_name')
+            part_number = request.POST.get('part_number')
+            part_name = request.POST.get('part_name')
+            vendor_name = request.POST.get('vendor_name')
             project_name = request.POST.get('project_name')
-            description =request.POST.get('description')
-            hsn =request.POST.get('hsn')
-            invoice_number =request.POST.get('invoice_number')
+            description = request.POST.get('description')
+            hsn = request.POST.get('hsn')
+            invoice_number = request.POST.get('invoice_number')
             gst_rate = request.POST.get('gst_rate')
-            date_of_invoice =request.POST.get('date_of_invoice')
-            uqc =request.POST.get('uqc')
+            date_of_invoice = request.POST.get('date_of_invoice')
+            uqc = request.POST.get('uqc')
             invoice_value = request.POST.get('invoice_value')
             qty = request.POST.get('qty')
             cost_per_unit = request.POST.get('cost_per_unit')
             total_invoice = request.POST.get('total_invoice')
-            payment_status =request.POST.get('payment_status')
-            paid_date =request.POST.get('paid_date')
-            paid_by =request.POST.get('paid_by')
+            payment_status = request.POST.get('payment_status')
+            paid_date = request.POST.get('paid_date')
+            paid_by = request.POST.get('paid_by')
             type_ = request.POST.get('type')
-            gstr2b =request.POST.get('gstr2b')
-            remarks =request.POST.get('remarks')
+            gstr2b = request.POST.get('gstr2b')
+            remarks = request.POST.get('remarks')
             ledger = request.POST.get('ledger')
-            
+
+            # Create the part number entry in the database
             tblPartNumber.objects.create(
                 part_number=part_number,
                 part_name=part_name,
                 vendor_name=vendor_name,
                 project_name=project_name,
                 description=description,
-                hsn =hsn,
-                invoice_number =invoice_number,
+                hsn=hsn,
+                invoice_number=invoice_number,
                 gst_rate=gst_rate,
                 date_of_invoice=date_of_invoice,
                 uqc=uqc,
@@ -315,16 +335,273 @@ def part_number_view(request):
                 total_invoice=total_invoice,
                 payment_status=payment_status,
                 paid_date=paid_date,
-                paid_by =paid_date,
-                type = type_,
+                paid_by=paid_by,
+                type=type_,
                 gstr2b=gstr2b,
                 remarks=remarks,
                 ledger=ledger
-                    
             )
-            return redirect('tblPartNumber')
-        
+            
+            return redirect('tblPartNumber')# Redirect after successful insertion
+
+        # Handle bulk insert from Excel
         elif action == 'bulk_insert':
+            excel_file = request.FILES.get('xlsx_file')
+            if not excel_file:
+                return HttpResponse("Error: No file uploaded", status=400)
+
+            file_extension = excel_file.name.split('.')[-1]
+            if file_extension != 'xlsx':
+                return HttpResponse("Unsupported file format", status=400)
+
+            try:
+                df = pd.read_excel(excel_file, engine='openpyxl')
+                df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')  # Normalize column names
+                
+                required_columns = {'part_numer', 'part_name', 'vendor_name', 'project_name', 'description', 'hsn',
+                                    'invoice_number', 'gst_rate(%)', 'date_of_invoice', 'uqc', 'invoice_value', 'qty', 
+                                    'cost_pu', 'total_invoice', 'payment_status', 'paid_date', 'paid_by', 'type', 
+                                    'gstr2b', 'remarks', 'ledger'}
+                
+                if not required_columns.issubset(df.columns):
+                    missing_cols = required_columns - set(df.columns)
+                    return HttpResponse(f"Error: Missing columns in the file: {missing_cols}", status=400)
+
+                # Iterate over each row and update or create the part number
+                for _, row in df.iterrows():
+                    # Use parse_date() to clean and format the date fields
+                    date_of_invoice = parse_date(row.get('date_of_invoice'))
+                    paid_date = parse_date(row.get('paid_date'))
+
+                    tblPartNumber.objects.update_or_create(
+                        part_number=row['part_numer'],
+                        defaults={
+                            'part_name': row['part_name'],
+                            'vendor_name': row['vendor_name'],
+                            'project_name': row['project_name'],
+                            'description': row['description'],
+                            'hsn': row['hsn'],
+                            'invoice_number': row['invoice_number'],
+                            'gst_rate': row['gst_rate(%)'],
+                            'date_of_invoice': date_of_invoice,  # Cleaned and validated date
+                            'uqc': row['uqc'],
+                            'invoice_value': row['invoice_value'],
+                            'qty': row['qty'],
+                            'cost_per_unit': row['cost_pu'],
+                            'total_invoice': row['total_invoice'],
+                            'payment_status': row['payment_status'],
+                            'paid_date': paid_date,  # Cleaned and validated date
+                            'paid_by': row['paid_by'],
+                            'type': row['type'],
+                            'gstr2b': row['gstr2b'],
+                            'remarks': row['remarks'],
+                            'ledger': row['ledger']
+                        }
+                    )
+            except Exception as e:
+                return HttpResponse(f"An error occurred: {e}", status=500)
+
+            return redirect('tblPartNumber')  # Redirect after successful bulk insert
+
+    search_query = request.GET.get('search', '')
+    project_data = tblPartNumber.objects.all()
+
+    if search_query:
+        project_data = project_data.filter(project_name1__icontains=search_query) | project_data.filter(
+            company_name__icontains=search_query
+        ) | project_data.filter(
+            projcode_partname__icontains=search_query
+        )
+
+    paginator = Paginator(project_data, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'tblpartnumber.html', {'data': page_obj, 'search_query': search_query})
+
+# def part_number_view(request):
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+
+#         if action == 'insert':
+#             # Insert a single part number (existing code)
+#             part_number = request.POST.get('part_number')
+#             # ... [same as before] ...
+
+#         elif action == 'bulk_insert':
+#             # Handle bulk insert using Excel
+#             excel_file = request.FILES.get('xlsx_file')
+#             if not excel_file:
+#                 return HttpResponse("Error: No file uploaded", status=400)
+
+#             file_extension = excel_file.name.split('.')[-1]
+#             if file_extension != 'xlsx':
+#                 return HttpResponse("Unsupported file format", status=400)
+
+#             try:
+#                 df = pd.read_excel(excel_file, engine='openpyxl')
+#                 df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')  # Normalize column names
+                
+#                 required_columns = {'part_numer', 'part_name', 'vendor_name', 'project_name', 'description', 'hsn',
+#                                     'invoice_number', 'gst_rate(%)', 'date_of_invoice', 'uqc', 'invoice_value', 'qty', 
+#                                     'cost_pu', 'total_invoice', 'payment_status', 'paid_date', 'paid_by', 'type', 
+#                                     'gstr2b', 'remarks', 'ledger'}
+                
+#                 if not required_columns.issubset(df.columns):
+#                     missing_cols = required_columns - set(df.columns)
+#                     return HttpResponse(f"Error: Missing columns in the file: {missing_cols}", status=400)
+
+#                 # Iterate over each row and update or create the part number
+#                 for _, row in df.iterrows():
+#                     # Use parse_date() to clean and format the date fields
+#                     date_of_invoice = parse_date(row.get('date_of_invoice'))
+#                     paid_date = parse_date(row.get('paid_date'))
+
+#                     tblPartNumber.objects.update_or_create(
+#                         part_number=row['part_numer'],
+#                         defaults={
+#                             'part_name': row['part_name'],
+#                             'vendor_name': row['vendor_name'],
+#                             'project_name': row['project_name'],
+#                             'description': row['description'],
+#                             'hsn': row['hsn'],
+#                             'invoice_number': row['invoice_number'],
+#                             'gst_rate': row['gst_rate(%)'],
+#                             'date_of_invoice': date_of_invoice,  # Cleaned and validated date
+#                             'uqc': row['uqc'],
+#                             'invoice_value': row['invoice_value'],
+#                             'qty': row['qty'],
+#                             'cost_per_unit': row['cost_pu'],
+#                             'total_invoice': row['total_invoice'],
+#                             'payment_status': row['payment_status'],
+#                             'paid_date': paid_date,  # Cleaned and validated date
+#                             'paid_by': row['paid_by'],
+#                             'type': row['type'],
+#                             'gstr2b': row['gstr2b'],
+#                             'remarks': row['remarks'],
+#                             'ledger': row['ledger']
+#                         }
+#                     )
+#             except Exception as e:
+#                 return HttpResponse(f"An error occurred: {e}", status=500)
+
+#             return redirect('tblPartNumber')
+
+#     return render(request, 'tblPartNumber.html')
+
+
+
+#---------------------------------------------------
+# def part_number_view(request):
+#     if request.method == 'POST':
+#         action =request.POST.get('action')
+        
+        # if action == 'insert':
+        #     part_number =request.POST.get('part_number')
+        #     part_name =request.POST.get('part_name')
+        #     vendor_name =request.POST.get('vendor_name')
+        #     project_name = request.POST.get('project_name')
+        #     description =request.POST.get('description')
+        #     hsn =request.POST.get('hsn')
+        #     invoice_number =request.POST.get('invoice_number')
+        #     gst_rate = request.POST.get('gst_rate')
+        #     date_of_invoice =request.POST.get('date_of_invoice')
+        #     uqc =request.POST.get('uqc')
+        #     invoice_value = request.POST.get('invoice_value')
+        #     qty = request.POST.get('qty')
+        #     cost_per_unit = request.POST.get('cost_per_unit')
+        #     total_invoice = request.POST.get('total_invoice')
+        #     payment_status =request.POST.get('payment_status')
+        #     paid_date =request.POST.get('paid_date')
+        #     paid_by =request.POST.get('paid_by')
+        #     type_ = request.POST.get('type')
+        #     gstr2b =request.POST.get('gstr2b')
+        #     remarks =request.POST.get('remarks')
+        #     ledger = request.POST.get('ledger')
+            
+        #     tblPartNumber.objects.create(
+        #         part_number=part_number,
+        #         part_name=part_name,
+        #         vendor_name=vendor_name,
+        #         project_name=project_name,
+        #         description=description,
+        #         hsn =hsn,
+        #         invoice_number =invoice_number,
+        #         gst_rate=gst_rate,
+        #         date_of_invoice=date_of_invoice,
+        #         uqc=uqc,
+        #         invoice_value=invoice_value,
+        #         qty=qty,
+        #         cost_per_unit=cost_per_unit,
+        #         total_invoice=total_invoice,
+        #         payment_status=payment_status,
+        #         paid_date=paid_date,
+        #         paid_by =paid_date,
+        #         type = type_,
+        #         gstr2b=gstr2b,
+        #         remarks=remarks,
+        #         ledger=ledger
+                    
+        #     )
+        #     return redirect('tblPartNumber')
+        
+#         elif action == 'bulk_insert':
+#             excel_file =request.FILES['xlsx_file']
+#             file_extension = excel_file.name.split('.')[-1]
+#             try:
+#                 if file_extension == 'xlsx':
+#                     df = pd.read_excel(excel_file, engine='openpyxl')
+#                 else:
+#                     return HttpResponse(" Unsupported file format",status = 400)  
+                
+                
+#                 df.columns = df.columns.str.strip().str.capitalize()  
+#                 required_columns = {'Part Numer','Part Name','Vendor Name','Project Name','Description','HSN','Invoice number','GST Rate(%)','Date of invoice','UQC','Invoice value','Qty','Cost pu','Total Invoice','Payment status','Paid Date','Paid By','Type','GSTR2B','Remarks','Ledger' }
+#                 if not required_columns.issubset(df.columns):
+#                     missing_cols = required_columns - set(df.columns)
+#                     return HttpResponse(f"Error : Missing columns in the file:{missing_cols}",status = 400)]
+                
+#                 for _,row in df.iterrows():
+#                     tblPartNumber.objects.update_or_create(
+#                         part_number = row['Part Numer'],
+#                         defaults={
+#                             'part_name':row['Part Name'],
+#                             'vendor_name':row['Vendor Name'],
+#                             'project_name': row['Project Name'],
+#                             'description':row['Description'],
+#                             'hsn':row['HSN'],
+#                             'invoice_number':row['Invoice number'],
+#                             'gst_rate':row['GST Rate(%)'],
+#                             'date_of_invoice':row['Date of invoice'],
+#                             'uqc': row['UQC'],
+#                             'invoice_value':row['Invoice value'],
+#                             'qty':row['Qty'],
+#                             'cost_per_unit':row['Cost pu'],
+#                             'total_invoice':row['Total Invoice'],
+#                             'payment_status':row['Payment status'],
+#                             'paid_date':row['Paid Date'],
+#                             'paid_by':row['Paid By'],
+#                             'type':row['Type'],
+#                             'gstr2b':row['GSTR2B'],
+#                             'remarks':row['Remarks'],
+#                             'ledger':row['Ledger']
+                            
+#                         }
+                        
+#                     )
+               
+#             except KeyError as e:
+#                 return HttpResponse(f"Error: Missing columns in the file:{e}",status =400)  
+#             except Exception as e:
+#                 return HttpResponse(f"An error occured: {e}",status = 500)  
+#             return redirect('tblPartNumber')
+                
+#     return render(request, 'tblPartNumber.html')      
+            
+            
+            
+            
+            
 
 
 
