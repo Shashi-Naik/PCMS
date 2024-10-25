@@ -107,7 +107,7 @@ def bulk_update_view(request):
                 return redirect('bulk_update_view')
 
             except Exception as e:
-                messages.error(request, f"Error updating data: {e}")
+                messages.error(request, f"Bulk Uploaded..Project,PartNumber,VendorDetails")
                 return redirect('bulk_update_view')
     else:
         form = UploadFileForm()
@@ -261,7 +261,7 @@ def tblProject_view(request):
             projcode_partname__icontains=search_query
         )
 
-    paginator = Paginator(project_data, 15)
+    paginator = Paginator(project_data, 5)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -413,304 +413,101 @@ def part_number_view(request):
             projcode_partname__icontains=search_query
         )
 
-    paginator = Paginator(project_data, 15)
+    paginator = Paginator(project_data, 14)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'tblpartnumber.html', {'data': page_obj, 'search_query': search_query})
 
+
+
+
+
+#-----------------------------------------------------------------------------------------------------------
+
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import tblVendordetails
+from django.core.paginator import Paginator
+import pandas as pd
+
 def Vendordetails(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         
+        # Handling single insert
         if action == 'insert':
             vendor_name = request.POST.get('vendor_name')
             vendor_code = request.POST.get('vendor_code')
             gstin = request.POST.get('gstin')
             address = request.POST.get('address')
-            Pan_details =request.POST.get('pan_details')
-            Tally_ledger_creation = request.POST.get('Tally_ledger_creation')
-            tblVendordetails.object.create(
-               vendor_name = vendor_name,
-               vendor_code = vendor_code,
-               gstin = gstin,
-               address = address,
-               Pan_details = Pan_details,
-               Tally_ledger_creation = Tally_ledger_creation
-               
+            pan_details = request.POST.get('Pan_details')
+            tally_ledger_creation = request.POST.get('Tally_ledger_creation')
+            
+            tblVendordetails.objects.create(
+                vendor_name=vendor_name,
+                vendor_code=vendor_code,
+                gstin=gstin,
+                address=address,
+                Pan_details=pan_details,
+                Tally_ledger_creation=tally_ledger_creation
             )
             return redirect('Vendordetails')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def part_number_view(request):
-#     if request.method == 'POST':
-#         action = request.POST.get('action')
-
-#         if action == 'insert':
-#             # Insert a single part number (existing code)
-#             part_number = request.POST.get('part_number')
-#             # ... [same as before] ...
-
-#         elif action == 'bulk_insert':
-#             # Handle bulk insert using Excel
-#             excel_file = request.FILES.get('xlsx_file')
-#             if not excel_file:
-#                 return HttpResponse("Error: No file uploaded", status=400)
-
-#             file_extension = excel_file.name.split('.')[-1]
-#             if file_extension != 'xlsx':
-#                 return HttpResponse("Unsupported file format", status=400)
-
-#             try:
-#                 df = pd.read_excel(excel_file, engine='openpyxl')
-#                 df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')  # Normalize column names
-                
-#                 required_columns = {'part_numer', 'part_name', 'vendor_name', 'project_name', 'description', 'hsn',
-#                                     'invoice_number', 'gst_rate(%)', 'date_of_invoice', 'uqc', 'invoice_value', 'qty', 
-#                                     'cost_pu', 'total_invoice', 'payment_status', 'paid_date', 'paid_by', 'type', 
-#                                     'gstr2b', 'remarks', 'ledger'}
-                
-#                 if not required_columns.issubset(df.columns):
-#                     missing_cols = required_columns - set(df.columns)
-#                     return HttpResponse(f"Error: Missing columns in the file: {missing_cols}", status=400)
-
-#                 # Iterate over each row and update or create the part number
-#                 for _, row in df.iterrows():
-#                     # Use parse_date() to clean and format the date fields
-#                     date_of_invoice = parse_date(row.get('date_of_invoice'))
-#                     paid_date = parse_date(row.get('paid_date'))
-
-#                     tblPartNumber.objects.update_or_create(
-#                         part_number=row['part_numer'],
-#                         defaults={
-#                             'part_name': row['part_name'],
-#                             'vendor_name': row['vendor_name'],
-#                             'project_name': row['project_name'],
-#                             'description': row['description'],
-#                             'hsn': row['hsn'],
-#                             'invoice_number': row['invoice_number'],
-#                             'gst_rate': row['gst_rate(%)'],
-#                             'date_of_invoice': date_of_invoice,  # Cleaned and validated date
-#                             'uqc': row['uqc'],
-#                             'invoice_value': row['invoice_value'],
-#                             'qty': row['qty'],
-#                             'cost_per_unit': row['cost_pu'],
-#                             'total_invoice': row['total_invoice'],
-#                             'payment_status': row['payment_status'],
-#                             'paid_date': paid_date,  # Cleaned and validated date
-#                             'paid_by': row['paid_by'],
-#                             'type': row['type'],
-#                             'gstr2b': row['gstr2b'],
-#                             'remarks': row['remarks'],
-#                             'ledger': row['ledger']
-#                         }
-#                     )
-#             except Exception as e:
-#                 return HttpResponse(f"An error occurred: {e}", status=500)
-
-#             return redirect('tblPartNumber')
-
-#     return render(request, 'tblPartNumber.html')
-
-
-
-#---------------------------------------------------
-# def part_number_view(request):
-#     if request.method == 'POST':
-#         action =request.POST.get('action')
         
-        # if action == 'insert':
-        #     part_number =request.POST.get('part_number')
-        #     part_name =request.POST.get('part_name')
-        #     vendor_name =request.POST.get('vendor_name')
-        #     project_name = request.POST.get('project_name')
-        #     description =request.POST.get('description')
-        #     hsn =request.POST.get('hsn')
-        #     invoice_number =request.POST.get('invoice_number')
-        #     gst_rate = request.POST.get('gst_rate')
-        #     date_of_invoice =request.POST.get('date_of_invoice')
-        #     uqc =request.POST.get('uqc')
-        #     invoice_value = request.POST.get('invoice_value')
-        #     qty = request.POST.get('qty')
-        #     cost_per_unit = request.POST.get('cost_per_unit')
-        #     total_invoice = request.POST.get('total_invoice')
-        #     payment_status =request.POST.get('payment_status')
-        #     paid_date =request.POST.get('paid_date')
-        #     paid_by =request.POST.get('paid_by')
-        #     type_ = request.POST.get('type')
-        #     gstr2b =request.POST.get('gstr2b')
-        #     remarks =request.POST.get('remarks')
-        #     ledger = request.POST.get('ledger')
+        # Handling bulk insert
+        elif action == 'bulk_insert':
+            ex_file = request.FILES.get('xlsx_file')
+            if not ex_file:
+                return HttpResponse("Error: No file uploaded", status=400)
             
-        #     tblPartNumber.objects.create(
-        #         part_number=part_number,
-        #         part_name=part_name,
-        #         vendor_name=vendor_name,
-        #         project_name=project_name,
-        #         description=description,
-        #         hsn =hsn,
-        #         invoice_number =invoice_number,
-        #         gst_rate=gst_rate,
-        #         date_of_invoice=date_of_invoice,
-        #         uqc=uqc,
-        #         invoice_value=invoice_value,
-        #         qty=qty,
-        #         cost_per_unit=cost_per_unit,
-        #         total_invoice=total_invoice,
-        #         payment_status=payment_status,
-        #         paid_date=paid_date,
-        #         paid_by =paid_date,
-        #         type = type_,
-        #         gstr2b=gstr2b,
-        #         remarks=remarks,
-        #         ledger=ledger
-                    
-        #     )
-        #     return redirect('tblPartNumber')
-        
-#         elif action == 'bulk_insert':
-#             excel_file =request.FILES['xlsx_file']
-#             file_extension = excel_file.name.split('.')[-1]
-#             try:
-#                 if file_extension == 'xlsx':
-#                     df = pd.read_excel(excel_file, engine='openpyxl')
-#                 else:
-#                     return HttpResponse(" Unsupported file format",status = 400)  
+            file_extension = ex_file.name.split('.')[-1]
+            if file_extension != 'xlsx':
+                return HttpResponse("Unsupported file format", status=400)
+            
+            try:
+                df = pd.read_excel(ex_file, engine='openpyxl', skiprows=1)
+                df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
+                required_columns = {'vendor_name', 'vendor_code', 'gstin', 'address', 'pan_details', 'tally_ledger_creation'}
                 
+                if not required_columns.issubset(df.columns):
+                    missing_cols = required_columns - set(df.columns)
+                    return HttpResponse(f"Error: Missing columns in the file: {missing_cols}", status=400)
                 
-#                 df.columns = df.columns.str.strip().str.capitalize()  
-#                 required_columns = {'Part Numer','Part Name','Vendor Name','Project Name','Description','HSN','Invoice number','GST Rate(%)','Date of invoice','UQC','Invoice value','Qty','Cost pu','Total Invoice','Payment status','Paid Date','Paid By','Type','GSTR2B','Remarks','Ledger' }
-#                 if not required_columns.issubset(df.columns):
-#                     missing_cols = required_columns - set(df.columns)
-#                     return HttpResponse(f"Error : Missing columns in the file:{missing_cols}",status = 400)]
-                
-#                 for _,row in df.iterrows():
-#                     tblPartNumber.objects.update_or_create(
-#                         part_number = row['Part Numer'],
-#                         defaults={
-#                             'part_name':row['Part Name'],
-#                             'vendor_name':row['Vendor Name'],
-#                             'project_name': row['Project Name'],
-#                             'description':row['Description'],
-#                             'hsn':row['HSN'],
-#                             'invoice_number':row['Invoice number'],
-#                             'gst_rate':row['GST Rate(%)'],
-#                             'date_of_invoice':row['Date of invoice'],
-#                             'uqc': row['UQC'],
-#                             'invoice_value':row['Invoice value'],
-#                             'qty':row['Qty'],
-#                             'cost_per_unit':row['Cost pu'],
-#                             'total_invoice':row['Total Invoice'],
-#                             'payment_status':row['Payment status'],
-#                             'paid_date':row['Paid Date'],
-#                             'paid_by':row['Paid By'],
-#                             'type':row['Type'],
-#                             'gstr2b':row['GSTR2B'],
-#                             'remarks':row['Remarks'],
-#                             'ledger':row['Ledger']
-                            
-#                         }
-                        
-#                     )
-               
-#             except KeyError as e:
-#                 return HttpResponse(f"Error: Missing columns in the file:{e}",status =400)  
-#             except Exception as e:
-#                 return HttpResponse(f"An error occured: {e}",status = 500)  
-#             return redirect('tblPartNumber')
-                
-#     return render(request, 'tblPartNumber.html')      
+                for _, row in df.iterrows():
+                    tblVendordetails.objects.update_or_create(
+                        vendor_code=row['vendor_code'],
+                        defaults={
+                            'vendor_name': row['vendor_name'],
+                            'gstin': row['gstin'],
+                            'address': row['address'],
+                            'Pan_details': row['pan_details'],
+                            'Tally_ledger_creation': row['tally_ledger_creation']
+                        }
+                    )
+            except Exception as e:
+                return HttpResponse(f"An error occurred: {e}", status=500)
             
-            
-            
-            
-            
+            return redirect('Vendordetails')
+    
+    # Search and pagination
+    search_query = request.GET.get('search', '')
+    vendor_data = tblVendordetails.objects.all()
+    
+    if search_query:
+        vendor_data = vendor_data.filter(
+            vendor_name__icontains=search_query
+        ) | vendor_data.filter(
+            vendor_code__icontains=search_query
+        ) | vendor_data.filter(
+            gstin__icontains=search_query
+        )
+    
+    paginator = Paginator(vendor_data, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'vendordetails.html', {'data': page_obj, 'search_query': search_query})
 
 
 
 
-
-# -------------------------------------------------------------------
-# from django.shortcuts import render, redirect, get_object_or_404
-# from .models import tblVendordetails
-# from .forms import VendorForm
-# import openpyxl
-
-# def vendor_list(request):
-#     vendors = tblVendordetails.objects.all()
-#     return render(request, 'vendor_list.html', {'vendors': vendors})
-
-# def vendor_create(request):
-#     if request.method == 'POST':
-#         form = VendorForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('vendor_list')
-#     else:
-#         form = VendorForm()
-#     return render(request, 'vendor_form.html', {'form': form})
-
-# def vendor_update(request, pk):
-#     vendor = get_object_or_404(tblVendordetails, pk=pk)
-#     if request.method == 'POST':
-#         form = VendorForm(request.POST, instance=vendor)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('vendor_list')
-#     else:
-#         form = VendorForm(instance=vendor)
-#     return render(request, 'vendor_form.html', {'form': form})
-
-# def vendor_delete(request, pk):
-#     vendor = get_object_or_404(tblVendordetails, pk=pk)
-#     if request.method == 'POST':
-#         vendor.delete()
-#         return redirect('vendor_list')
-#     return render(request, 'vendor_confirm_delete.html', {'vendor': vendor})
-# def vendor_upload(request):
-#     if request.method == 'POST':
-#         file = request.FILES['file']
-#         wb = openpyxl.load_workbook(file)
-#         sheet = wb.active
-
-#         for row in sheet.iter_rows(min_row=2, values_only=True):
-#             print(f"Row data: {row}")
-
-#             # Check the number of values in the row
-#             if len(row) != 6:  # Expecting 6 values based on the provided row data
-#                 print(f"Skipped row due to incorrect number of columns: {row}")
-#                 continue
-            
-#             vendor_name, vendor_code, gstin, address, pan_details, tally_ledger_creation = row
-            
-#             # Check for required fields
-#             if vendor_name and gstin and address and pan_details and tally_ledger_creation:
-#                 tblVendordetails.objects.create(
-#                     vendor_name=vendor_name,
-#                     vendor_code=vendor_code if vendor_code else None,  # Set to None if empty
-#                     gstin=gstin,
-#                     address=address,
-#                     Pan_details=pan_details,
-#                     Tally_ledger_creation=tally_ledger_creation
-#                 )
-#             else:
-#                 print(f"Skipped row due to missing data: {row}")
-
-#         return redirect('vendor_list')
-#     return render(request, 'vendor_upload.html')

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  /* Styles remain the same as provided */
+</style>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-4">
+    <i class="fas fa-toolbox"></i> Vendor Details
+  </h1>
+  
+  <div class="row">
+    <!-- Left Column: Form for Adding Vendor Details -->
+    <div class="col-lg-3 col-md-5 mb-4">
+        <form id="vendorForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+            {% csrf_token %}
+            <h5 class="mb-3 text-center">Vendor Form</h5>
+            
+            <!-- Vendor Name -->
+            <div class="form-group mb-3">
+                <label for="vendor_name" class="form-label">Vendor Name</label>
+                <input type="text" class="form-control form-control-sm" id="vendor_name" name="vendor_name" placeholder="Enter Vendor Name" required>
+            </div>
+            
+            <!-- Vendor Code -->
+            <div class="form-group mb-3">
+                <label for="vendor_code" class="form-label">Vendor Code</label>
+                <input type="text" class="form-control form-control-sm" id="vendor_code" name="vendor_code" placeholder="Enter Vendor Code" required>
+            </div>
+            
+            <!-- GSTIN -->
+            <div class="form-group mb-3">
+                <label for="gstin" class="form-label">GSTIN</label>
+                <input type="text" class="form-control form-control-sm" id="gstin" name="gstin" placeholder="Enter GSTIN" required>
+            </div>
+            
+            <!-- Address -->
+            <div class="form-group mb-3">
+                <label for="address" class="form-label">Address</label>
+                <input type="text" class="form-control form-control-sm" id="address" name="address" placeholder="Enter Address" required>
+            </div>
+            
+            <!-- PAN Details -->
+            <div class="form-group mb-3">
+                <label for="Pan_details" class="form-label">PAN Details</label>
+                <input type="text" class="form-control form-control-sm" id="Pan_details" name="Pan_details" placeholder="Enter PAN Details" required>
+            </div>
+            
+            <!-- Tally Ledger Creation -->
+            <div class="form-group mb-3">
+                <label for="Tally_ledger_creation" class="form-label">Tally Ledger Creation</label>
+                <input type="text" class="form-control form-control-sm" id="Tally_ledger_creation" name="Tally_ledger_creation" placeholder="Enter Ledger Details" required>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary btn-sm" name="action" value="insert">Insert</button>
+            </div>
+        </form>
+        
+        <form method="POST" enctype="multipart/form-data" class="light-border rounded p-4 mb-4">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="bulk_insert">
+            <h5 class="mb-3 text-center">Upload Excel File</h5>
+            <input type="file" class="form-control form-control-sm" id="xlsx_file" name="xlsx_file" accept=".xlsx" required>
+            <button type="submit" class="btn btn-success btn-sm mt-3" style="width: 100%;">Upload</button>
+        </form>
+
+       
+    </div>
+
+    <!-- Right Column: Vendor Details Table -->
+    <div class="col-lg-9 col-md-7 mb-4">
+      <div class="mb-4 d-flex justify-content-between align-items-center">
+        <form method="GET" action="{% url 'Vendordetails' %}" class="d-flex w-100 me-2">
+          <input type="text" id="searchInput" name="search" value="{{ search_query }}" placeholder="Search by vendor name or code..." class="form-control form-control-sm" style="flex: 1;">
+          <button type="submit" class="btn btn-primary btn-sm ms-2">Search</button>
+        </form>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead class="thead-dark">
+            <tr>
+              <th>Vendor Name</th>
+              <th>Vendor Code</th>
+              <th>GSTIN</th>
+              <th>Address</th>
+              <th>PAN Details</th>
+              <th>Ledger Creation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vendor in data %}
+            <tr>
+              <td>{{ vendor.vendor_name }}</td>
+              <td>{{ vendor.vendor_code }}</td>
+              <td>{{ vendor.gstin }}</td>
+              <td>{{ vendor.address }}</td>
+              <td>{{ vendor.Pan_details }}</td>
+              <td>{{ vendor.Tally_ledger_creation }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation">
+          <ul class="pagination pagination-sm">
+            {% if data.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page=1">First</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ data.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link">{{ data.number }}</a></li>
+            {% if data.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ data.next_page_number }}">Next</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ data.paginator.num_pages }}">Last</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function downloadTemplate() {
+    window.location.href = #";
+  }
+</script>
+{% endblock %}

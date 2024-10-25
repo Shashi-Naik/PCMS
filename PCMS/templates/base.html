@@ -160,7 +160,7 @@
     
   </style>
 
-  <title>E-TAG</title>
+  <title>Project Costing Management System</title>
   <meta name="description" content="Navbar bottom designed with bootstrap 5">
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
@@ -174,10 +174,7 @@
     <div class="container-fluid">
       <div class='d-flex justify-content-between align-items-center'>
         <!-- Updated logo with track.png -->
-        {% block logo %}
-        <div class="p-2"><a class="navbar-brand" href="#"><img src="/static/track.png" height="90" alt="Track Logo"></a>
-        </div>
-        {% endblock %}
+        
         <!-- Removed "Call Us Today" and "FREE ESTIMATE" sections -->
       </div>
     </div>
@@ -205,16 +202,13 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="storeMasterDropdown">
               <li><a class="dropdown-item" href="{% url 'tblProject' %}">Project</a></li>
-              <li><a class="dropdown-item" href="{% url 'tblPartNumber' %}">PartNumber Plan</a></li>
+              <li><a class="dropdown-item" href="{% url 'tblPartNumber' %}">Part Number Plan</a></li>
+              <li><a class="dropdown-item" href="{% url 'Vendordetails' %}">Vendor Details</a></li>
+              <li><a class="dropdown-item" href="{% url 'bulk_update_view' %}">Upload</a></li>
             </ul>
           </div>
 
-          
-
-         
-
-
-
+    
           
         </div>
 
