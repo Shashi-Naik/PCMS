@@ -419,6 +419,45 @@ def part_number_view(request):
 
     return render(request, 'tblpartnumber.html', {'data': page_obj, 'search_query': search_query})
 
+def Vendordetails(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'insert':
+            vendor_name = request.POST.get('vendor_name')
+            vendor_code = request.POST.get('vendor_code')
+            gstin = request.POST.get('gstin')
+            address = request.POST.get('address')
+            Pan_details =request.POST.get('pan_details')
+            Tally_ledger_creation = request.POST.get('Tally_ledger_creation')
+            tblVendordetails.object.create(
+               vendor_name = vendor_name,
+               vendor_code = vendor_code,
+               gstin = gstin,
+               address = address,
+               Pan_details = Pan_details,
+               Tally_ledger_creation = Tally_ledger_creation
+               
+            )
+            return redirect('Vendordetails')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # def part_number_view(request):
 #     if request.method == 'POST':
 #         action = request.POST.get('action')

@@ -5,7 +5,8 @@ from .views import bulk_update_view, tblProject_view
 urlpatterns = [
     path('bulk_update/', bulk_update_view, name='bulk_update_view'),
     path('Project/', tblProject_view, name='tblProject'),
-    path('part-number/', views.part_number_view, name='tblPartNumber'),# Added a comma here after tblProject_view
+    path('part-number/', views.part_number_view, name='tblPartNumber'),
+    path('Vendordetails/', views.Vendordetails, name='Vendordetails'),# Added a comma here after tblProject_view
 ]
 
 
