@@ -11,11 +11,20 @@ class tblPartNumberForm(forms.ModelForm):
         model = tblPartNumber
         fields = '__all__'
 
-# ------------------------------
-# from django import forms
-# from .models import tblVendordetails
+# ------------------------------ project testing-----------
 
-# class VendorForm(forms.ModelForm):
-#     class Meta:
-#         model = tblVendordetails
-#         fields = '__all__'
+# forms.py
+from django import forms
+from .models import tblProject
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = tblProject
+        fields = [
+            'company_name', 'company_code', 'project_name1', 
+            'project_code1', 'projcode_partnumber', 'projcode_partname'
+        ]
+
+
+
+

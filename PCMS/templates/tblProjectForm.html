@@ -1,0 +1,593 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Form and Table</title>
+    <style>
+        /* Main layout */
+        .container {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Form styling */
+        .form-container {
+            width: 20%;
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #4b6584;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-container input, .form-container button {
+            width: 100%;
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Bulk update styling */
+        .bulk-update {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bulk-update input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .bulk-update button {
+            background-color: #20bf6b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bulk-update button:hover {
+            background-color: #26de81;
+        }
+
+        /* Table styling */
+        .table-container {
+            width: 80%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4b6584;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Popup modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 40%;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Update form styling inside modal */
+        .modal-content label {
+            font-weight: bold;
+            color: #4b6584;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .modal-content button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .modal-content button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Pagination styling */
+        .pagination {
+            text-align: center;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pagination a, .pagination .current-page {
+            display: inline-block;
+            padding: 10px 15px;
+            color: #4b6584;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+
+        .pagination .current-page {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Add Project</h2>
+        <form method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" name="action" value="insert">Add Project</button>
+        </form>
+
+        <!-- Bulk Update Section -->
+        <div class="bulk-update">
+            <h2>Bulk Update</h2>
+            <form method="POST" action="{% url 'tblProject' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="xlsx_file" accept=".xlsx">
+                <button type="submit" name="action" value="bulk_insert">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Company Name</th>
+                <th>Company Code</th>
+                <th>Project Name</th>
+                <th>Project Code</th>
+                <th>Part Number</th>
+                <th>Part Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for project in project_data %}
+            <tr>
+                <td>{{ project.company_name }}</td>
+                <td>{{ project.company_code }}</td>
+                <td>{{ project.project_name1 }}</td>
+                <td>{{ project.project_code1 }}</td>
+                <td>{{ project.projcode_partnumber }}</td>
+                <td>{{ project.projcode_partname }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button onclick="openEditModal('{{ project.id }}', '{{ project.company_name }}', '{{ project.company_code }}', '{{ project.project_name1 }}', '{{ project.project_code1 }}', '{{ project.projcode_partnumber }}', '{{ project.projcode_partname }}')">Edit</button>
+                        <form method="POST" action="{% url 'tblProject' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="project_id" value="{{ project.id }}">
+                            <button type="submit" name="action" value="delete" style="background-color: #fc5c65; color: white;">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if project_data.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                <a href="?page={{ project_data.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ project_data.number }} of {{ project_data.paginator.num_pages }}
+            </span>
+
+            {% if project_data.has_next %}
+                <a href="?page={{ project_data.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                <a href="?page={{ project_data.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Popup Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Project</h2>
+        <form id="editForm" method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            <input type="hidden" id="editProjectId" name="project_id">
+            <label>Company Name:</label>
+            <input type="text" id="editCompanyName" name="company_name">
+            <label>Company Code:</label>
+            <input type="text" id="editCompanyCode" name="company_code">
+            <label>Project Name:</label>
+            <input type="text" id="editProjectName" name="project_name1">
+            <label>Project Code:</label>
+            <input type="text" id="editProjectCode" name="project_code1">
+            <label>Part Number:</label>
+            <input type="text" id="editPartNumber" name="projcode_partnumber">
+            <label>Part Name:</label>
+            <input type="text" id="editPartName" name="projcode_partname">
+            <button type="submit" name="action" value="update">Update</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, companyName, companyCode, projectName, projectCode, partNumber, partName) {
+        document.getElementById("editProjectId").value = id;
+        document.getElementById("editCompanyName").value = companyName;
+        document.getElementById("editCompanyCode").value = companyCode;
+        document.getElementById("editProjectName").value = projectName;
+        document.getElementById("editProjectCode").value = projectCode;
+        document.getElementById("editPartNumber").value = partNumber;
+        document.getElementById("editPartName").value = partName;
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+</script>
+</body>
+</html>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Form and Table</title>
+    <style>
+        /* Main layout */
+        .container {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Form styling */
+        .form-container {
+            width: 20%;
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #4b6584;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-container input, .form-container button {
+            width: 100%;
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Bulk update styling */
+        .bulk-update {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bulk-update input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .bulk-update button {
+            background-color: #20bf6b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bulk-update button:hover {
+            background-color: #26de81;
+        }
+
+        /* Table styling */
+        .table-container {
+            width: 80%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4b6584;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Popup modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 40%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Add Project</h2>
+        <form method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" name="action" value="insert">Add Project</button>
+        </form>
+
+        <!-- Bulk Update Section -->
+        <div class="bulk-update">
+            <h2>Bulk Update</h2>
+            <form method="POST" action="{% url 'tblProject' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="xlsx_file" accept=".xlsx">
+                <button type="submit" name="action" value="bulk_insert">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Company Name</th>
+                <th>Company Code</th>
+                <th>Project Name</th>
+                <th>Project Code</th>
+                <th>Part Number</th>
+                <th>Part Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for project in project_data %}
+            <tr>
+                <td>{{ project.company_name }}</td>
+                <td>{{ project.company_code }}</td>
+                <td>{{ project.project_name1 }}</td>
+                <td>{{ project.project_code1 }}</td>
+                <td>{{ project.projcode_partnumber }}</td>
+                <td>{{ project.projcode_partname }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button onclick="openEditModal('{{ project.id }}', '{{ project.company_name }}', '{{ project.company_code }}', '{{ project.project_name1 }}', '{{ project.project_code1 }}', '{{ project.projcode_partnumber }}', '{{ project.projcode_partname }}')">Edit</button>
+                        <form method="POST" action="{% url 'tblProject' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="project_id" value="{{ project.id }}">
+                            <button type="submit" name="action" value="delete" style="background-color: #fc5c65; color: white;">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+<!-- Edit Popup Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Project</h2>
+        <form id="editForm" method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            <input type="hidden" id="editProjectId" name="project_id">
+            <label>Company Name:</label>
+            <input type="text" id="editCompanyName" name="company_name">
+            <label>Company Code:</label>
+            <input type="text" id="editCompanyCode" name="company_code">
+            <label>Project Name:</label>
+            <input type="text" id="editProjectName1" name="project_name1">
+            <label>Project Code:</label>
+            <input type="text" id="editProjectCode1" name="project_code1">
+            <label>Part Number:</label>
+            <input type="text" id="editProjCodePartnumber" name="projcode_partnumber">
+            <label>Part Name:</label>
+            <input type="text" id="editProjCodePartname" name="projcode_partname">
+            <button type="submit" name="action" value="update">Update</button>
+        </form>
+    </div>
+    <div class="pagination">
+        <span class="step-links">
+            {% if project_data.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                <a href="?page={{ project_data.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ project_data.number }} of {{ project_data.paginator.num_pages }}
+            </span>
+
+            {% if project_data.has_next %}
+                <a href="?page={{ project_data.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                <a href="?page={{ project_data.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+
+<script>
+    // Open modal and fill values
+    function openEditModal(id, companyName, companyCode, projectName, projectCode, partNumber, partName) {
+        document.getElementById("editProjectId").value = id;
+        document.getElementById("editCompanyName").value = companyName;
+        document.getElementById("editCompanyCode").value = companyCode;
+        document.getElementById("editProjectName1").value = projectName;
+        document.getElementById("editProjectCode1").value = projectCode;
+        document.getElementById("editProjCodePartnumber").value = partNumber;
+        document.getElementById("editProjCodePartname").value = partName;
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+</script>
+</body>
+</html>
+
+
+{% endblock %} {% endcomment %}
