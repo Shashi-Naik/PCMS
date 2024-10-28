@@ -1,8 +1,28 @@
+# from django.db import models
+
+# class tblProject(models.Model):
+#     company_name = models.CharField(max_length=255)
+#     company_code = models.CharField(max_length=100)
+#     project_name1 = models.CharField(max_length=255)
+#     project_code1 = models.CharField(max_length=100)
+#     projcode_partnumber = models.CharField(max_length=100)
+#     projcode_partname = models.CharField(max_length=255)
+
+#     def __str__(self):
+#         return self.project_name1
+    
+#     class Meta:
+#         db_table = 'tblProject'    
+        
+                
+                   
+            
+        
 from django.db import models
 
 class tblProject(models.Model):
     company_name = models.CharField(max_length=255)
-    company_code = models.CharField(max_length=100)
+    company_code = models.CharField(max_length=100, blank=True, unique=True)
     project_name1 = models.CharField(max_length=255)
     project_code1 = models.CharField(max_length=100)
     projcode_partnumber = models.CharField(max_length=100)
@@ -10,11 +30,38 @@ class tblProject(models.Model):
 
     def __str__(self):
         return self.project_name1
+
+    def save(self, *args, **kwargs):
+        if not self.company_code:
+            
+            # Check if there's an existing company_code for the same company_name
+            existing_company = tblProject.objects.filter(company_name=self.company_name).first()
+        
+            if existing_company:
+                self.company_code = existing_company.company_code
+            else:
+                # Generate a new code by finding the maximum existing code and incrementing it
+                last_code_entry = tblProject.objects.order_by('-company_code').first()
+                if last_code_entry and last_code_entry.company_code.isdigit():
+                    last_code = int(last_code_entry.company_code)
+                    new_code = last_code + 1
+                else:
+                    new_code = 1111
+                self.company_code = str(new_code)
+        
+        super().save(*args, **kwargs)
+        
     
+           
+            
+ 
+         
+            
+        
+
     class Meta:
-        db_table = 'tblProject'    
-        
-        
+        db_table = 'tblProject'
+
 
 
 class tblVendordetails(models.Model):

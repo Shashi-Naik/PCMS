@@ -21,7 +21,7 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = tblProject
         fields = [
-            'company_name', 'company_code', 'project_name1', 
+            'company_name', 'project_name1', 
             'project_code1', 'projcode_partnumber', 'projcode_partname'
         ]
 
