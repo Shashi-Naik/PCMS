@@ -34,8 +34,8 @@ def bulk_update_view(request):
                             company_code=safe_strip(row['Company Code']),  # Assuming company_code is unique
                             defaults={
                                 'company_name': safe_strip(row['Company Name']),
-                                'project_name1': safe_strip(row['Project Name1']),
-                                'project_code1': safe_strip(row['ProjectCode1']),
+                                'project_name': safe_strip(row['Project Name1']),
+                                'project_code': safe_strip(row['ProjectCode1']),
                                 'projcode_partnumber': safe_strip(row['ProjCode- Partnumber']),
                                 'projcode_partname': safe_strip(row['ProjCode-Partname'])
                             }
@@ -349,8 +349,8 @@ def tblProject_view(request):
                         company_code=row['company_code'],
                         defaults={
                             'company_name': row['company_name'],
-                            'project_name1': row['project_name1'],
-                            'project_code1': row['project_code1'],
+                            'project_name': row['project_name1'],
+                            'project_code': row['project_code1'],
                             'projcode_partnumber': row['projcode_partnumber'],
                             'projcode_partname': row['projcode_partname'],
                         }
@@ -371,8 +371,8 @@ def tblProject_view(request):
             data = tblProject.objects.all()
             for obj in data:
                 ws.append([
-                    obj.company_name, obj.company_code, obj.project_name1, 
-                    obj.project_code1, obj.projcode_partnumber, obj.projcode_partname
+                    obj.company_name, obj.company_code, obj.project_name, 
+                    obj.project_code, obj.projcode_partnumber, obj.projcode_partname
                 ])
 
             buffer = BytesIO()
