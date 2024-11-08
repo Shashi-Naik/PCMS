@@ -7,7 +7,6 @@
     <meta charset="UTF-8">
     <title>Project Form and Table</title>
     <style>
-        /* Main layout */
         .container {
             display: flex;
             width: 100%;
@@ -84,23 +83,26 @@
 
         /* Table styling */
         .table-container {
-            flex: 2;
+            flex: 3; /* Increase the flex value to make the table container wider */
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow-x: auto; /* Add horizontal scroll if needed */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            table-layout: fixed; /* Fixed table layout to control column widths */
         }
 
         th, td {
-            padding: 10px;
+            padding: 5px; /* Smaller padding for smaller row height */
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border: 1px solid #ddd; /* Borders like an Excel sheet */
+            word-wrap: break-word; /* Ensures text wraps within the column */
         }
 
         th {
@@ -112,8 +114,10 @@
             background-color: #f0f4f8;
         }
 
+        /* Styling for action buttons */
         .action-buttons {
             display: flex;
+            justify-content: center; /* Center the buttons in the cell */
             gap: 5px;
         }
 
@@ -134,13 +138,22 @@
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            width: 40%;
+            width: 400px; /* Adjust width for a smaller form */
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
             color: #333;
+            position: relative; /* Position for the close button */
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            color: #4b6584;
+            margin-bottom: 15px;
         }
 
         .close {
-            float: right;
+            position: absolute;
+            top: 10px;
+            right: 15px;
             font-size: 1.5em;
             cursor: pointer;
             color: #333;
@@ -155,7 +168,7 @@
         }
 
         .modal-content input {
-            width: 100%;
+            width: calc(100% - 20px);
             padding: 8px;
             margin: 5px 0;
             border-radius: 6px;
@@ -173,6 +186,8 @@
             cursor: pointer;
             font-size: 1em;
             margin-top: 10px;
+            display: block;
+            width: 100%; /* Full width for button */
         }
 
         .modal-content button:hover {
@@ -238,13 +253,13 @@
     <div class="table-container">
         <table>
             <tr>
-                <th>Company Name</th>
-                <th>Company Code</th>
-                <th>Project Name</th>
-                <th>Project Code</th>
-                <th>Part Number</th>
-                <th>Part Name</th>
-                <th>Actions</th>
+                <th style="width: 25%;">Company Name</th>
+                <th style="width: 16%;">Company Code</th>
+                <th style="width: 30%;">Project Name</th>
+                <th style="width: 15%;">Project Code</th>
+                <th style="width: 16%;">Part Number</th>
+                <th style="width: 35%;">Part Name</th>
+                <th style="width: 25%;">Actions</th>
             </tr>
             {% for project in project_data %}
             <tr>
@@ -287,7 +302,7 @@
     </div>
 </div>
 
-<!-- Edit Popup Modal -->
+<!-- Edit Modal -->
 <div id="editModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
@@ -337,7 +352,6 @@
 </body>
 </html>
 {% endblock %}
-
 
 
 

@@ -1,4 +1,8 @@
+
 from django import forms
+from .models import tblProject,CreateVendor
+from .models import tblVendordetails 
+
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
@@ -10,12 +14,15 @@ class tblPartNumberForm(forms.ModelForm):
     class Meta:
         model = tblPartNumber
         fields = '__all__'
-
+        
+        
+class vendordetailsForm(forms.ModelForm):
+    class Meta:
+        model = tblVendordetails  # Use the correct model name here
+        fields = ['vendor_name', 'vendor_code', 'gstin', 'address', 'Pan_details', 'Tally_ledger_creation']
 # ------------------------------ project testing-----------
 
 # forms.py
-from django import forms
-from .models import tblProject
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -24,6 +31,60 @@ class ProjectForm(forms.ModelForm):
             'company_name', 'project_name', 
             'project_code',
         ]
+
+from django import forms
+from .models import CreateVendor,CreateCustomer,CreateProject,UploadInvoicefromVendor,CreateInvoiceBasedPartNumber,CreatePurchaseBasedCosting
+from .models import ReadPurchaseBasedCosting
+class CreateVendorForm(forms.ModelForm):
+    class Meta:
+        model = CreateVendor
+        fields = ['VENDID','VendorNAme', 'VEndorGSTIN', 'VendorAddress', 'VendorPAN', 'TypeofVendor']
+
+
+class CreateCustomerForm(forms.ModelForm):
+    class Meta:
+        model = CreateCustomer
+        fields = ['CUSTID', 'CustomerName', 'CustomerGSTIN', 'CustomerADdress', 'CustomerPAN', 'TypeofCustomer']
+        
+class CreateProjectForm(forms.ModelForm):
+    class Meta:
+        model = CreateProject
+        fields = ['PROJID', 'CUSTID', 'ProjectNAme', 'Description', 'ProjCodePArtNumberSuffix', 'ProjCodePartNameSuffix','FY']
+
+
+class UploadInvoicefromVendorForm(forms.ModelForm):
+    class Meta:
+        model = UploadInvoicefromVendor
+        fields = ['PROJID','VENDID','VendorInvoiceNumber','VendorNAme','DateofInvoice','UnitOfMeasure','QtyReceived','GSTRate','HSN','CostPerunit','TotalValue']
+
+class CreateInvoiceBasedPartNumberForm(forms.ModelForm):
+    class Meta:
+        model = CreateInvoiceBasedPartNumber
+        fields = ['PROJID','VENDID','VendorInvoiceNumber','YearOfInvoice','InvoicePartNumber','BAtchID']
+        
+class CreatePurchaseBasedCostingForm(forms.ModelForm):
+    class Meta:
+        model = CreatePurchaseBasedCosting
+        fields = ['PROJID','COSTID','InvoicePartNumber','CostPerUnit','Qty','TotalValue']        
+
+
+
+class ReadPurchaseBasedCostingForm(forms.ModelForm):
+    class Meta:
+        model = ReadPurchaseBasedCosting
+        fields = ['PROJID','COSTID','TotalValue','CostDetails']   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

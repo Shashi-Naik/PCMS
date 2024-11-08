@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Customer Details</h1>
+  
+  <div class="row">
+    <!-- Form for Adding/Editing Customer Details -->
+    <div class="col-lg-3 col-md-5 mb-4">
+        <form id="customerForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+            {% csrf_token %}
+            <h5 class="mb-3 text-center">Customer Form</h5>
+            
+            <div class="form-group mb-3">
+                <label for="CustomerName">Customer Name</label>
+                <input type="text" class="form-control" name="CustomerName" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="CUSTID">Customer ID</label>
+                <input type="text" class="form-control" name="CUSTID" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="CustomerGSTIN">GSTIN</label>
+                <input type="text" class="form-control" name="CustomerGSTIN" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="CustomerADdress">Address</label>
+                <textarea class="form-control" name="CustomerADdress" required></textarea>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="CustomerPAN">PAN Details</label>
+                <input type="text" class="form-control" name="CustomerPAN" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="TypeofCustomer">Type of Customer</label>
+                <input type="text" class="form-control" name="TypeofCustomer" required>
+            </div>
+
+            <input type="hidden" name="customer_id" id="customer_id">
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table for Displaying Customer Details -->
+    <div class="col-lg-9 col-md-7 mb-4">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Customer Name</th>
+                        <th>Customer ID</th>
+                        <th>GSTIN</th>
+                        <th>Address</th>
+                        <th>PAN Details</th>
+                        <th>Type of Customer</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in custr %}
+                    <tr>
+                        <td>{{ customer.CustomerName }}</td>
+                        <td>{{ customer.CUSTID }}</td>
+                        <td>{{ customer.CustomerGSTIN }}</td>
+                        <td>{{ customer.CustomerADdress }}</td>
+                        <td>{{ customer.CustomerPAN }}</td>
+                        <td>{{ customer.TypeofCustomer }}</td>
+                        <td>
+                            <button onclick="editCustomer('{{ customer.CUSTID }}', '{{ customer.CustomerName }}', '{{ customer.CustomerGSTIN }}', '{{ customer.CustomerADdress }}', '{{ customer.CustomerPAN }}', '{{ customer.TypeofCustomer }}')" class="btn btn-warning btn-sm">Edit</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function editCustomer(custID, customerName, gstin, address, pan, type) {
+    document.getElementById('customer_id').value = custID;
+    document.getElementsByName('CustomerName')[0].value = customerName;
+    document.getElementsByName('CUSTID')[0].value = custID;
+    document.getElementsByName('CustomerGSTIN')[0].value = gstin;
+    document.getElementsByName('CustomerADdress')[0].value = address;
+    document.getElementsByName('CustomerPAN')[0].value = pan;
+    document.getElementsByName('TypeofCustomer')[0].value = type;
+}
+</script>
+{% endblock %}

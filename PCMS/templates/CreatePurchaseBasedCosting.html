@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+  
+    <h1 class="text-center mb-4">Purchase-Based Costing Details</h1>
+
+    <div class="row">
+        <!-- Form for Adding/Editing Purchase-Based Costing Details -->
+        <div class="col-lg-3 col-md-5 mb-4">
+            <form id="costingForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Purchase-Based Costing Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <input type="text" class="form-control" name="PROJID" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="cost_id">Cost ID</label>
+                    <input type="text" class="form-control" name="COSTID" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_part_number">Invoice Part Number</label>
+                    <input type="text" class="form-control" name="InvoicePartNumber" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="cost_per_unit">Cost per Unit</label>
+                    <input type="number" step="0.01" class="form-control" name="CostPerUnit" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="qty">Quantity</label>
+                    <input type="number" class="form-control" name="Qty" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="total_value">Total Value</label>
+                    <input type="number" step="0.01" class="form-control" name="TotalValue" required>
+                </div>
+
+                <input type="hidden" name="cost_id" id="cost_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Purchase-Based Costing Details -->
+        <div class="col-lg-9 col-md-7 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Cost ID</th>
+                            <th>Invoice Part Number</th>
+                            <th>Cost per Unit</th>
+                            <th>Quantity</th>
+                            <th>Total Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cost in data %}
+                        <tr>
+                            <td>{{ cost.PROJID }}</td>
+                            <td>{{ cost.COSTID }}</td>
+                            <td>{{ cost.InvoicePartNumber }}</td>
+                            <td>{{ cost.CostPerUnit }}</td>
+                            <td>{{ cost.Qty }}</td>
+                            <td>{{ cost.TotalValue }}</td>
+                            <td>
+                                <button onclick="editCost('{{ cost.COSTID }}', '{{ cost.PROJID }}', '{{ cost.InvoicePartNumber }}', '{{ cost.CostPerUnit }}', '{{ cost.Qty }}', '{{ cost.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editCost(costID, projID, invoicePartNumber, costPerUnit, qty, totalValue) {
+    document.getElementById('cost_id').value = costID;
+    document.getElementsByName('PROJID')[0].value = projID;
+    document.getElementsByName('InvoicePartNumber')[0].value = invoicePartNumber;
+    document.getElementsByName('CostPerUnit')[0].value = costPerUnit;
+    document.getElementsByName('Qty')[0].value = qty;
+    document.getElementsByName('TotalValue')[0].value = totalValue;
+}
+</script>
+{% endblock %}

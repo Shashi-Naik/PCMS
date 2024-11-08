@@ -116,164 +116,12 @@ def bulk_update_view(request):
     return render(request, 'bulk_update.html', {'form': form})
 
 
-# ----------------------------------------------tblProject-------------------------------------------------
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.http import HttpResponse
-# from django.core.paginator import Paginator
-# from openpyxl import Workbook
-# from io import BytesIO
-# import pandas as pd
-# from .models import tblProject
 
-# def tblProject_view(request):
-#     if request.method == 'POST':
-#         action = request.POST.get('action')
-#         print(action)
-#         project_id = request.POST.get('project_id')
-#         print(project_id)
-
-#         if action == 'insert':
-#             new_project = tblProject(
-#                 company_name=request.POST.get('company_name'),
-#                 company_code=request.POST.get('company_code'),
-#                 project_name1=request.POST.get('project_name1'),
-#                 project_code1=request.POST.get('project_code1'),
-#                 projcode_partnumber=request.POST.get('projcode_partnumber'),
-#                 projcode_partname=request.POST.get('projcode_partname')
-#             )
-#             new_project.save()
-#             return redirect('tblProject')
-
-#         elif action == 'update':
-#             project = get_object_or_404(tblProject, id=project_id)
-#             project.company_name = request.POST.get('company_name')
-#             project.company_code = request.POST.get('company_code')
-#             project.project_name1 = request.POST.get('project_name1')
-#             project.project_code1 = request.POST.get('project_code1')
-#             project.projcode_partnumber = request.POST.get('projcode_partnumber')
-#             project.projcode_partname = request.POST.get('projcode_partname')
-#             project.save()
-#             return redirect('tblProject')
-
-#         elif action == 'delete':
-#             project = get_object_or_404(tblProject, id=project_id)
-#             project.delete()
-#             return redirect('tblProject')
-
-#         elif action == 'download_template':
-#             wb = Workbook()
-#             ws = wb.active
-#             ws.title = 'Project_Template'
-#             headers = ['Company Name', 'Company Code', 'Project Name', 'Project Code', 'Part Number', 'Part Name']
-#             ws.append(headers)
-
-#             buffer = BytesIO()
-#             wb.save(buffer)
-#             buffer.seek(0)
-
-#             response = HttpResponse(
-#                 buffer.getvalue(),
-#                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#             )
-#             response['Content-Disposition'] = 'attachment; filename="Project_Template.xlsx"'
-#             return response
-
-#         elif action == 'bulk_insert':
-#             xlsx_file = request.FILES.get('xlsx_file')
-#             if not xlsx_file:
-#                 return HttpResponse("No file uploaded.", status=400)
-
-#             file_extension = xlsx_file.name.split('.')[-1]
-#             if file_extension != 'xlsx':
-#                 return HttpResponse("Unsupported File Format", status=400)
-
-#             try:
-#                 df = pd.read_excel(xlsx_file, engine='openpyxl', dtype=str)  # Read all data as strings
-
-#                 # Define a mapping of Excel file columns to your expected model fields
-#                 column_mapping = {
-#                     'Company Name': 'company_name',
-#                     'Company Code': 'company_code',
-#                     'Project Name1': 'project_name1',
-#                     'ProjectCode1': 'project_code1',
-#                     'ProjCode- Partnumber': 'projcode_partnumber',
-#                     'ProjCode-Partname': 'projcode_partname',
-#                 }
-
-#                 # Check if all required columns are present in the uploaded file
-#                 if not set(column_mapping.keys()).issubset(df.columns.str.strip()):
-#                     missing_cols = set(column_mapping.keys()) - set(df.columns.str.strip())
-#                     return HttpResponse(f"Error: Missing columns in the file: {missing_cols}", status=400)
-
-#                 # Rename the columns according to the mapping
-#                 df = df.rename(columns=column_mapping)
-
-#                 for _, row in df.iterrows():
-#                     tblProject.objects.update_or_create(
-#                         company_code=row['company_code'],
-#                         defaults={
-#                             'company_name': row['company_name'],
-#                             'project_name1': row['project_name1'],
-#                             'project_code1': row['project_code1'],
-#                             'projcode_partnumber': row['projcode_partnumber'],
-#                             'projcode_partname': row['projcode_partname'],
-#                         }
-#                     )
-
-#                 return redirect('tblProject')  # Redirect to the desired page after successful bulk insert
-
-#             except Exception as e:
-#                 return HttpResponse(f"An error occurred: {e}", status=500)
-
-#         elif action == 'download_project_details':
-#             try:
-#                 wb = Workbook()
-#                 ws = wb.active
-#                 ws.title = "Project Details"
-#                 headers = ['Company Name', 'Company Code', 'Project Name', 'Project Code', 'Part Number', 'Part Name']
-#                 ws.append(headers)
-
-#                 data = tblProject.objects.all()
-#                 for obj in data:
-#                     ws.append([
-#                         obj.company_name, obj.company_code, obj.project_name1, 
-#                         obj.project_code1, obj.projcode_partnumber, obj.projcode_partname
-#                     ])
-
-#                 buffer = BytesIO()
-#                 wb.save(buffer)
-#                 buffer.seek(0)
-
-#                 response = HttpResponse(
-#                     buffer.getvalue(),
-#                     content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#                 )
-#                 response['Content-Disposition'] = 'attachment; filename="Project_Details.xlsx"'
-#                 return response
-
-#             except Exception as e:
-#                 return HttpResponse("Error generating Excel.", status=500)
-
-#     search_query = request.GET.get('search', '')
-#     project_data = tblProject.objects.all()
-
-#     if search_query:
-#         project_data = project_data.filter(project_name1__icontains=search_query) | project_data.filter(
-#             company_name__icontains=search_query
-#         ) | project_data.filter(
-#             projcode_partname__icontains=search_query
-#         )
-
-#     paginator = Paginator(project_data, 5)
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     return render(request, 'tblProject.html', {'project_data': page_obj, 'search_query': search_query})
-#-------------------------------------------------testing Project -----------------------------
+#------------------------------------------------- Project -----------------------------
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import tblProject
-from .forms import ProjectForm
+from .forms import ProjectForm,vendordetailsForm
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from openpyxl import Workbook
@@ -573,6 +421,7 @@ import pandas as pd
 def Vendordetails(request):
     if request.method == 'POST':
         action = request.POST.get('action')
+        print(action)
         
         # Handling single insert
         if action == 'insert':
@@ -650,3 +499,337 @@ def Vendordetails(request):
 
 
 
+
+#----------------------------------------------------------------------
+
+
+from .models import CreateVendor,CreateCustomer,CreateProject,UploadInvoicefromVendor
+from .forms import CreateVendorForm,CreateCustomerForm,CreateProjectForm,UploadInvoicefromVendorForm
+from django.shortcuts import render, redirect, get_object_or_404
+def CreateVendor_view(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        vendor_id = request.POST.get('vendor_id')
+
+        if action == 'insert':
+            form = CreateVendorForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('CreateVendor')
+
+        elif action == 'update':
+            vendor = get_object_or_404(CreateVendor, VENDID=vendor_id)
+            form = CreateVendorForm(request.POST, instance=vendor)
+            if form.is_valid():
+                form.save()
+                return redirect('CreateVendor')
+
+        elif action == 'delete':
+            vendor = get_object_or_404(CreateVendor, VENDID=vendor_id)
+            vendor.delete()
+            return redirect('CreateVendor')
+
+    else:
+        form = CreateVendorForm()
+        vendors = CreateVendor.objects.all()
+    
+    return render(request, 'vendordetails.html', {
+        'form': form,
+        'vendors': vendors
+    })
+    
+    
+#--------------------------------------------------------------------------------------
+
+def CreateCustomer_view(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        customer_id = request.POST.get('customer_id')
+
+        if action == 'insert':
+            form = CreateCustomerForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('CreateCustomer')
+
+        elif action == 'update':
+            vendor = get_object_or_404(CreateCustomer, CUSTID=customer_id)
+            form = CreateCustomerForm(request.POST, instance=vendor)
+            if form.is_valid():
+                form.save()
+                return redirect('CreateCustomer')
+
+        elif action == 'delete':
+            vendor = get_object_or_404(CreateCustomer, CUSTID=customer_id)
+            vendor.delete()
+            return redirect('CreateCustomer')
+
+    else:
+        form = CreateCustomerForm()
+        custr = CreateCustomer.objects.all()
+    
+    return render(request, 'CreateCustomer.html', {
+        'form': form,
+        'custr': custr
+    })
+    
+#------------------------------------------------------------------------------
+
+
+def CreateProject_view(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        project_id =request.POST.get('project_id')
+        
+        if action == 'insert':
+            form = CreateProjectForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('CreateProject')
+        elif action == 'update':
+            pjt = get_object_or_404(CreateProject, PROJID=project_id)
+            form = CreateProjectForm(request.POST, instance=pjt)    
+            if form.is_valid():
+                form.save()
+                return redirect('CreateProject')
+        elif action == 'delete':
+            pjt = get_object_or_404(CreateProject,PROJID=project_id)  
+            pjt.delete()  
+            return redirect('CreateProject')
+    
+    else:
+        form = CreateProjectForm()
+        pjt = CreateProject.objects.all()
+    
+    return render(request, 'CreateProject.html',{'form': form,'pjt':pjt})
+
+#-------------------------------------------------------------------------
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import UploadInvoicefromVendor,CreateInvoiceBasedPartNumber,CreatePurchaseBasedCosting
+from .forms import UploadInvoicefromVendorForm,CreateInvoiceBasedPartNumberForm,CreatePurchaseBasedCostingForm
+
+def UploadInvoicefromVendor_view(request):
+    form = UploadInvoicefromVendorForm()
+    data = UploadInvoicefromVendor.objects.all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        Vendor_id = request.POST.get('vendor_id')  # Changed to match the hidden field in HTML
+        
+        try:
+            if action == 'insert':
+                form = UploadInvoicefromVendorForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Invoice added successfully.')
+                else:
+                    messages.error(request, 'Error adding invoice. Please correct the form errors.')
+
+            elif action == 'update':
+                data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+                form = UploadInvoicefromVendorForm(request.POST, instance=data_instance)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Invoice updated successfully.')
+                else:
+                    messages.error(request, 'Error updating invoice. Please correct the form errors.')
+
+            elif action == 'delete':
+                data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+                data_instance.delete()
+                messages.success(request, 'Invoice deleted successfully.')
+
+            else:
+                messages.error(request, 'Invalid action.')
+
+            return redirect('UploadInvoicefromVendor')
+
+        except UploadInvoicefromVendor.DoesNotExist:
+            messages.error(request, 'Invoice not found for the specified Vendor ID.')
+            return redirect('UploadInvoicefromVendor')
+
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+            return redirect('UploadInvoicefromVendor')
+
+    context = {
+        'form': form,
+        'data': data
+    }
+    return render(request, 'UploadInvoicefromVendor.html', context)
+
+
+
+#-------------------------------------------------------------------------
+ 
+  
+def CreateInvoiceBasedPartNumber_view(request):
+    form = CreateInvoiceBasedPartNumberForm()
+    data = CreateInvoiceBasedPartNumber.objects.all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        Vendor_id = request.POST.get('vendor_id')  
+        
+        try:
+            if action == 'insert':
+                form = CreateInvoiceBasedPartNumberForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Invoice added successfully.')
+                else:
+                    messages.error(request, 'Error adding invoice. Please correct the form errors.')
+
+            elif action == 'update':
+                data_instance = get_object_or_404(CreateInvoiceBasedPartNumber, VENDID=Vendor_id)
+                form = CreateInvoiceBasedPartNumberForm(request.POST, instance=data_instance)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Invoice updated successfully.')
+                else:
+                    messages.error(request, 'Error updating invoice. Please correct the form errors.')
+
+            elif action == 'delete':
+                data_instance = get_object_or_404(CreateInvoiceBasedPartNumber, VENDID=Vendor_id)
+                data_instance.delete()
+                messages.success(request, 'Invoice deleted successfully.')
+
+            else:
+                messages.error(request, 'Invalid action.')
+
+            return redirect('CreateInvoiceBasedPartNumber')
+
+        except CreateInvoiceBasedPartNumber.DoesNotExist:
+            messages.error(request, 'Invoice not found for the specified Vendor ID.')
+            return redirect('CreateInvoiceBasedPartNumber')
+
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+            return redirect('CreateInvoiceBasedPartNumber')
+
+    context = {
+        'form': form,
+        'data': data
+    }
+    return render(request, 'CreateInvoiceBasedPartNumber.html', context)   
+
+#-------------------------------------------------------------------------
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import CreatePurchaseBasedCostingForm
+from .models import CreatePurchaseBasedCosting
+
+def CreatePurchaseBasedCosting_view(request):
+    form = CreatePurchaseBasedCostingForm()
+    data = CreatePurchaseBasedCosting.objects.all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        cost_id = request.POST.get('cost_id')
+
+        try:
+            if action == 'insert':
+                form = CreatePurchaseBasedCostingForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Record added successfully to Purchase-Based Costing.')
+                else:
+                    messages.error(request, 'Error adding record. Please correct the form errors.')
+
+            elif action == 'update':
+                data_instance = get_object_or_404(CreatePurchaseBasedCosting, COSTID=cost_id)
+                form = CreatePurchaseBasedCostingForm(request.POST, instance=data_instance)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f'Record with COSTID {cost_id} updated successfully.')
+                else:
+                    messages.error(request, f'Error updating record with COSTID {cost_id}. Please correct the form errors.')
+
+            elif action == 'delete':
+                data_instance = get_object_or_404(CreatePurchaseBasedCosting, COSTID=cost_id)
+                data_instance.delete()
+                messages.success(request, f'Record with COSTID {cost_id} deleted successfully.')
+
+            else:
+                messages.error(request, 'Invalid action selected. Please choose a valid operation.')
+
+            return redirect('CreatePurchaseBasedCosting')
+
+        except CreatePurchaseBasedCosting.DoesNotExist:
+            messages.error(request, f'Record with COSTID {cost_id} not found.')
+            return redirect('CreatePurchaseBasedCosting')
+
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+            return redirect('CreatePurchaseBasedCosting')
+
+    context = {
+        'form': form,
+        'data': data
+    }
+    return render(request, 'CreatePurchaseBasedCosting.html', context)
+
+
+#-------------------------------------------------------------------------
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .forms import ReadPurchaseBasedCostingForm
+from .models import ReadPurchaseBasedCosting
+
+def ReadPurchaseBasedCosting_view(request):
+    form = ReadPurchaseBasedCostingForm()
+    data = ReadPurchaseBasedCosting.objects.all()
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        cost_id = request.POST.get('COSTID')
+
+        try:
+            if action == 'insert':
+                form = ReadPurchaseBasedCostingForm(request.POST)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, 'Record added successfully to Purchase-Based Costing.')
+                else:
+                    messages.error(request, 'Error adding record. Please correct the form errors.')
+
+            elif action == 'update':
+                data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
+                form = ReadPurchaseBasedCostingForm(request.POST, instance=data_instance)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f'Record with COSTID {cost_id} updated successfully.')
+                else:
+                    messages.error(request, f'Error updating record with COSTID {cost_id}. Please correct the form errors.')
+
+            elif action == 'delete':
+                data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
+                data_instance.delete()
+                messages.success(request, f'Record with COSTID {cost_id} deleted successfully.')
+
+            else:
+                messages.error(request, 'Invalid action selected. Please choose a valid operation.')
+
+            return redirect('ReadPurchaseBasedCosting')
+
+        except ReadPurchaseBasedCosting.DoesNotExist:
+            messages.error(request, f'Record with COSTID {cost_id} not found.')
+            return redirect('ReadPurchaseBasedCosting')
+
+        except Exception as e:
+            messages.error(request, f'An unexpected error occurred: {str(e)}')
+            return redirect('ReadPurchaseBasedCosting')
+
+    context = {
+        'form': form,
+        'data': data
+    }
+    return render(request, 'ReadPurchaseBasedCosting.html', context)
+
+#-------------------------------------------------------------------------

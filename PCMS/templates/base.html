@@ -205,15 +205,18 @@
              Project Costing Management System
             </a>
             <ul class="dropdown-menu" aria-labelledby="storeMasterDropdown">
-              <li><a class="dropdown-item" href="{% url 'tblProject' %}">Project</a></li>
-              <li><a class="dropdown-item" href="{% url 'tblPartNumber' %}">Part Number Plan</a></li>
-              <li><a class="dropdown-item" href="{% url 'Vendordetails' %}">Vendor Details</a></li>
-              <li><a class="dropdown-item" href="{% url 'bulk_update_view' %}">Upload</a></li>
+              <li><a class="dropdown-item" href="{% url 'CreateVendor' %}">CreateVendor</a></li>
+              <li><a class="dropdown-item" href="{% url 'CreateCustomer' %}">CreateCustomer</a></li>
+              <li><a class="dropdown-item" href="{% url 'CreateProject' %}">CreateProject</a></li>
+              <li><a class="dropdown-item" href="{% url 'UploadInvoicefromVendor' %}">UploadInvoicefromVendor</a></li>
+              <li><a class="dropdown-item" href="{% url 'CreateInvoiceBasedPartNumber' %}">CreateInvoiceBasedPartNumber</a></li>
+              <li><a class="dropdown-item" href="{% url 'CreatePurchaseBasedCosting' %}">CreatePurchaseBasedCosting</a></li>
+              <li><a class="dropdown-item" href="{% url 'ReadPurchaseBasedCosting' %}">ReadPurchaseBasedCosting</a></li>
             </ul>
           </div>
           
         </div>
-
+  
         <!-- Logout Button -->
         <div class="ms-3">
           <form action="#" method="post">
