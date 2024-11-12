@@ -32,15 +32,26 @@
             </div>
             
             <div class="form-group mb-3">
-                <label for="Pan_details">PAN Details</label>
-                <input type="text" class="form-control" name="VendorPAN" required>
+                <label for="TypeofVendor">Type of Vendor</label>
+                <select class="form-control" name="TypeofVendor" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <option value="B2B">B2B</option>
+                    <option value="B2C">B2C</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <label for="BankAcc">Bank Account</label>
+                <input type="text" class="form-control" name="BankAcc" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="IFSC">IFSC Code</label>
+                <input type="text" class="form-control" name="IFSC" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="Branch">Branch</label>
+                <input type="text" class="form-control" name="Branch" required>
             </div>
             
-            <div class="form-group mb-3">
-                <label for="Tally_ledger_creation">Type of Vendor</label>
-                <input type="text" class="form-control" name="TypeofVendor" required>
-            </div>
-
             <input type="hidden" name="vendor_id" id="vendor_id">
             <div class="d-flex justify-content-between mt-3">
                 <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
@@ -62,6 +73,9 @@
                         <th>Address</th>
                         <th>PAN Details</th>
                         <th>Type of Vendor</th>
+                        <th>Bank Account</th>
+                        <th>IFSC Code</th>
+                        <th>Branch</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -74,8 +88,12 @@
                         <td>{{ vendor.VendorAddress }}</td>
                         <td>{{ vendor.VendorPAN }}</td>
                         <td>{{ vendor.TypeofVendor }}</td>
+                        <td>{{ vendor.BankAcc }}</td>
+                        <td>{{ vendor.IFSC }}</td>
+                        <td>{{ vendor.Branch }}</td>
+                        
                         <td>
-                            <button onclick="editVendor('{{ vendor.VENDID }}', '{{ vendor.VendorNAme }}', '{{ vendor.VEndorGSTIN }}', '{{ vendor.VendorAddress }}', '{{ vendor.VendorPAN }}', '{{ vendor.TypeofVendor }}')" class="btn btn-warning btn-sm">Edit</button>
+                            <button onclick="editVendor('{{ vendor.VENDID }}', '{{ vendor.VendorNAme }}', '{{ vendor.VEndorGSTIN }}', '{{ vendor.VendorAddress }}', '{{ vendor.TypeofVendor }}', '{{ vendor.BankAcc }}', '{{ vendor.IFSC }}', '{{ vendor.Branch }}')" class="btn btn-warning btn-sm">Edit</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -87,14 +105,16 @@
 </div>
 
 <script>
-function editVendor(vendorID, vendorName, gstin, address, pan, type) {
+function editVendor(vendorID, vendorName, gstin, address, type, bankAcc, ifsc, branch) {
     document.getElementById('vendor_id').value = vendorID;
     document.getElementsByName('VendorNAme')[0].value = vendorName;
     document.getElementsByName('VENDID')[0].value = vendorID;
     document.getElementsByName('VEndorGSTIN')[0].value = gstin;
     document.getElementsByName('VendorAddress')[0].value = address;
-    document.getElementsByName('VendorPAN')[0].value = pan;
     document.getElementsByName('TypeofVendor')[0].value = type;
+    document.getElementsByName('BankAcc')[0].value = bankAcc;
+    document.getElementsByName('IFSC')[0].value = ifsc;
+    document.getElementsByName('Branch')[0].value = branch;
 }
 </script>
 {% endblock %}

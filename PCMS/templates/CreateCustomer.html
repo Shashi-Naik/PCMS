@@ -32,13 +32,27 @@
             </div>
             
             <div class="form-group mb-3">
-                <label for="CustomerPAN">PAN Details</label>
-                <input type="text" class="form-control" name="CustomerPAN" required>
-            </div>
-            
-            <div class="form-group mb-3">
                 <label for="TypeofCustomer">Type of Customer</label>
-                <input type="text" class="form-control" name="TypeofCustomer" required>
+                <select class="form-control" name="TypeofCustomer" required>
+                    <option value="" disabled selected>Select Type</option>
+                    <option value="B2B">B2B</option>
+                    <option value="B2C">B2C</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="BankAcc">Bank Account</label>
+                <input type="text" class="form-control" name="BankAcc" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="IFSC">IFSC Code</label>
+                <input type="text" class="form-control" name="IFSC" required>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="Branch">Branch</label>
+                <input type="text" class="form-control" name="Branch" required>
             </div>
 
             <input type="hidden" name="customer_id" id="customer_id">
@@ -62,6 +76,9 @@
                         <th>Address</th>
                         <th>PAN Details</th>
                         <th>Type of Customer</th>
+                        <th>Bank Account</th>
+                        <th>IFSC</th>
+                        <th>Branch</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -74,6 +91,9 @@
                         <td>{{ customer.CustomerADdress }}</td>
                         <td>{{ customer.CustomerPAN }}</td>
                         <td>{{ customer.TypeofCustomer }}</td>
+                        <td>{{ customer.BankAcc }}</td>
+                        <td>{{ customer.IFSC }}</td>
+                        <td>{{ customer.Branch }}</td>
                         <td>
                             <button onclick="editCustomer('{{ customer.CUSTID }}', '{{ customer.CustomerName }}', '{{ customer.CustomerGSTIN }}', '{{ customer.CustomerADdress }}', '{{ customer.CustomerPAN }}', '{{ customer.TypeofCustomer }}')" class="btn btn-warning btn-sm">Edit</button>
                         </td>
@@ -93,7 +113,6 @@ function editCustomer(custID, customerName, gstin, address, pan, type) {
     document.getElementsByName('CUSTID')[0].value = custID;
     document.getElementsByName('CustomerGSTIN')[0].value = gstin;
     document.getElementsByName('CustomerADdress')[0].value = address;
-    document.getElementsByName('CustomerPAN')[0].value = pan;
     document.getElementsByName('TypeofCustomer')[0].value = type;
 }
 </script>

@@ -38,13 +38,13 @@ from .models import ReadPurchaseBasedCosting
 class CreateVendorForm(forms.ModelForm):
     class Meta:
         model = CreateVendor
-        fields = ['VENDID','VendorNAme', 'VEndorGSTIN', 'VendorAddress', 'VendorPAN', 'TypeofVendor']
+        fields = ['VENDID', 'VendorNAme', 'VEndorGSTIN', 'VendorAddress', 'TypeofVendor', 'BankAcc', 'IFSC', 'Branch']
 
 
 class CreateCustomerForm(forms.ModelForm):
     class Meta:
         model = CreateCustomer
-        fields = ['CUSTID', 'CustomerName', 'CustomerGSTIN', 'CustomerADdress', 'CustomerPAN', 'TypeofCustomer']
+        fields = ['CUSTID', 'CustomerName', 'CustomerGSTIN', 'CustomerADdress', 'TypeofCustomer','BankAcc', 'IFSC', 'Branch']
         
 class CreateProjectForm(forms.ModelForm):
     class Meta:
@@ -55,7 +55,8 @@ class CreateProjectForm(forms.ModelForm):
 class UploadInvoicefromVendorForm(forms.ModelForm):
     class Meta:
         model = UploadInvoicefromVendor
-        fields = ['PROJID','VENDID','VendorInvoiceNumber','VendorNAme','DateofInvoice','UnitOfMeasure','QtyReceived','GSTRate','HSN','CostPerunit','TotalValue']
+        fields = ['PROJID', 'VENDID', 'VendorInvoiceNumber', 'VendorNAme', 'DateofInvoice', 'UnitOfMeasure', 'QtyReceived', 'GSTRate','InvoiceValue','HSN']
+
 
 class CreateInvoiceBasedPartNumberForm(forms.ModelForm):
     class Meta:

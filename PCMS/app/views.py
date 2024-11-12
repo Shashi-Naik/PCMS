@@ -506,7 +506,14 @@ def Vendordetails(request):
 from .models import CreateVendor,CreateCustomer,CreateProject,UploadInvoicefromVendor
 from .forms import CreateVendorForm,CreateCustomerForm,CreateProjectForm,UploadInvoicefromVendorForm
 from django.shortcuts import render, redirect, get_object_or_404
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import CreateVendorForm
+from .models import CreateVendor
+
 def CreateVendor_view(request):
+    vendors = CreateVendor.objects.all()  # Initialize vendors here
+
     if request.method == 'POST':
         action = request.POST.get('action')
         vendor_id = request.POST.get('vendor_id')
@@ -528,15 +535,47 @@ def CreateVendor_view(request):
             vendor = get_object_or_404(CreateVendor, VENDID=vendor_id)
             vendor.delete()
             return redirect('CreateVendor')
-
     else:
         form = CreateVendorForm()
-        vendors = CreateVendor.objects.all()
-    
+
     return render(request, 'vendordetails.html', {
         'form': form,
         'vendors': vendors
     })
+
+
+
+# def CreateVendor_view(request):
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+#         vendor_id = request.POST.get('vendor_id')
+
+#         if action == 'insert':
+#             form = CreateVendorForm(request.POST)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect('CreateVendor')
+
+#         elif action == 'update':
+#             vendor = get_object_or_404(CreateVendor, VENDID=vendor_id)
+#             form = CreateVendorForm(request.POST, instance=vendor)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect('CreateVendor')
+
+#         elif action == 'delete':
+#             vendor = get_object_or_404(CreateVendor, VENDID=vendor_id)
+#             vendor.delete()
+#             return redirect('CreateVendor')
+
+#     else:
+#         form = CreateVendorForm()
+#         vendors = CreateVendor.objects.all()
+    
+#     return render(request, 'vendordetails.html', {
+#         'form': form,
+#         'vendors': vendors
+#     })
     
     
 #--------------------------------------------------------------------------------------
@@ -564,14 +603,19 @@ def CreateCustomer_view(request):
             vendor.delete()
             return redirect('CreateCustomer')
 
+        # If the form is not valid or action is not insert/update/delete
+        form = CreateCustomerForm(request.POST)
+
     else:
         form = CreateCustomerForm()
-        custr = CreateCustomer.objects.all()
-    
+
+    custr = CreateCustomer.objects.all()  # Move this line outside the conditional
+
     return render(request, 'CreateCustomer.html', {
         'form': form,
         'custr': custr
     })
+
     
 #------------------------------------------------------------------------------
 
@@ -611,6 +655,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import UploadInvoicefromVendor,CreateInvoiceBasedPartNumber,CreatePurchaseBasedCosting
 from .forms import UploadInvoicefromVendorForm,CreateInvoiceBasedPartNumberForm,CreatePurchaseBasedCostingForm
+
 
 def UploadInvoicefromVendor_view(request):
     form = UploadInvoicefromVendorForm()
@@ -664,6 +709,8 @@ def UploadInvoicefromVendor_view(request):
 
 
 
+
+
 #-------------------------------------------------------------------------
  
   
@@ -680,7 +727,7 @@ def CreateInvoiceBasedPartNumber_view(request):
                 form = CreateInvoiceBasedPartNumberForm(request.POST)
                 if form.is_valid():
                     form.save()
-                    messages.success(request, 'Invoice added successfully.')
+                    messages.success(request, 'Part Name. Part Number Created successfully.')
                 else:
                     messages.error(request, 'Error adding invoice. Please correct the form errors.')
 

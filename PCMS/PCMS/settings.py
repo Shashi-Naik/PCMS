@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'PCMS.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql',
-		'NAME': 'PCMS1',
+		'NAME': 'PCMS3',
 		'USER': 'root',
 		'PASSWORD': 'root',
 		'HOST':'localhost',

@@ -147,14 +147,24 @@ class CreateVendor(models.Model):
     VendorNAme = models.CharField(max_length=255)
     VEndorGSTIN = models.CharField(max_length=15, unique=True)
     VendorAddress = models.TextField()
-    VendorPAN = models.CharField(max_length=255)
+    VendorPAN = models.CharField(max_length=255, blank=True)
     TypeofVendor = models.CharField(max_length=100)
+    BankAcc = models.CharField(max_length=100)
+    IFSC = models.CharField(max_length=100)
+    Branch = models.CharField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        # Auto-generate VendorPAN based on VEndorGSTIN
+        if self.VEndorGSTIN and len(self.VEndorGSTIN) >= 15:
+            self.VendorPAN = self.VEndorGSTIN[2:-3]
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.VendorNAme
 
     class Meta:
         db_table = 'tblCreateVendor'
+
         
     # def save(self,*args, **kwargs):
     #     existing_vendor = CreateVendor.objects.filter(VEndorGSTIN = self.VEndorGSTIN).first() 
@@ -180,6 +190,15 @@ class CreateCustomer(models.Model):
     CustomerADdress = models.TextField() 
     CustomerPAN = models.CharField(max_length=255)
     TypeofCustomer = models.CharField(max_length=100) 
+    BankAcc = models.CharField(max_length=100)
+    IFSC = models.CharField(max_length=100)
+    Branch = models.CharField(max_length=100)
+    
+    def save(self,*args, **kwargs):
+        if self.CustomerGSTIN and len(self.CustomerGSTIN) >= 15:
+            self.CustomerPAN = self.CustomerGSTIN[2:-3]
+        
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return self.CustomerName
@@ -224,6 +243,51 @@ class CreateProject(models.Model):
 #     class Meta:
 #         db_table = 'tblUploadInvoicefromVendor'  
 
+# class UploadInvoicefromVendor(models.Model):
+#     PROJID = models.CharField(max_length=255)
+#     VENDID = models.CharField(max_length=255)
+#     VendorInvoiceNumber = models.CharField(max_length=255)
+#     VendorNAme = models.CharField(max_length=255)
+#     DateofInvoice = models.CharField(max_length=255)
+#     UnitOfMeasure = models.CharField(max_length=255)
+#     QtyReceived = models.CharField(max_length=255)
+#     GSTRate = models.CharField(max_length=255)
+#     InvoiceValue = models.CharField(max_length=255)
+#     HSN = models.CharField(max_length=255)
+#     CostPerunit = models.CharField(max_length=255)
+#     TotalValue = models.CharField(max_length=255)
+#     Part_number = models.CharField(max_length=255, blank=True)  # Can be blank initially
+#     Part_name = models.CharField(max_length=255, blank=True)
+    
+#     def save(self, *args, **kwargs):
+#         # Retrieve FY, ProjCodePArtNumberSuffix, and ProjCodePartNameSuffix from the related CreateProject instance
+#         try:
+#             project = CreateProject.objects.get(PROJID=self.PROJID)
+#             # Generate Part_number
+#             self.Part_number = f"{project.FY}-{project.ProjCodePArtNumberSuffix}-{self.VENDID}-{self.VendorInvoiceNumber}"
+#             # Generate Part_name
+#             self.Part_name = f"{project.FY}-{project.ProjCodePartNameSuffix}-{self.VENDID}-{self.VendorInvoiceNumber}"
+#         except CreateProject.DoesNotExist:
+#             # Handle case if the project does not exist (optional)
+#             self.Part_number = "Invalid Project ID"
+#             self.Part_name = "Invalid Project Name"
+
+#         super().save(*args, **kwargs)  # Save the instance with the generated values
+
+#     def __str__(self):
+#         return self.PROJID
+
+#     class Meta:
+#         db_table = 'tblUploadInvoicefromVendor'
+
+
+from django.db import models
+from decimal import Decimal, InvalidOperation
+from django.core.exceptions import ValidationError
+from decimal import Decimal, InvalidOperation
+from django.db import models
+from django.core.exceptions import ValidationError
+
 class UploadInvoicefromVendor(models.Model):
     PROJID = models.CharField(max_length=255)
     VENDID = models.CharField(max_length=255)
@@ -233,12 +297,13 @@ class UploadInvoicefromVendor(models.Model):
     UnitOfMeasure = models.CharField(max_length=255)
     QtyReceived = models.CharField(max_length=255)
     GSTRate = models.CharField(max_length=255)
+    InvoiceValue = models.CharField(max_length=255)
     HSN = models.CharField(max_length=255)
-    CostPerunit = models.CharField(max_length=255)
-    TotalValue = models.CharField(max_length=255)
+    CostPerunit = models.CharField(max_length=255, blank=True)
+    TotalValue = models.CharField(max_length=255, blank=True)  # Initially blank
     Part_number = models.CharField(max_length=255, blank=True)  # Can be blank initially
     Part_name = models.CharField(max_length=255, blank=True)
-    
+
     def save(self, *args, **kwargs):
         # Retrieve FY, ProjCodePArtNumberSuffix, and ProjCodePartNameSuffix from the related CreateProject instance
         try:
@@ -252,6 +317,22 @@ class UploadInvoicefromVendor(models.Model):
             self.Part_number = "Invalid Project ID"
             self.Part_name = "Invalid Project Name"
 
+        # Calculate CostPerunit
+        try:
+            invoice_value = float(self.InvoiceValue)
+            qty_received = float(self.QtyReceived)
+            self.CostPerunit = invoice_value / qty_received
+        except (ValueError, ZeroDivisionError) as e:
+            self.CostPerunit = "Error in calculation"
+
+        # Calculate TotalValue
+        try:
+            invoice_value = float(self.InvoiceValue)
+            gst_rate = float(self.GSTRate.strip('%')) / 100
+            self.TotalValue = invoice_value * (1 + gst_rate)
+        except ValueError as e:
+            self.TotalValue = "Error in calculation"
+
         super().save(*args, **kwargs)  # Save the instance with the generated values
 
     def __str__(self):
@@ -259,6 +340,8 @@ class UploadInvoicefromVendor(models.Model):
 
     class Meta:
         db_table = 'tblUploadInvoicefromVendor'
+
+
 
 
 
