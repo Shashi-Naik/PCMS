@@ -160,25 +160,12 @@ class CreateVendor(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.VendorNAme
+        return self.VENDID
 
     class Meta:
         db_table = 'tblCreateVendor'
 
         
-    # def save(self,*args, **kwargs):
-    #     existing_vendor = CreateVendor.objects.filter(VEndorGSTIN = self.VEndorGSTIN).first() 
-    #     if existing_vendor :
-    #         self.VENDID =  existing_vendor.VENDID 
-    #     else:
-    #         last_vendor = CreateVendor.objects.all().order_by('-VENDID').first()
-    #         if last_vendor:
-    #             new_vendid = str(int(last_vendor.VENDID)+1)
-    #         else:
-    #             new_vendid = '1'    
-    #         self.VENDID = new_vendid    
-    #     super().save(*args, **kwargs)    
-                
             
                   
 
@@ -218,30 +205,20 @@ class CreateProject(models.Model):
     FY = models.TextField() 
  
     def __str__(self):
-        return self.ProjectNAme
+        return self.PROJID
     class Meta:
         db_table = 'tblCreateProject'
 
 
 
-# class UploadInvoicefromVendor(models.Model):
-#     PROJID = models.CharField(max_length=255)
-#     VENDID = models.CharField(max_length=255)	
-#     VendorInvoiceNumber = models.CharField(max_length=255)
-#     VendorNAme = models.CharField(max_length=255)
-#     DateofInvoice = models.CharField(max_length=255)
-#     UnitOfMeasure = models.CharField(max_length=255)
-#     QtyReceived = models.CharField(max_length=255)
-#     GSTRate = models.CharField(max_length=255)
-#     HSN = models.CharField(max_length=255)
-#     CostPerunit = models.CharField(max_length=255)
-#     TotalValue = models.CharField(max_length=255)
-#     Part_number = models.CharField(max_length=255)
-    
-#     def __str__(self):
-#         return self.PROJID
-#     class Meta:
-#         db_table = 'tblUploadInvoicefromVendor'  
+
+
+# from django.db import models
+# from decimal import Decimal, InvalidOperation
+# from django.core.exceptions import ValidationError
+# from decimal import Decimal, InvalidOperation
+# from django.db import models
+# from django.core.exceptions import ValidationError
 
 # class UploadInvoicefromVendor(models.Model):
 #     PROJID = models.CharField(max_length=255)
@@ -254,11 +231,11 @@ class CreateProject(models.Model):
 #     GSTRate = models.CharField(max_length=255)
 #     InvoiceValue = models.CharField(max_length=255)
 #     HSN = models.CharField(max_length=255)
-#     CostPerunit = models.CharField(max_length=255)
-#     TotalValue = models.CharField(max_length=255)
+#     CostPerunit = models.CharField(max_length=255, blank=True)
+#     TotalValue = models.CharField(max_length=255, blank=True)  # Initially blank
 #     Part_number = models.CharField(max_length=255, blank=True)  # Can be blank initially
 #     Part_name = models.CharField(max_length=255, blank=True)
-    
+
 #     def save(self, *args, **kwargs):
 #         # Retrieve FY, ProjCodePArtNumberSuffix, and ProjCodePartNameSuffix from the related CreateProject instance
 #         try:
@@ -272,6 +249,22 @@ class CreateProject(models.Model):
 #             self.Part_number = "Invalid Project ID"
 #             self.Part_name = "Invalid Project Name"
 
+#         # Calculate CostPerunit
+#         try:
+#             invoice_value = float(self.InvoiceValue)
+#             qty_received = float(self.QtyReceived)
+#             self.CostPerunit = "{:.2f}".format(invoice_value / qty_received)
+#         except (ValueError, ZeroDivisionError) as e:
+#             self.CostPerunit = "Error in calculation"
+
+#         # Calculate TotalValue
+#         try:
+#             invoice_value = float(self.InvoiceValue)
+#             gst_rate = float(self.GSTRate.strip('%')) / 100
+#             self.TotalValue = "{:.2f}".format(invoice_value * (1 + gst_rate))
+#         except ValueError as e:
+#             self.TotalValue = "Error in calculation"
+
 #         super().save(*args, **kwargs)  # Save the instance with the generated values
 
 #     def __str__(self):
@@ -282,11 +275,6 @@ class CreateProject(models.Model):
 
 
 from django.db import models
-from decimal import Decimal, InvalidOperation
-from django.core.exceptions import ValidationError
-from decimal import Decimal, InvalidOperation
-from django.db import models
-from django.core.exceptions import ValidationError
 
 class UploadInvoicefromVendor(models.Model):
     PROJID = models.CharField(max_length=255)
@@ -300,48 +288,59 @@ class UploadInvoicefromVendor(models.Model):
     InvoiceValue = models.CharField(max_length=255)
     HSN = models.CharField(max_length=255)
     CostPerunit = models.CharField(max_length=255, blank=True)
-    TotalValue = models.CharField(max_length=255, blank=True)  # Initially blank
-    Part_number = models.CharField(max_length=255, blank=True)  # Can be blank initially
+    TotalValue = models.CharField(max_length=255, blank=True)
+    Part_number = models.CharField(max_length=255, blank=True)
     Part_name = models.CharField(max_length=255, blank=True)
+    CGST = models.CharField(max_length=255, blank=True)
+    SGST = models.CharField(max_length=255, blank=True)
+    IGST = models.CharField(max_length=255, blank=True)
+    OptionType = models.CharField(max_length=255, choices=[('LOCAL', 'LOCAL'), ('INTERSTATE', 'INTERSTATE')])
 
     def save(self, *args, **kwargs):
-        # Retrieve FY, ProjCodePArtNumberSuffix, and ProjCodePartNameSuffix from the related CreateProject instance
         try:
             project = CreateProject.objects.get(PROJID=self.PROJID)
-            # Generate Part_number
             self.Part_number = f"{project.FY}-{project.ProjCodePArtNumberSuffix}-{self.VENDID}-{self.VendorInvoiceNumber}"
-            # Generate Part_name
             self.Part_name = f"{project.FY}-{project.ProjCodePartNameSuffix}-{self.VENDID}-{self.VendorInvoiceNumber}"
         except CreateProject.DoesNotExist:
-            # Handle case if the project does not exist (optional)
             self.Part_number = "Invalid Project ID"
             self.Part_name = "Invalid Project Name"
 
-        # Calculate CostPerunit
         try:
             invoice_value = float(self.InvoiceValue)
             qty_received = float(self.QtyReceived)
-            self.CostPerunit = invoice_value / qty_received
-        except (ValueError, ZeroDivisionError) as e:
+            self.CostPerunit = "{:.2f}".format(invoice_value / qty_received)
+        except (ValueError, ZeroDivisionError):
             self.CostPerunit = "Error in calculation"
 
-        # Calculate TotalValue
         try:
             invoice_value = float(self.InvoiceValue)
             gst_rate = float(self.GSTRate.strip('%')) / 100
-            self.TotalValue = invoice_value * (1 + gst_rate)
-        except ValueError as e:
+            self.TotalValue = "{:.2f}".format(invoice_value * (1 + gst_rate))
+        except ValueError:
             self.TotalValue = "Error in calculation"
 
-        super().save(*args, **kwargs)  # Save the instance with the generated values
+        try:
+            invoice_value = float(self.InvoiceValue)
+            gst_rate = float(self.GSTRate.strip('%'))/100
+            print(gst_rate)
+            if self.OptionType == 'LOCAL':
+                self.CGST = invoice_value * gst_rate / 2
+                self.SGST = invoice_value * gst_rate / 2
+                self.IGST = "0"
+            elif self.OptionType == 'INTERSTATE':
+                self.CGST = "0"
+                self.SGST = "0"
+                self.IGST = invoice_value * gst_rate / 1
+        except ValueError:
+            self.CGST = self.SGST = self.IGST = "Error in calculation"
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.PROJID
 
     class Meta:
         db_table = 'tblUploadInvoicefromVendor'
-
-
 
 
 
@@ -848,3 +847,54 @@ class ReadPurchaseBasedCosting(models.Model):
 #  #----------------------------------------------------------------------------------------------------------------------   
     
         
+        
+#         i have 2 model.py
+
+# class tblPartNumber(models.Model):
+#     part_number = models.CharField(max_length=100)
+#     part_name = models.CharField(max_length=255)
+#     vendor_name = models.CharField(max_length=255)
+#     project_name = models.CharField(max_length=255)
+#     description = models.TextField()
+#     hsn = models.CharField(max_length=50)
+#     invoice_number = models.CharField(max_length=100)
+#     gst_rate = models.DecimalField(max_digits=5, decimal_places=2)  
+#     date_of_invoice = models.DateField()
+#     uqc = models.CharField(max_length=50) 
+#     invoice_value = models.DecimalField(max_digits=10, decimal_places=2)
+#     qty = models.DecimalField(max_digits=10, decimal_places=2)  
+#     cost_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+#     total_invoice = models.DecimalField(max_digits=15, decimal_places=2)
+#     payment_status = models.CharField(max_length=50, choices=[('Paid', 'Paid'), ('Pending', 'Pending')])
+#     paid_date = models.DateField(null=True, blank=True)
+#     paid_by = models.CharField(max_length=100, null=True, blank=True)
+#     type = models.CharField(max_length=100)
+#     gstr2b = models.CharField(max_length=100, null=True, blank=True)
+#     remarks = models.TextField(null=True, blank=True)
+#     ledger = models.CharField(max_length=100, null=True, blank=True)
+
+#     def __str__(self):
+#         return self.part_number
+    
+#     class Meta:
+#         db_table = 'tblPartNumber'  
+        
+# class UploadInvoicefromVendor(models.Model):
+#     PROJID = models.CharField(max_length=255)
+#     VENDID = models.CharField(max_length=255)
+#     VendorInvoiceNumber = models.CharField(max_length=255)
+#     VendorNAme = models.CharField(max_length=255)
+#     DateofInvoice = models.CharField(max_length=255)
+#     UnitOfMeasure = models.CharField(max_length=255)
+#     QtyReceived = models.CharField(max_length=255)
+#     GSTRate = models.CharField(max_length=255)
+#     InvoiceValue = models.CharField(max_length=255)
+#     HSN = models.CharField(max_length=255)
+#     CostPerunit = models.CharField(max_length=255, blank=True)
+#     TotalValue = models.CharField(max_length=255, blank=True)
+#     Part_number = models.CharField(max_length=255, blank=True)
+#     Part_name = models.CharField(max_length=255, blank=True)
+#     CGST = models.CharField(max_length=255, blank=True)
+#     SGST = models.CharField(max_length=255, blank=True)
+#     IGST = models.CharField(max_length=255, blank=True)
+#     OptionType = models.CharField(max_length=255, choices=[('LOCAL', 'LOCAL'), ('INTERSTATE', 'INTERSTATE')])

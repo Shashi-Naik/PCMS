@@ -651,65 +651,155 @@ def CreateProject_view(request):
 
 
 
-from django.shortcuts import render, redirect, get_object_or_404
+# from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import UploadInvoicefromVendor,CreateInvoiceBasedPartNumber,CreatePurchaseBasedCosting
 from .forms import UploadInvoicefromVendorForm,CreateInvoiceBasedPartNumberForm,CreatePurchaseBasedCostingForm
 
 
-def UploadInvoicefromVendor_view(request):
-    form = UploadInvoicefromVendorForm()
-    data = UploadInvoicefromVendor.objects.all()
+# def UploadInvoicefromVendor_view(request):
+#     form = UploadInvoicefromVendorForm()
+#     data = UploadInvoicefromVendor.objects.all()
 
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        Vendor_id = request.POST.get('vendor_id')  # Changed to match the hidden field in HTML
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+#         Vendor_id = request.POST.get('vendor_id')  # Changed to match the hidden field in HTML
         
-        try:
+#         try:
+#             if action == 'insert':
+#                 form = UploadInvoicefromVendorForm(request.POST)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, 'Invoice added successfully.')
+#                 else:
+#                     messages.error(request, 'Error adding invoice. Please correct the form errors.')
+
+#             elif action == 'update':
+#                 data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+#                 form = UploadInvoicefromVendorForm(request.POST, instance=data_instance)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, 'Invoice updated successfully.')
+#                 else:
+#                     messages.error(request, 'Error updating invoice. Please correct the form errors.')
+
+#             elif action == 'delete':
+#                 data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+#                 data_instance.delete()
+#                 messages.success(request, 'Invoice deleted successfully.')
+
+#             else:
+#                 messages.error(request, 'Invalid action.')
+
+#             return redirect('UploadInvoicefromVendor')
+
+#         except UploadInvoicefromVendor.DoesNotExist:
+#             messages.error(request, 'Invoice not found for the specified Vendor ID.')
+#             return redirect('UploadInvoicefromVendor')
+
+#         except Exception as e:
+#             messages.error(request, f'An unexpected error occurred: {str(e)}')
+#             return redirect('UploadInvoicefromVendor')
+
+#     context = {
+#         'form': form,
+#         'data': data
+#     }
+#     return render(request, 'UploadInvoicefromVendor.html', context)
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import UploadInvoicefromVendor
+from .forms import UploadInvoicefromVendorForm
+
+# def UploadInvoicefromVendor_view(request):
+#     form = UploadInvoicefromVendorForm()
+#     data = UploadInvoicefromVendor.objects.all()
+
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+#         Vendor_id = request.POST.get('vendor_id')
+
+#         try:
+#             if action == 'insert':
+#                 form = UploadInvoicefromVendorForm(request.POST)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, 'Invoice added successfully.')
+#                 else:
+#                     messages.error(request, 'Error adding invoice. Please correct the form errors.')
+
+#             elif action == 'update':
+#                 data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+#                 form = UploadInvoicefromVendorForm(request.POST, instance=data_instance)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, 'Invoice updated successfully.')
+#                 else:
+#                     messages.error(request, 'Error updating invoice. Please correct the form errors.')
+
+#             elif action == 'delete':
+#                 data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
+#                 data_instance.delete()
+#                 messages.success(request, 'Invoice deleted successfully.')
+
+#             else:
+#                 messages.error(request, 'Invalid action.')
+
+#             return redirect('UploadInvoicefromVendor')
+
+#         except UploadInvoicefromVendor.DoesNotExist:
+#             messages.error(request, 'Invoice not found for the specified Vendor ID.')
+#             return redirect('UploadInvoicefromVendor')
+
+#         except Exception as e:
+#             messages.error(request, f'An unexpected error occurred: {str(e)}')
+#             return redirect('UploadInvoicefromVendor')
+
+#     context = {
+#         'form': form,
+#         'data': data
+#     }
+#     return render(request, 'UploadInvoicefromVendor.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import UploadInvoicefromVendor
+from .forms import UploadInvoicefromVendorForm
+from django.contrib import messages
+
+def UploadInvoicefromVendor_view(request):
+    if request.method == 'POST':
+        form = UploadInvoicefromVendorForm(request.POST)
+        if form.is_valid():
+            action = request.POST.get('action')
             if action == 'insert':
-                form = UploadInvoicefromVendorForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, 'Invoice added successfully.')
-                else:
-                    messages.error(request, 'Error adding invoice. Please correct the form errors.')
-
+                form.save()
+                messages.success(request, 'Invoice inserted successfully.')
             elif action == 'update':
-                data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
-                form = UploadInvoicefromVendorForm(request.POST, instance=data_instance)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, 'Invoice updated successfully.')
-                else:
-                    messages.error(request, 'Error updating invoice. Please correct the form errors.')
-
+                invoice_id = request.POST.get('id')
+                invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+                form = UploadInvoicefromVendorForm(request.POST, instance=invoice)
+                form.save()
+                messages.success(request, 'Invoice updated successfully.')
             elif action == 'delete':
-                data_instance = get_object_or_404(UploadInvoicefromVendor, VENDID=Vendor_id)
-                data_instance.delete()
+                invoice_id = request.POST.get('id')
+                invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+                invoice.delete()
                 messages.success(request, 'Invoice deleted successfully.')
+        else:
+            messages.error(request, 'Form submission failed. Please correct the errors.')
+        return redirect('UploadInvoicefromVendor')
 
-            else:
-                messages.error(request, 'Invalid action.')
-
-            return redirect('UploadInvoicefromVendor')
-
-        except UploadInvoicefromVendor.DoesNotExist:
-            messages.error(request, 'Invoice not found for the specified Vendor ID.')
-            return redirect('UploadInvoicefromVendor')
-
-        except Exception as e:
-            messages.error(request, f'An unexpected error occurred: {str(e)}')
-            return redirect('UploadInvoicefromVendor')
-
+    form = UploadInvoicefromVendorForm()
+    invoices = UploadInvoicefromVendor.objects.all()
     context = {
         'form': form,
-        'data': data
+        'invoices': invoices
     }
     return render(request, 'UploadInvoicefromVendor.html', context)
-
-
-
-
 
 #-------------------------------------------------------------------------
  

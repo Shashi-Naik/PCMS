@@ -52,10 +52,58 @@ class CreateProjectForm(forms.ModelForm):
         fields = ['PROJID', 'CUSTID', 'ProjectNAme', 'Description', 'ProjCodePArtNumberSuffix', 'ProjCodePartNameSuffix','FY']
 
 
+
+# from django import forms
+# from .models import UploadInvoicefromVendor, CreateProject
+
+# class UploadInvoicefromVendorForm(forms.ModelForm):
+#     PROJID = forms.ModelChoiceField(
+#         queryset=CreateProject.objects.all(),
+#         to_field_name="PROJID",  # This specifies that the value should be the PROJID
+#         empty_label="Select"
+#     )
+#     VENDID = forms.ModelChoiceField(
+#         queryset= CreateVendor.objects.all(),
+#         to_field_name= "VENDID" ,
+#         empty_label="Select"
+#     )
+    
+
+#     class Meta:
+#         model = UploadInvoicefromVendor
+#         fields = [
+#             'PROJID', 'VENDID', 'VendorInvoiceNumber', 'VendorNAme', 'DateofInvoice', 
+#             'UnitOfMeasure', 'QtyReceived', 'GSTRate', 'InvoiceValue', 'HSN'
+#         ]
+
+
+from django import forms
+from .models import UploadInvoicefromVendor, CreateProject, CreateVendor
+
 class UploadInvoicefromVendorForm(forms.ModelForm):
+    PROJID = forms.ModelChoiceField(
+        queryset=CreateProject.objects.all(),
+        to_field_name="PROJID",
+        empty_label="Select"
+    )
+    VENDID = forms.ModelChoiceField(
+        queryset=CreateVendor.objects.all(),
+        to_field_name="VENDID",
+        empty_label="Select"
+    )
+    OptionType = forms.ChoiceField(
+        choices=[('LOCAL', 'LOCAL'), ('INTERSTATE', 'INTERSTATE')],
+        required=True,
+        label="Option Type"
+    )
+
     class Meta:
         model = UploadInvoicefromVendor
-        fields = ['PROJID', 'VENDID', 'VendorInvoiceNumber', 'VendorNAme', 'DateofInvoice', 'UnitOfMeasure', 'QtyReceived', 'GSTRate','InvoiceValue','HSN']
+        fields = [
+            'PROJID', 'VENDID', 'VendorInvoiceNumber', 'VendorNAme', 'DateofInvoice',
+            'UnitOfMeasure', 'QtyReceived', 'GSTRate', 'InvoiceValue', 'HSN', 'OptionType'
+        ]
+
 
 
 class CreateInvoiceBasedPartNumberForm(forms.ModelForm):

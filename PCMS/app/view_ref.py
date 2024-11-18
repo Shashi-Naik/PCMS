@@ -150,3 +150,18 @@ def tblProject_view(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'tblProject.html', {'project_data': page_obj, 'search_query': search_query})
+
+
+
+
+
+
+
+
+
+
+
+#
+
+
+

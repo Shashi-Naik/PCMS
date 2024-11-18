@@ -1,7 +1,174 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h1 class="text-center mb-4">Invoice Details</h1>
 
+    <div class="row">
+        <div class="col-lg-3 col-md-4 mb-4">
+            <form id="invoiceForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Invoice Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Vendor ID</label>
+                    {{ form.VENDID }}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form-control" name="VendorInvoiceNumber" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="vendor_name">Vendor Name</label>
+                    <input type="text" class="form-control" name="VendorNAme" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_date">Date of Invoice</label>
+                    <input type="date" class="form-control" name="DateofInvoice" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="unit_measure">Unit of Measure</label>
+                    <select class="form-control" name="UnitOfMeasure" required>
+                        <option value="">Select Unit</option>
+                        <option value="NOC">NOC</option>
+                        <option value="KGS">KGS</option>
+                        <option value="ABCD">ABCD</option>
+                        <option value="ASD">ASD</option>
+                        <option value="HHT">HHT</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="qty_received">Quantity Received</label>
+                    <input type="number" class="form-control" name="QtyReceived" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="gst_rate">GST Rate</label>
+                    <select class="form-control" name="GSTRate" required>
+                        <option value="">Select GST Rate</option>
+                        <option value="0%">0%</option>
+                        <option value="5%">5%</option>
+                        <option value="12%">12%</option>
+                        <option value="18%">18%</option>
+                        <option value="28%">28%</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="hsn_code">Invoice Value</label>
+                    <input type="text" class="form-control" name="InvoiceValue" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="hsn_code">HSN Code</label>
+                    <input type="text" class="form-control" name="HSN" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="option_type">Option Type</label>
+                    {{ form.OptionType }}
+                </div>
+
+                <input type="hidden" name="vendor_id" id="vendor_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-9 col-md-8 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 2%;">Project ID</th>
+                            <th style="width: 2%;">Vendor ID</th>
+                            <th style="width: 10%;">Invoice Number</th>
+                            <th style="width: 5%;">Vendor Name</th>
+                            <th style="width: 2%;">Date of Invoice</th>
+                            <th style="width: 5%;">Unit of Measure</th>
+                            <th style="width: 2%;">Qty Received</th>
+                            <th style="width: 2%;">GST Rate</th>
+                            <th style="width: 2%;">Invoice Value</th>
+                            <th style="width: 5%;">HSN Code</th>
+                            <th style="width: 2%;">Cost Per Unit</th>
+                            <th style="width: 5%;">Total Value</th>
+                            <th style="width: 5%;">Part Number</th>
+                            <th style="width: 5%;">Part Name</th>
+                            <th style="width: 5%;">CGST</th>
+                            <th style="width: 5%;">SGST</th>
+                            <th style="width: 5%;">IGST</th>
+                            <th style="width: 5%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.PROJID }}</td>
+                            <td>{{ invoice.VENDID }}</td>
+                            <td>{{ invoice.VendorInvoiceNumber }}</td>
+                            <td>{{ invoice.VendorNAme }}</td>
+                            <td>{{ invoice.DateofInvoice }}</td>
+                            <td>{{ invoice.UnitOfMeasure }}</td>
+                            <td>{{ invoice.QtyReceived }}</td>
+                            <td>{{ invoice.GSTRate }}</td>
+                            <td>{{ invoice.InvoiceValue }}</td>
+                            <td>{{ invoice.HSN }}</td>
+                            <td>{{ invoice.CostPerunit }}</td>
+                            <td>{{ invoice.TotalValue }}</td>
+                            <td>{{ invoice.Part_number }}</td>
+                            <td>{{ invoice.Part_name }}</td>
+                            <td>{{ invoice.CGST }}</td>
+                            <td>{{ invoice.SGST }}</td>
+                            <td>{{ invoice.IGST }}</td>
+                            <td>
+                                <button class="btn btn-info edit-btn" data-id="{{ invoice.id }}">Edit</button>
+                                <button class="btn btn-danger delete-btn" data-id="{{ invoice.id }}">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
 <div class="container mt-5">
     {% if messages %}
     <div class="alert alert-info">
@@ -21,13 +188,14 @@
 
                 <div class="form-group mb-3">
                     <label for="proj_id">Project ID</label>
-                    <input type="text" class="form-control" name="PROJID" required>
+                    {{ form.PROJID }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Vendor ID</label>
+                    {{ form.VENDID }}
                 </div>
                 
-                <div class="form-group mb-3">
-                    <label for="vend_id">Vendor ID</label>
-                    <input type="text" class="form-control" name="VENDID" required>
-                </div>
+                
                 
                 <div class="form-group mb-3">
                     <label for="invoice_number">Invoice Number</label>
@@ -82,7 +250,6 @@
                     <input type="text" class="form-control" name="HSN" required>
                 </div>
 
-
                 <input type="hidden" name="vendor_id" id="vendor_id">
                 <div class="d-flex justify-content-between mt-3">
                     <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
@@ -159,180 +326,6 @@ function editInvoice(vendorID, projID, invoiceNumber, vendorName, date, unit, qt
 </script>
 
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{% comment %} 
-{% extends 'base.html' %}
-
-{% block content %}
-
-<div class="container mt-5">
-    {% if messages %}
-    <div class="alert alert-info">
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-    <h1 class="text-center mb-4">Invoice Details</h1>
-
-    <div class="row">
-        <!-- Form for Adding/Editing Invoice Details -->
-        <div class="col-lg-3 col-md-4 mb-4">
-            <form id="invoiceForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
-                {% csrf_token %}
-                <h5 class="mb-3 text-center">Invoice Form</h5>
-
-                <div class="form-group mb-3">
-                    <label for="proj_id">Project ID</label>
-                    <input type="text" class="form-control" name="PROJID" required>
-                </div>
-                
-                <div class="form-group mb-3">
-                    <label for="vend_id">Vendor ID</label>
-                    <input type="text" class="form-control" name="VENDID" required>
-                </div>
-                
-                <div class="form-group mb-3">
-                    <label for="invoice_number">Invoice Number</label>
-                    <input type="text" class="form-control" name="VendorInvoiceNumber" required>
-                </div>
-                
-                <div class="form-group mb-3">
-                    <label for="vendor_name">Vendor Name</label>
-                    <input type="text" class="form-control" name="VendorNAme" required>
-                </div>
-                
-                <div class="form-group mb-3">
-                    <label for="invoice_date">Date of Invoice</label>
-                    <input type="date" class="form-control" name="DateofInvoice" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="unit_measure">Unit of Measure</label>
-                    <input type="text" class="form-control" name="UnitOfMeasure" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="qty_received">Quantity Received</label>
-                    <input type="number" class="form-control" name="QtyReceived" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="gst_rate">GST Rate</label>
-                    <input type="text" class="form-control" name="GSTRate" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="hsn_code">HSN Code</label>
-                    <input type="text" class="form-control" name="HSN" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="cost_per_unit">Cost per Unit</label>
-                    <input type="number" step="0.01" class="form-control" name="CostPerunit" required>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="total_value">Total Value</label>
-                    <input type="number" step="0.01" class="form-control" name="TotalValue" required>
-                </div>
-
-                <input type="hidden" name="vendor_id" id="vendor_id">
-                <div class="d-flex justify-content-between mt-3">
-                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
-                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
-                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Table for Displaying Invoice Details -->
-        <div class="col-lg-9 col-md-8 mb-4">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="width: 2%;">Project ID</th>
-                            <th style="width: 2%;">Vendor ID</th>
-                            <th style="width: 10%;">Invoice Number</th>
-                            <th style="width: 20%;">Part Name</th>
-                            <th style="width: 20%;">Part Number</th>
-                            <th style="width: 6%;">Vendor Name</th>
-                            <th style="width: 10%;">Dateofnvoice</th>
-                            <th style="width: 5%;">UnitMeasure</th>
-                            <th style="width: 5%;">Qty</th>
-                            <th style="width: 8%;">GSTRate</th>
-                            <th style="width: 8%;">HSN</th>
-                            <th style="width: 2%;">Cost/Unit</th>
-                            <th style="width: 2%;">TotalValue</th>
-                            <th style="width: 5%;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for invoice in data %}
-                        <tr>
-                            <td>{{ invoice.PROJID }}</td>
-                            <td>{{ invoice.VENDID }}</td>
-                            <td>{{ invoice.VendorInvoiceNumber }}</td>
-                            <td>{{ invoice.Part_name }}</td>
-                            <td>{{ invoice.Part_number }}</td>
-                            <td>{{ invoice.VendorNAme }}</td>
-                            <td>{{ invoice.DateofInvoice }}</td>
-                            <td>{{ invoice.UnitOfMeasure }}</td>
-                            <td>{{ invoice.QtyReceived }}</td>
-                            <td>{{ invoice.GSTRate }}</td>
-                            <td>{{ invoice.HSN }}</td>
-                            <td>{{ invoice.CostPerunit }}</td>      
-                            <td>{{ invoice.TotalValue }}</td>
-                            <td>
-                                <button onclick="editInvoice('{{ invoice.VENDID }}', '{{ invoice.PROJID }}', '{{ invoice.VendorInvoiceNumber }}', '{{ invoice.VendorNAme }}', '{{ invoice.DateofInvoice }}', '{{ invoice.UnitOfMeasure }}', '{{ invoice.QtyReceived }}', '{{ invoice.GSTRate }}', '{{ invoice.HSN }}', '{{ invoice.CostPerunit }}', '{{ invoice.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function editInvoice(vendorID, projID, invoiceNumber, vendorName, date, unit, qty, gst, hsn, cost, total) {
-    document.getElementById('vendor_id').value = vendorID;
-    document.getElementsByName('PROJID')[0].value = projID;
-    document.getElementsByName('VendorInvoiceNumber')[0].value = invoiceNumber;
-    document.getElementsByName('VendorNAme')[0].value = vendorName;
-    document.getElementsByName('DateofInvoice')[0].value = date;
-    document.getElementsByName('UnitOfMeasure')[0].value = unit;
-    document.getElementsByName('QtyReceived')[0].value = qty;
-    document.getElementsByName('GSTRate')[0].value = gst;
-    document.getElementsByName('HSN')[0].value = hsn;
-    document.getElementsByName('CostPerunit')[0].value = cost;
-    document.getElementsByName('TotalValue')[0].value = total;
-}
-</script>
-
-{% endblock %}
-
-
-
-
-
 
 
  {% endcomment %}
@@ -345,165 +338,3 @@ function editInvoice(vendorID, projID, invoiceNumber, vendorName, date, unit, qt
 
 
 
-
-
-
-
-
-{% comment %} {% extends 'base.html' %}
-
-{% block content %}
-
-
-
-<div class="container mt-5">
-
-    {% if messages %}
-    <div class="alert alert-info">
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    </div>
-{% endif %}
-  <h1 class="text-center mb-4">Invoice Details</h1>
-  
-  
-  <div class="row">
-    <!-- Form for Adding/Editing Invoice Details -->
-    <div class="col-lg-3 col-md-5 mb-4">
-        <form id="invoiceForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
-            {% csrf_token %}
-            <h5 class="mb-3 text-center">Invoice Form</h5>
-            
-            <div class="form-group mb-3">
-                <label for="proj_id">Project ID</label>
-                <input type="text" class="form-control" name="PROJID" required>
-            </div>
-            
-            <div class="form-group mb-3">
-                <label for="vend_id">Vendor ID</label>
-                <input type="text" class="form-control" name="VENDID" required>
-            </div>
-            
-            <div class="form-group mb-3">
-                <label for="invoice_number">Invoice Number</label>
-                <input type="text" class="form-control" name="VendorInvoiceNumber" required>
-            </div>
-            
-            <div class="form-group mb-3">
-                <label for="vendor_name">Vendor Name</label>
-                <input type="text" class="form-control" name="VendorNAme" required>
-            </div>
-            
-            <div class="form-group mb-3">
-                <label for="invoice_date">Date of Invoice</label>
-                <input type="date" class="form-control" name="DateofInvoice" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="unit_measure">Unit of Measure</label>
-                <input type="text" class="form-control" name="UnitOfMeasure" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="qty_received">Quantity Received</label>
-                <input type="number" class="form-control" name="QtyReceived" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="gst_rate">GST Rate</label>
-                <input type="text" class="form-control" name="GSTRate" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="hsn_code">HSN Code</label>
-                <input type="text" class="form-control" name="HSN" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="cost_per_unit">Cost per Unit</label>
-                <input type="number" step="0.01" class="form-control" name="CostPerunit" required>
-            </div>
-
-            <div class="form-group mb-3">
-                <label for="total_value">Total Value</label>
-                <input type="number" step="0.01" class="form-control" name="TotalValue" required>
-            </div>
-
-            <input type="hidden" name="vendor_id" id="vendor_id">
-            <div class="d-flex justify-content-between mt-3">
-                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
-                <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
-                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
-            </div>
-        </form>
-    </div>
-       
-
-
-    <!-- Table for Displaying Invoice Details -->
-    <div class="col-lg-9 col-md-7 mb-4">
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Project ID</th>
-                        <th>Vendor ID</th>
-                        <th>Invoice Number</th>
-                        <th>Part_name</th>
-                        <th>Part_number</th>
-                        <th>Vendor Name</th>
-                        <th>Date of Invoice</th>
-                        <th>Unit of Measure</th>
-                        <th>Quantity Received</th>
-                        <th>GST Rate</th>
-                        <th>HSN</th>
-                        <th>Cost per Unit</th>
-                        <th>Total Value</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for invoice in data %}
-                    <tr>
-                        <td>{{ invoice.PROJID }}</td>
-                        <td>{{ invoice.VENDID }}</td>
-                        <td>{{ invoice.VendorInvoiceNumber }}</td>
-                        <td>{{ invoice.Part_number }}</td>
-                        <td>{{ invoice.Part_name }}</td>
-                        <td>{{ invoice.VendorNAme }}</td>
-                        <td>{{ invoice.DateofInvoice }}</td>
-                        <td>{{ invoice.UnitOfMeasure }}</td>
-                        <td>{{ invoice.QtyReceived }}</td>
-                        <td>{{ invoice.GSTRate }}</td>
-                        <td>{{ invoice.HSN }}</td>
-                        <td>{{ invoice.CostPerunit }}</td>      
-                        <td>{{ invoice.TotalValue }}</td>
-                        <td>
-                            <button onclick="editInvoice('{{ invoice.VENDID }}', '{{ invoice.PROJID }}', '{{ invoice.VendorInvoiceNumber }}', '{{ invoice.VendorNAme }}', '{{ invoice.DateofInvoice }}', '{{ invoice.UnitOfMeasure }}', '{{ invoice.QtyReceived }}', '{{ invoice.GSTRate }}', '{{ invoice.HSN }}', '{{ invoice.CostPerunit }}', '{{ invoice.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-  </div>
-</div>
-
-<script>
-function editInvoice(vendorID, projID, invoiceNumber, vendorName, date, unit, qty, gst, hsn, cost, total) {
-    document.getElementById('vendor_id').value = vendorID;
-    document.getElementsByName('PROJID')[0].value = projID;
-    document.getElementsByName('VendorInvoiceNumber')[0].value = invoiceNumber;
-    document.getElementsByName('VendorNAme')[0].value = vendorName;
-    document.getElementsByName('DateofInvoice')[0].value = date;
-    document.getElementsByName('UnitOfMeasure')[0].value = unit;
-    document.getElementsByName('QtyReceived')[0].value = qty;
-    document.getElementsByName('GSTRate')[0].value = gst;
-    document.getElementsByName('HSN')[0].value = hsn;
-    document.getElementsByName('CostPerunit')[0].value = cost;
-    document.getElementsByName('TotalValue')[0].value = total;
-}
-</script>
-{% endblock %} {% endcomment %}
