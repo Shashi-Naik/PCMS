@@ -111,17 +111,38 @@ class CreateInvoiceBasedPartNumberForm(forms.ModelForm):
         model = CreateInvoiceBasedPartNumber
         fields = ['PROJID','VENDID','VendorInvoiceNumber','YearOfInvoice','InvoicePartNumber','BAtchID']
         
+# class CreatePurchaseBasedCostingForm(forms.ModelForm):
+#     PROJID = forms.ModelChoiceField(
+#         queryset=UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct(),
+#         empty_label="Select"
+#     )
+
+#     class Meta:
+#         model = CreatePurchaseBasedCosting
+#         fields = ['PROJID']
 class CreatePurchaseBasedCostingForm(forms.ModelForm):
+    PROJID = forms.ChoiceField(
+        choices=[(proj_id, proj_id) for proj_id in UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct()],
+        label="Project ID",
+        required=True
+    )
+
     class Meta:
         model = CreatePurchaseBasedCosting
-        fields = ['PROJID','COSTID','InvoicePartNumber','CostPerUnit','Qty','TotalValue']        
+        fields = ['PROJID', 'COSTID']
+
 
 
 
 class ReadPurchaseBasedCostingForm(forms.ModelForm):
+    PROJID = forms.ChoiceField(
+        choices=[(proj_id, proj_id) for proj_id in UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct()],
+        label="Project ID",
+        required=True
+    )
     class Meta:
         model = ReadPurchaseBasedCosting
-        fields = ['PROJID','COSTID','TotalValue','CostDetails']   
+        fields = ['PROJID']   
 
 
 

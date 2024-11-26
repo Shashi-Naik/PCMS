@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 
 {% block content %}
@@ -105,4 +106,139 @@ function editProject(projID, custID, projectName, description, partNumberSuffix,
     document.getElementsByName('FY')[0].value = fy;
 }
 </script>
+{% endblock %} 
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1 class="text-center mb-4">Project Details</h1>
+  
+  <div class="row">
+    <!-- Form for Adding/Editing Project Details -->
+    <div class="col-lg-3 col-md-5 mb-4">
+        <form id="projectForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+            {% csrf_token %}
+            <h5 class="mb-3 text-center">Project Form</h5>
+            
+            <div class="form-group mb-3">
+                <label for="proj_id">Project ID</label>
+                <input type="text" class="form-control" name="PROJID" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="cust_id">Customer ID</label>
+                <input type="text" class="form-control" name="CUSTID" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="project_name">Project Name</label>
+                <input type="text" class="form-control" name="ProjectNAme" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="description">Description</label>
+                <textarea class="form-control" name="Description" required></textarea>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="part_number_suffix">Part Number Suffix</label>
+                <input type="text" class="form-control" name="ProjCodePArtNumberSuffix" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="part_name_suffix">Part Name Suffix</label>
+                <input type="text" class="form-control" name="ProjCodePartNameSuffix" required>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="fy">Financial Year</label>
+                <input type="text" class="form-control" name="FY" required>
+            </div>
+
+            <input type="hidden" name="project_id" id="project_id">
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+            </div>
+
+            
+        </form>
+        <div class="col-12 mb-4">
+            <form id="bulkUpdateForm" method="POST" enctype="multipart/form-data" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Bulk Update Projects</h5>
+                <div class="form-group mb-3">
+                    <label for="bulk_update_file">Upload Excel File</label>
+                    <input type="file" class="form-control" name="bulk_update_file" required>
+                </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <button type="submit" class="btn btn-info" name="action" value="bulk_update">Bulk Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table for Displaying Project Details -->
+    <div class="col-lg-9 col-md-7 mb-4">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Project ID</th>
+                        <th>Customer ID</th>
+                        <th>Project Name</th>
+                        <th>Description</th>
+                        <th>Part Number Suffix</th>
+                        <th>Part Name Suffix</th>
+                        <th>Financial Year</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in pjt %}
+                    <tr>
+                        <td>{{ project.PROJID }}</td>
+                        <td>{{ project.CUSTID }}</td>
+                        <td>{{ project.ProjectNAme }}</td>
+                        <td>{{ project.Description }}</td>
+                        <td>{{ project.ProjCodePArtNumberSuffix }}</td>
+                        <td>{{ project.ProjCodePartNameSuffix }}</td>
+                        <td>{{ project.FY }}</td>
+                        <td>
+                            <button onclick="editProject('{{ project.PROJID }}', '{{ project.CUSTID }}', '{{ project.ProjectNAme }}', '{{ project.Description }}', '{{ project.ProjCodePArtNumberSuffix }}', '{{ project.ProjCodePartNameSuffix }}', '{{ project.FY }}')" class="btn btn-warning btn-sm">Edit</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Form for Bulk Update -->
+   
+
+  </div>
+</div>
+
+<script>
+function editProject(projID, custID, projectName, description, partNumberSuffix, partNameSuffix, fy) {
+    document.getElementById('project_id').value = projID;
+    document.getElementsByName('PROJID')[0].value = projID;
+    document.getElementsByName('CUSTID')[0].value = custID;
+    document.getElementsByName('ProjectNAme')[0].value = projectName;
+    document.getElementsByName('Description')[0].value = description;
+    document.getElementsByName('ProjCodePArtNumberSuffix')[0].value = partNumberSuffix;
+    document.getElementsByName('ProjCodePartNameSuffix')[0].value = partNameSuffix;
+    document.getElementsByName('FY')[0].value = fy;
+}
+</script>
 {% endblock %}
+
+ {% endcomment %}
+
+

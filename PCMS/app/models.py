@@ -364,10 +364,12 @@ class CreateInvoiceBasedPartNumber(models.Model):
 class CreatePurchaseBasedCosting(models.Model):
     PROJID = models.CharField(max_length=255)
     COSTID = models.CharField(max_length=255)	
-    InvoicePartNumber = models.CharField(max_length=255)	
-    CostPerUnit = models.CharField(max_length=255)	
+    InvoiceValues = models.TextField(max_length=255)	
+    PartNums = models.TextField(max_length=255)
+    PartNames = models.TextField(max_length=255)	
     Qty	= models.CharField(max_length=255)
-    TotalValue = models.CharField(max_length=255)	
+    TotalValue = models.CharField(max_length=255)
+    	
     
     def __str__(self):
         return self.PROJID

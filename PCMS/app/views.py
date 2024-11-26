@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import UploadFileForm
 from .models import tblVendordetails, tblProject, tblPartNumber
+from django.core.files.storage import FileSystemStorage
 
 # Helper function to safely strip a value if it's a string
 def safe_strip(value):
@@ -617,13 +618,48 @@ def CreateCustomer_view(request):
     })
 
     
-#------------------------------------------------------------------------------
+#---------------------------------working CreateProject_view---------------------------------------------
 
+
+# def CreateProject_view(request):
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+#         project_id =request.POST.get('project_id')
+        
+#         if action == 'insert':
+#             form = CreateProjectForm(request.POST)
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect('CreateProject')
+#         elif action == 'update':
+#             pjt = get_object_or_404(CreateProject, PROJID=project_id)
+#             form = CreateProjectForm(request.POST, instance=pjt)    
+#             if form.is_valid():
+#                 form.save()
+#                 return redirect('CreateProject')
+#         elif action == 'delete':
+#             pjt = get_object_or_404(CreateProject,PROJID=project_id)  
+#             pjt.delete()  
+#             return redirect('CreateProject')
+    
+#     else:
+#         form = CreateProjectForm()
+#         pjt = CreateProject.objects.all()
+    
+#     return render(request, 'CreateProject.html',{'form': form,'pjt':pjt})
+
+#------------------------------testing CreateProject_view-------------------------------------------
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import CreateProjectForm
+from .models import CreateProject
+import pandas as pd
+from django.core.files.storage import FileSystemStorage
 
 def CreateProject_view(request):
     if request.method == 'POST':
         action = request.POST.get('action')
-        project_id =request.POST.get('project_id')
+        project_id = request.POST.get('project_id')
         
         if action == 'insert':
             form = CreateProjectForm(request.POST)
@@ -632,20 +668,53 @@ def CreateProject_view(request):
                 return redirect('CreateProject')
         elif action == 'update':
             pjt = get_object_or_404(CreateProject, PROJID=project_id)
-            form = CreateProjectForm(request.POST, instance=pjt)    
+            form = CreateProjectForm(request.POST, instance=pjt)
             if form.is_valid():
                 form.save()
                 return redirect('CreateProject')
         elif action == 'delete':
-            pjt = get_object_or_404(CreateProject,PROJID=project_id)  
-            pjt.delete()  
+            pjt = get_object_or_404(CreateProject, PROJID=project_id)
+            pjt.delete()
             return redirect('CreateProject')
-    
+        elif action == 'bulk_update':
+            excel_file = request.FILES['bulk_update_file']
+            fs = FileSystemStorage()
+            print('1  :fs',fs)
+            filename = fs.save(excel_file.name, excel_file)
+            print(' 2  :filename',filename)
+            file_path = fs.path(filename)
+            print('3   :file_path',file_path)
+
+            # Read the Excel file and update the database
+            df = pd.read_excel(file_path)
+            for _, row in df.iterrows():
+                projid = row['PROJID']
+                custid = row['CUSTID']
+                project_name = row['ProjectNAme']
+                description = row['Description']
+                part_number_suffix = row['ProjCodePArtNumberSuffix']
+                part_name_suffix = row['ProjCodePartNameSuffix']
+                fy = row['FY']
+                
+                pjt, created = CreateProject.objects.update_or_create(
+                    PROJID=projid,
+                    defaults={
+                        'CUSTID': custid,
+                        'ProjectNAme': project_name,
+                        'Description': description,
+                        'ProjCodePArtNumberSuffix': part_number_suffix,
+                        'ProjCodePartNameSuffix': part_name_suffix,
+                        'FY': fy,
+                    }
+                )
+            return redirect('CreateProject')
     else:
         form = CreateProjectForm()
         pjt = CreateProject.objects.all()
     
-    return render(request, 'CreateProject.html',{'form': form,'pjt':pjt})
+    return render(request, 'CreateProject.html', {'form': form, 'pjt': pjt})
+
+
 
 #-------------------------------------------------------------------------
 
@@ -765,42 +834,136 @@ from .forms import UploadInvoicefromVendorForm
 #     return render(request, 'UploadInvoicefromVendor.html', context)
 
 
+
+
+
+# working code below
+# from django.shortcuts import render, redirect, get_object_or_404
+# from .models import UploadInvoicefromVendor
+# from .forms import UploadInvoicefromVendorForm
+# from django.contrib import messages
+
+# def UploadInvoicefromVendor_view(request):
+#     if request.method == 'POST':
+#         form = UploadInvoicefromVendorForm(request.POST)
+#         if form.is_valid():
+#             action = request.POST.get('action')
+#             if action == 'insert':
+#                 form.save()
+#                 messages.success(request, 'Invoice inserted successfully.')
+#             elif action == 'update':
+#                 invoice_id = request.POST.get('id')
+#                 invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+#                 form = UploadInvoicefromVendorForm(request.POST, instance=invoice)
+#                 form.save()
+#                 messages.success(request, 'Invoice updated successfully.')
+#             elif action == 'delete':
+#                 invoice_id = request.POST.get('id')
+#                 invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+#                 invoice.delete()
+#                 messages.success(request, 'Invoice deleted successfully.')
+#         else:
+#             messages.error(request, 'Form submission failed. Please correct the errors.')
+#         return redirect('UploadInvoicefromVendor')
+
+#     form = UploadInvoicefromVendorForm()
+#     invoices = UploadInvoicefromVendor.objects.all()
+#     context = {
+#         'form': form,
+#         'invoices': invoices
+#     }
+#     return render(request, 'UploadInvoicefromVendor.html', context)
+
+
+#----------------------18-11-24 below updating code -------------------
+
+   
+import pandas as pd
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import UploadInvoicefromVendor
-from .forms import UploadInvoicefromVendorForm
 from django.contrib import messages
+from .models import UploadInvoicefromVendor, CreateProject
+from .forms import UploadInvoicefromVendorForm
 
 def UploadInvoicefromVendor_view(request):
     if request.method == 'POST':
-        form = UploadInvoicefromVendorForm(request.POST)
-        if form.is_valid():
-            action = request.POST.get('action')
-            if action == 'insert':
+        form = UploadInvoicefromVendorForm(request.POST, request.FILES)
+        action = request.POST.get('action')
+        print(f"Action: {action}")
+
+        if action == 'insert':
+            if form.is_valid():
                 form.save()
                 messages.success(request, 'Invoice inserted successfully.')
-            elif action == 'update':
-                invoice_id = request.POST.get('id')
-                invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
-                form = UploadInvoicefromVendorForm(request.POST, instance=invoice)
+            else:
+                messages.error(request, 'Form submission failed. Please correct the errors.')
+
+        elif action == 'update':
+            invoice_id = request.POST.get('id')
+            invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+            form = UploadInvoicefromVendorForm(request.POST, instance=invoice)
+            if form.is_valid():
                 form.save()
                 messages.success(request, 'Invoice updated successfully.')
-            elif action == 'delete':
-                invoice_id = request.POST.get('id')
-                invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
-                invoice.delete()
-                messages.success(request, 'Invoice deleted successfully.')
-        else:
-            messages.error(request, 'Form submission failed. Please correct the errors.')
+            else:
+                messages.error(request, 'Form submission failed. Please correct the errors.')
+
+        elif action == 'delete':
+            invoice_id = request.POST.get('id')
+            invoice = get_object_or_404(UploadInvoicefromVendor, id=invoice_id)
+            invoice.delete()
+            messages.success(request, 'Invoice deleted successfully.')
+
+        elif action == 'bulk_update':
+            file = request.FILES.get('bulk_update_file')
+            print(f"Uploaded file: {file}")
+            if file:
+                try:
+                    # Read the uploaded file using pandas
+                    data = pd.read_excel(file)
+                    print('data', data)
+
+                    # Define required columns
+                    required_columns = ["Part_number", "VendorInvoiceNumber", "VENDID", "FY", "ProjCodePArtNumberSuffix"]
+                    missing_columns = [col for col in required_columns if col not in data.columns]
+
+                    # Check for missing columns
+                    if missing_columns:
+                        messages.error(request, f"Missing columns: {', '.join(missing_columns)}")
+                    else:
+                        # Process each row for bulk update
+                        for _, row in data.iterrows():
+                            project = CreateProject.objects.filter(PROJID=row["Part_number"].split('-')[0])
+                            if project.exists():
+                                UploadInvoicefromVendor.objects.update_or_create(
+                                    Part_number=row["Part_number"],
+                                    defaults={
+                                        "VendorInvoiceNumber": row["VendorInvoiceNumber"],
+                                        "VENDID": row["VENDID"],
+                                        "FY": row["FY"],
+                                        "ProjCodePArtNumberSuffix": row["ProjCodePArtNumberSuffix"],
+                                    },
+                                )
+                            else:
+                                messages.error(request, f"Invalid Project ID for Part Number: {row['Part_number']}")
+                        messages.success(request, 'Bulk update completed successfully.')
+
+                except Exception as e:
+                    messages.error(request, f"Error processing file: {e}")
+            else:
+                messages.error(request, 'No file uploaded. Please upload an Excel file.')
+
         return redirect('UploadInvoicefromVendor')
 
+    # Render initial form and invoices
     form = UploadInvoicefromVendorForm()
     invoices = UploadInvoicefromVendor.objects.all()
     context = {
         'form': form,
-        'invoices': invoices
+        'invoices': invoices,
     }
     return render(request, 'UploadInvoicefromVendor.html', context)
 
+        
 #-------------------------------------------------------------------------
  
   
@@ -856,11 +1019,11 @@ def CreateInvoiceBasedPartNumber_view(request):
 
 #-------------------------------------------------------------------------
 
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.db.models import Sum
 from .forms import CreatePurchaseBasedCostingForm
-from .models import CreatePurchaseBasedCosting
+from .models import CreatePurchaseBasedCosting, UploadInvoicefromVendor
 
 def CreatePurchaseBasedCosting_view(request):
     form = CreatePurchaseBasedCostingForm()
@@ -868,25 +1031,58 @@ def CreatePurchaseBasedCosting_view(request):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        cost_id = request.POST.get('cost_id')
+        cost_id = request.POST.get('COSTID')
+        proj_id = request.POST.get('PROJID')
 
         try:
             if action == 'insert':
                 form = CreatePurchaseBasedCostingForm(request.POST)
                 if form.is_valid():
-                    form.save()
-                    messages.success(request, 'Record added successfully to Purchase-Based Costing.')
+                    # Fetch and calculate the sum of QtyReceived and TotalValue from UploadInvoicefromVendor
+                    qty_sum = UploadInvoicefromVendor.objects.filter(PROJID=proj_id).aggregate(Sum('QtyReceived'))['QtyReceived__sum'] or 0
+                    total_value_sum = UploadInvoicefromVendor.objects.filter(PROJID=proj_id).aggregate(Sum('TotalValue'))['TotalValue__sum'] or 0
+                    
+                    all_InvoiceValue = ', '.join(
+                                            UploadInvoicefromVendor.objects.filter(PROJID=proj_id).values_list('InvoiceValue', flat=True)
+                                        )
+                    all_part_num = ', '.join(
+                                            UploadInvoicefromVendor.objects.filter(PROJID=proj_id).values_list('Part_number', flat=True)
+                                        )
+                    all_Part_name = ', '.join(
+                                            UploadInvoicefromVendor.objects.filter(PROJID=proj_id).values_list('Part_name', flat=True)
+                                        )
+
+                    print('all_InvoiceValue : ',all_InvoiceValue)
+                    print('all_part_num : ',all_part_num)
+                    print('all_Part_name : ',all_Part_name)
+                    # Save the record in CreatePurchaseBasedCosting
+                    instance = form.save(commit=False)
+                    instance.Qty = qty_sum
+                    instance.TotalValue = total_value_sum
+                    instance.InvoiceValues = all_InvoiceValue
+                    instance.PartNums = all_part_num
+                    instance.PartNames = all_Part_name                
+                    instance.save()
+
+                    messages.success(request, 'Record added successfully.')
                 else:
-                    messages.error(request, 'Error adding record. Please correct the form errors.')
+                    messages.error(request, 'Error adding record. Please check the form fields.')
 
             elif action == 'update':
                 data_instance = get_object_or_404(CreatePurchaseBasedCosting, COSTID=cost_id)
                 form = CreatePurchaseBasedCostingForm(request.POST, instance=data_instance)
                 if form.is_valid():
-                    form.save()
+                    # Update Qty and TotalValue based on the selected PROJID
+                    qty_sum = UploadInvoicefromVendor.objects.filter(PROJID=proj_id).aggregate(Sum('QtyReceived'))['QtyReceived__sum'] or 0
+                    total_value_sum = UploadInvoicefromVendor.objects.filter(PROJID=proj_id).aggregate(Sum('TotalValue'))['TotalValue__sum'] or 0
+
+                    data_instance.Qty = qty_sum
+                    data_instance.TotalValue = total_value_sum
+                    data_instance.save()
+
                     messages.success(request, f'Record with COSTID {cost_id} updated successfully.')
                 else:
-                    messages.error(request, f'Error updating record with COSTID {cost_id}. Please correct the form errors.')
+                    messages.error(request, 'Error updating record. Please check the form fields.')
 
             elif action == 'delete':
                 data_instance = get_object_or_404(CreatePurchaseBasedCosting, COSTID=cost_id)
@@ -896,10 +1092,6 @@ def CreatePurchaseBasedCosting_view(request):
             else:
                 messages.error(request, 'Invalid action selected. Please choose a valid operation.')
 
-            return redirect('CreatePurchaseBasedCosting')
-
-        except CreatePurchaseBasedCosting.DoesNotExist:
-            messages.error(request, f'Record with COSTID {cost_id} not found.')
             return redirect('CreatePurchaseBasedCosting')
 
         except Exception as e:
@@ -914,59 +1106,89 @@ def CreatePurchaseBasedCosting_view(request):
 
 
 #-------------------------------------------------------------------------
-from django.shortcuts import render, redirect, get_object_or_404
+
+
+from django.shortcuts import render
 from django.contrib import messages
-from .forms import ReadPurchaseBasedCostingForm
-from .models import ReadPurchaseBasedCosting
+from .models import CreatePurchaseBasedCosting
 
 def ReadPurchaseBasedCosting_view(request):
-    form = ReadPurchaseBasedCostingForm()
-    data = ReadPurchaseBasedCosting.objects.all()
+    proj_id = request.GET.get('proj_id')
+    data = None
 
-    if request.method == 'POST':
-        action = request.POST.get('action')
-        cost_id = request.POST.get('COSTID')
+    # Fetch all projects for the dropdown
+    all_projects = CreatePurchaseBasedCosting.objects.values('PROJID').distinct()
 
+    if proj_id:
         try:
-            if action == 'insert':
-                form = ReadPurchaseBasedCostingForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, 'Record added successfully to Purchase-Based Costing.')
-                else:
-                    messages.error(request, 'Error adding record. Please correct the form errors.')
-
-            elif action == 'update':
-                data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
-                form = ReadPurchaseBasedCostingForm(request.POST, instance=data_instance)
-                if form.is_valid():
-                    form.save()
-                    messages.success(request, f'Record with COSTID {cost_id} updated successfully.')
-                else:
-                    messages.error(request, f'Error updating record with COSTID {cost_id}. Please correct the form errors.')
-
-            elif action == 'delete':
-                data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
-                data_instance.delete()
-                messages.success(request, f'Record with COSTID {cost_id} deleted successfully.')
-
-            else:
-                messages.error(request, 'Invalid action selected. Please choose a valid operation.')
-
-            return redirect('ReadPurchaseBasedCosting')
-
-        except ReadPurchaseBasedCosting.DoesNotExist:
-            messages.error(request, f'Record with COSTID {cost_id} not found.')
-            return redirect('ReadPurchaseBasedCosting')
-
-        except Exception as e:
-            messages.error(request, f'An unexpected error occurred: {str(e)}')
-            return redirect('ReadPurchaseBasedCosting')
+            # Get data for the selected project ID
+            data = CreatePurchaseBasedCosting.objects.get(PROJID=proj_id)
+        except CreatePurchaseBasedCosting.DoesNotExist:
+            # If no matching project is found
+            messages.error(request, f"No data found for Project ID: {proj_id}")
 
     context = {
-        'form': form,
-        'data': data
+        'all_projects': all_projects,  # Pass all project IDs for the dropdown
+        'data': data,  # Pass the selected project's data
     }
     return render(request, 'ReadPurchaseBasedCosting.html', context)
+
+
+
+
+# from django.shortcuts import render, redirect, get_object_or_404
+# from django.contrib import messages
+# from .forms import ReadPurchaseBasedCostingForm
+# from .models import ReadPurchaseBasedCosting
+
+# def ReadPurchaseBasedCosting_view(request):
+#     form = ReadPurchaseBasedCostingForm()
+#     data = ReadPurchaseBasedCosting.objects.all()
+
+#     if request.method == 'POST':
+#         action = request.POST.get('action')
+#         cost_id = request.POST.get('COSTID')
+
+#         try:
+#             if action == 'insert':
+#                 form = ReadPurchaseBasedCostingForm(request.POST)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, 'Record added successfully to Purchase-Based Costing.')
+#                 else:
+#                     messages.error(request, 'Error adding record. Please correct the form errors.')
+
+#             elif action == 'update':
+#                 data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
+#                 form = ReadPurchaseBasedCostingForm(request.POST, instance=data_instance)
+#                 if form.is_valid():
+#                     form.save()
+#                     messages.success(request, f'Record with COSTID {cost_id} updated successfully.')
+#                 else:
+#                     messages.error(request, f'Error updating record with COSTID {cost_id}. Please correct the form errors.')
+
+#             elif action == 'delete':
+#                 data_instance = get_object_or_404(ReadPurchaseBasedCosting, COSTID=cost_id)
+#                 data_instance.delete()
+#                 messages.success(request, f'Record with COSTID {cost_id} deleted successfully.')
+
+#             else:
+#                 messages.error(request, 'Invalid action selected. Please choose a valid operation.')
+
+#             return redirect('ReadPurchaseBasedCosting')
+
+#         except ReadPurchaseBasedCosting.DoesNotExist:
+#             messages.error(request, f'Record with COSTID {cost_id} not found.')
+#             return redirect('ReadPurchaseBasedCosting')
+
+#         except Exception as e:
+#             messages.error(request, f'An unexpected error occurred: {str(e)}')
+#             return redirect('ReadPurchaseBasedCosting')
+
+#     context = {
+#         'form': form,
+#         'data': data
+#     }
+#     return render(request, 'ReadPurchaseBasedCosting.html', context)
 
 #-------------------------------------------------------------------------
