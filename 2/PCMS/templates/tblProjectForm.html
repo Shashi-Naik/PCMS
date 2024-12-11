@@ -1,0 +1,687 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Form and Table</title>
+    <style>
+        .container {
+            display: flex;
+            width: 100%;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Form styling */
+        .form-container {
+            flex: 1;
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #333;
+            margin-right: 20px; /* Adds space between form and table */
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #4b6584;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-container input, .form-container button {
+            width: calc(100% - 20px);
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .form-container button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Bulk update styling */
+        .bulk-update {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bulk-update input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .bulk-update button {
+            background-color: #20bf6b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bulk-update button:hover {
+            background-color: #26de81;
+        }
+
+        /* Table styling */
+        .table-container {
+            flex: 3; /* Increase the flex value to make the table container wider */
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow-x: auto; /* Add horizontal scroll if needed */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            table-layout: fixed; /* Fixed table layout to control column widths */
+        }
+
+        th, td {
+            padding: 5px; /* Smaller padding for smaller row height */
+            text-align: left;
+            border: 1px solid #ddd; /* Borders like an Excel sheet */
+            word-wrap: break-word; /* Ensures text wraps within the column */
+        }
+
+        th {
+            background-color: #4b6584;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        /* Styling for action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center; /* Center the buttons in the cell */
+            gap: 5px;
+        }
+
+        /* Popup modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px; /* Adjust width for a smaller form */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            color: #333;
+            position: relative; /* Position for the close button */
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            color: #4b6584;
+            margin-bottom: 15px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Update form styling inside modal */
+        .modal-content label {
+            font-weight: bold;
+            color: #4b6584;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .modal-content button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+            display: block;
+            width: 100%; /* Full width for button */
+        }
+
+        .modal-content button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Pagination styling */
+        .pagination {
+            text-align: center;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pagination a, .pagination .current-page {
+            display: inline-block;
+            padding: 10px 15px;
+            color: #4b6584;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+
+        .pagination .current-page {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Add Project</h2>
+        <form method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" name="action" value="insert">Add Project</button>
+        </form>
+
+        <!-- Bulk Update Section -->
+        <div class="bulk-update">
+            <h2>Bulk Update</h2>
+            <form method="POST" action="{% url 'tblProject' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="xlsx_file" accept=".xlsx">
+                <button type="submit" name="action" value="bulk_insert">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table>
+            <tr>
+                <th style="width: 25%;">Company Name</th>
+                <th style="width: 16%;">Company Code</th>
+                <th style="width: 30%;">Project Name</th>
+                <th style="width: 15%;">Project Code</th>
+                <th style="width: 16%;">Part Number</th>
+                <th style="width: 35%;">Part Name</th>
+                <th style="width: 25%;">Actions</th>
+            </tr>
+            {% for project in project_data %}
+            <tr>
+                <td>{{ project.company_name }}</td>
+                <td>{{ project.company_code }}</td>
+                <td>{{ project.project_name }}</td>
+                <td>{{ project.project_code }}</td>
+                <td>{{ project.projcode_partnumber }}</td>
+                <td>{{ project.projcode_partname }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button onclick="openEditModal('{{ project.id }}', '{{ project.company_name }}', '{{ project.company_code }}', '{{ project.project_name }}', '{{ project.project_code }}', '{{ project.projcode_partnumber }}', '{{ project.projcode_partname }}')">Edit</button>
+                        <form method="POST" action="{% url 'tblProject' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="project_id" value="{{ project.id }}">
+                            <button type="submit" name="action" value="delete" style="background-color: #fc5c65; color: white;">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if project_data.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                <a href="?page={{ project_data.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ project_data.number }} of {{ project_data.paginator.num_pages }}
+            </span>
+
+            {% if project_data.has_next %}
+                <a href="?page={{ project_data.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                <a href="?page={{ project_data.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Project</h2>
+        <form method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            <input type="hidden" id="edit_project_id" name="project_id">
+            <label for="edit_company_name">Company Name</label>
+            <input type="text" id="edit_company_name" name="company_name">
+            <label for="edit_company_code">Company Code</label>
+            <input type="text" id="edit_company_code" name="company_code">
+            <label for="edit_project_name">Project Name</label>
+            <input type="text" id="edit_project_name" name="project_name">
+            <label for="edit_project_code">Project Code</label>
+            <input type="text" id="edit_project_code" name="project_code">
+            <label for="edit_projcode_partnumber">Part Number</label>
+            <input type="text" id="edit_projcode_partnumber" name="projcode_partnumber">
+            <label for="edit_projcode_partname">Part Name</label>
+            <input type="text" id="edit_projcode_partname" name="projcode_partname">
+            <button type="submit" name="action" value="edit">Update Project</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, companyName, companyCode, projectName, projectCode, partNumber, partName) {
+        document.getElementById('edit_project_id').value = id;
+        document.getElementById('edit_company_name').value = companyName;
+        document.getElementById('edit_company_code').value = companyCode;
+        document.getElementById('edit_project_name').value = projectName;
+        document.getElementById('edit_project_code').value = projectCode;
+        document.getElementById('edit_projcode_partnumber').value = partNumber;
+        document.getElementById('edit_projcode_partname').value = partName;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('editModal')) {
+            closeModal();
+        }
+    }
+</script>
+</body>
+</html>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Form and Table</title>
+    <style>
+        /* Main layout */
+        .container {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Form styling */
+        .form-container {
+            width: 40%;
+            margin-left:5%;
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #4b6584;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .form-container label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-container input, .form-container button {
+            width: 100%;
+            
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .form-container button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Bulk update styling */
+        .bulk-update {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .bulk-update input[type="file"] {
+            display: block;
+            margin: 10px auto;
+        }
+
+        .bulk-update button {
+            background-color: #20bf6b;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .bulk-update button:hover {
+            background-color: #26de81;
+        }
+
+        /* Table styling */
+        .table-container {
+            width: 80%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4b6584;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Popup modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 40%;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        .close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Update form styling inside modal */
+        .modal-content label {
+            font-weight: bold;
+            color: #4b6584;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        .modal-content button {
+            background-color: #4b7bec;
+            color: white;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        .modal-content button:hover {
+            background-color: #3867d6;
+        }
+
+        /* Pagination styling */
+        .pagination {
+            text-align: center;
+            padding: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pagination a, .pagination .current-page {
+            display: inline-block;
+            padding: 10px 15px;
+            color: #4b6584;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination a:hover {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+
+        .pagination .current-page {
+            background-color: #4b7bec;
+            color: #fff;
+            border-color: #4b7bec;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Add Project</h2>
+        <form method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" name="action" value="insert">Add Project</button>
+        </form>
+
+        <!-- Bulk Update Section -->
+        <div class="bulk-update">
+            <h2>Bulk Update</h2>
+            <form method="POST" action="{% url 'tblProject' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="xlsx_file" accept=".xlsx">
+                <button type="submit" name="action" value="bulk_insert">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Company Name</th>
+                <th>Company Code</th>
+                <th>Project Name</th>
+                <th>Project Code</th>
+                <th>Part Number</th>
+                <th>Part Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for project in project_data %}
+            <tr>
+                <td>{{ project.company_name }}</td>
+                <td>{{ project.company_code }}</td>
+                <td>{{ project.project_name }}</td>
+                <td>{{ project.project_code }}</td>
+                <td>{{ project.projcode_partnumber }}</td>
+                <td>{{ project.projcode_partname }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button onclick="openEditModal('{{ project.id }}', '{{ project.company_name }}', '{{ project.company_code }}', '{{ project.project_name }}', '{{ project.project_code }}', '{{ project.projcode_partnumber }}', '{{ project.projcode_partname }}')">Edit</button>
+                        <form method="POST" action="{% url 'tblProject' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="project_id" value="{{ project.id }}">
+                            <button type="submit" name="action" value="delete" style="background-color: #fc5c65; color: white;">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if project_data.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                <a href="?page={{ project_data.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ project_data.number }} of {{ project_data.paginator.num_pages }}
+            </span>
+
+            {% if project_data.has_next %}
+                <a href="?page={{ project_data.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                <a href="?page={{ project_data.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Popup Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Edit Project</h2>
+        <form id="editForm" method="POST" action="{% url 'tblProject' %}">
+            {% csrf_token %}
+            <input type="hidden" id="editProjectId" name="project_id">
+            <label>Company Name:</label>
+            <input type="text" id="editCompanyName" name="company_name">
+            <label>Company Code:</label>
+            <input type="text" id="editCompanyCode" name="company_code">
+            <label>Project Name:</label>
+            <input type="text" id="editProjectName" name="project_name">
+            <label>Project Code:</label>
+            <input type="text" id="editProjectCode" name="project_code">
+            <label>Part Number:</label>
+            <input type="text" id="editPartNumber" name="projcode_partnumber">
+            <label>Part Name:</label>
+            <input type="text" id="editPartName" name="projcode_partname">
+            <button type="submit" name="action" value="update">Update</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, companyName, companyCode, projectName, projectCode, partNumber, partName) {
+        document.getElementById("editProjectId").value = id;
+        document.getElementById("editCompanyName").value = companyName;
+        document.getElementById("editCompanyCode").value = companyCode;
+        document.getElementById("editProjectName").value = projectName;
+        document.getElementById("editProjectCode").value = projectCode;
+        document.getElementById("editPartNumber").value = partNumber;
+        document.getElementById("editPartName").value = partName;
+        document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+</script>
+</body>
+</html>
+{% endblock %}
+
+ {% endcomment %}

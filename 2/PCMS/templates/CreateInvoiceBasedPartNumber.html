@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+  
+    <h1 class="text-center mb-4">Invoice Details</h1>
+
+    <div class="row">
+        <!-- Form for Adding/Editing Invoice Details -->
+        <div class="col-lg-3 col-md-5 mb-4">
+            <form id="invoiceForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Invoice Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <input type="text" class="form-control" name="PROJID" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="vend_id">Vendor ID</label>
+                    <input type="text" class="form-control" name="VENDID" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form-control" name="VendorInvoiceNumber" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="year_of_invoice">Year of Invoice</label>
+                    <input type="text" class="form-control" name="YearOfInvoice" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_part_number">Invoice Part Number</label>
+                    <input type="text" class="form-control" name="InvoicePartNumber" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="batch_id">Batch ID</label>
+                    <input type="text" class="form-control" name="BAtchID" required>
+                </div>
+
+                <input type="hidden" name="vendor_id" id="vendor_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Invoice Details -->
+        <div class="col-lg-9 col-md-7 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Vendor ID</th>
+                            <th>Invoice Number</th>
+                            <th>Year of Invoice</th>
+                            <th>Invoice Part Number</th>
+                            <th>Batch ID</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in data %}
+                        <tr>
+                            <td>{{ invoice.PROJID }}</td>
+                            <td>{{ invoice.VENDID }}</td>
+                            <td>{{ invoice.VendorInvoiceNumber }}</td>
+                            <td>{{ invoice.YearOfInvoice }}</td>
+                            <td>{{ invoice.InvoicePartNumber }}</td>
+                            <td>{{ invoice.BAtchID }}</td>
+                            <td>
+                                <button onclick="editInvoice('{{ invoice.VENDID }}', '{{ invoice.PROJID }}', '{{ invoice.VendorInvoiceNumber }}', '{{ invoice.YearOfInvoice }}', '{{ invoice.InvoicePartNumber }}', '{{ invoice.BAtchID }}')" class="btn btn-warning btn-sm">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editInvoice(vendorID, projID, invoiceNumber, year, partNumber, batchID) {
+    document.getElementById('vendor_id').value = vendorID;
+    document.getElementsByName('PROJID')[0].value = projID;
+    document.getElementsByName('VendorInvoiceNumber')[0].value = invoiceNumber;
+    document.getElementsByName('YearOfInvoice')[0].value = year;
+    document.getElementsByName('InvoicePartNumber')[0].value = partNumber;
+    document.getElementsByName('BAtchID')[0].value = batchID;
+}
+</script>
+{% endblock %}

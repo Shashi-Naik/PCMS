@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<title>Project Management</title>
+
+<style>
+    .container {
+        margin-top: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-control-sm {
+        font-size: 0.85rem;
+        padding: 0.375rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .p-3 {
+        padding: 1rem !important;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+    }
+
+    .table-sm th, .table-sm td {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .thead-dark th {
+        background-color: #343a40;
+        color: white;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .no-gutters {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .light-border {
+        border: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .form-container, .table-container {
+        padding: 1rem;
+    }
+
+    .table-container {
+        border-left: 2px solid #ccc;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Column: Form for Adding or Editing Project Details -->
+        <div class="col-lg-3 col-md-5 form-container bg-light rounded shadow-sm">
+            <h5 class="text-center mb-4">Project Form</h5>
+            <form method="POST" id="projectForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" name="company_name" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                    <label for="company_code">Company Code</label>
+                    <input type="text" name="company_code" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                    <label for="project_name1">Project Name</label>
+                    <input type="text" name="project_name1" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                    <label for="project_code1">Project Code</label>
+                    <input type="text" name="project_code1" class="form-control form-control-sm" required>
+                </div> 
+                <div class="form-group">
+                    <label for="projcode_partnumber">Part Number</label>
+                    <input type="text" name="projcode_partnumber" class="form-control form-control-sm" required>
+                </div>
+                <div class="form-group">
+                    <label for="projcode_partname">Part Name</label>
+                    <input type="text" name="projcode_partname" class="form-control form-control-sm" required>
+                </div>
+                <button type="submit" name="action" value="insert" class="btn btn-primary btn-sm w-100">Add Project</button>
+            </form>
+
+            <!-- Bulk Upload Form -->
+            <div class="mt-4">
+                <h5 class="text-center mb-3">Bulk Upload</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="xlsx_file" accept=".xlsx" class="form-control form-control-sm mb-2" required>
+                    <button type="submit" name="action" value="bulk_insert" class="btn btn-success btn-sm w-100 mb-2">Upload XLSX</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Project List Table -->
+        <div class="col-lg-9 col-md-7 table-container">
+            <h5 class="text-center mb-4">Project List</h5>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-sm" id="projectTable">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Company Code</th>
+                            <th>Project Name</th>
+                            <th>Project Code</th>
+                            <th>Part Number</th>
+                            <th>Part Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in project_data %}
+                        <tr data-project-id="{{ project.id }}">
+                            <td>{{ project.company_name }}</td>
+                            <td>{{ project.company_code }}</td>
+                            <td>{{ project.project_name1 }}</td>
+                            <td>{{ project.project_code1 }}</td>
+                            <td>{{ project.projcode_partnumber }}</td>
+                            <td>{{ project.projcode_partname }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="editProject({{ project.id }})">Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProject({{ project.id }})">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if project_data.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ project_data.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;&laquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in project_data.paginator.page_range %}
+                    {% if project_data.number == page_num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if project_data.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ project_data.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ project_data.paginator.num_pages }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to handle edit functionality
+    function editProject(projectId) {
+        // Get the row details for the selected project
+        const row = document.querySelector(`#projectTable tbody tr[data-project-id="${projectId}"]`);
+        const companyName = row.querySelector('td:nth-child(1)').innerText;
+        const companyCode = row.querySelector('td:nth-child(2)').innerText;
+        const projectName = row.querySelector('td:nth-child(3)').innerText;
+        const projectCode = row.querySelector('td:nth-child(4)').innerText;
+        const partNumber = row.querySelector('td:nth-child(5)').innerText;
+        const partName = row.querySelector('td:nth-child(6)').innerText;
+
+        // Fill the form with the project data
+        document.querySelector("input[name='company_name']").value = companyName;
+        document.querySelector("input[name='company_code']").value = companyCode;
+        document.querySelector("input[name='project_name1']").value = projectName;
+        document.querySelector("input[name='project_code1']").value = projectCode;
+        document.querySelector("input[name='projcode_partnumber']").value = partNumber;
+        document.querySelector("input[name='projcode_partname']").value = partName;
+
+        // Change the form action to update with the project_id
+        const form = document.getElementById('projectForm');
+        form.action = "{% url 'tblProject' %}";  // Ensure this URL is correct in your project
+        form.method = "POST";
+        form.querySelector("button[type='submit']").name = "action";
+        form.querySelector("button[type='submit']").value = "update"; // Change action to update
+        form.dataset.projectId = projectId; // Store the project ID in the form
+    }
+
+    // Function to handle delete functionality
+    function deleteProject(projectId) {
+        if (confirm('Are you sure you want to delete this project?')) {
+            // Send a request to delete the project
+            fetch(`/delete_project/${projectId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    const row = document.querySelector(`#projectTable tbody tr[data-project-id="${projectId}"]`);
+                    row.remove();
+                    alert('Project deleted successfully.');
+                } else {
+                    alert('Failed to delete project.');
+                }
+            });
+        }
+    }
+</script>
+
+{% endblock %}

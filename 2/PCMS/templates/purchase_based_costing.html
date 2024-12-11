@@ -1,0 +1,281 @@
+
+
+
+
+class UploadInvoicefromVendor(models.Model):
+    PROJID = models.CharField(max_length=255)
+    VENDID = models.CharField(max_length=255)
+    VendorInvoiceNumber = models.CharField(max_length=255)
+    VendorNAme = models.CharField(max_length=255)
+    DateofInvoice = models.CharField(max_length=255)
+    UnitOfMeasure = models.CharField(max_length=255)
+    QtyReceived = models.CharField(max_length=255)
+    GSTRate = models.CharField(max_length=255)
+    InvoiceValue = models.CharField(max_length=255)
+    HSN = models.CharField(max_length=255)
+    CostPerunit = models.CharField(max_length=255, blank=True, null=True)
+    TotalValue = models.CharField(max_length=255, blank=True, null=True)
+    Part_number = models.CharField(max_length=255, blank=True, null=True)
+    Part_name = models.CharField(max_length=255, blank=True, null=True)
+    CGST = models.CharField(max_length=255, blank=True, null=True)
+    SGST = models.CharField(max_length=255, blank=True, null=True)
+    IGST = models.CharField(max_length=255, blank=True, null=True)        
+    
+    after insert the form with the help of project id 'PROJID' take the data from 'UploadInvoicefromVendo'model 
+    InvoiceValue,Part_number,Part_name,QtyReceived,TotalValue,HSN will store it in below given model 'CreatePurchaseBasedCosting'
+    
+
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+    
+        .project-header {
+            text-align: center;
+            color: #cd1129;
+            margin-top: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+    
+        .project-header input[type="text"],
+        .project-header button {
+            padding: 5px;
+            font-size: 12px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    
+        .project-header button {
+            background-color: #4169E1;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+    
+        .left-side {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+    
+        .left-side h5 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    
+        .left-side .form-control {
+            margin-bottom: 10px;
+        }
+    
+        .right-side {
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+    
+        .right-side h5 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    
+        .table-container {
+            overflow-x: auto;
+        }
+    
+        .table thead th {
+            background-color: #343a40;
+            color: #fff;
+        }
+    
+        .table td ul {
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+    
+        .alert-warning {
+            margin-top: 20px;
+        }
+    
+        @media (max-width: 768px) {
+            .project-header {
+                flex-direction: column;
+            }
+    
+            .project-header div {
+                margin-top: 10px;
+            }
+    
+            .left-side,
+            .right-side {
+                margin-top: 20px;
+            }
+        }
+    </style>
+
+
+
+
+
+
+
+
+
+class CreateProject(models.Model):
+    PROJID = models.CharField(max_length= 100)
+    CUSTID = models.CharField(max_length=255)
+    CustomerName = models.CharField(max_length=255)
+    ProjectNAme = models.CharField(max_length=255)
+    Description = models.TextField() 
+    ProjCodePArtNumberSuffix = models.CharField(max_length=255)
+    ProjCodePartNameSuffix = models.CharField(max_length=255)
+    FY = models.TextField() 
+ 
+    def __str__(self):
+        return self.PROJID
+    class Meta:
+        db_table = 'tblCreateProject'
+
+
+i have above given 'CreateProject'model.py
+in the HTMLform select the project id 'PROJID' it will be fetch from 'CreateProject'model and also with help of 'PROJID'select  i can see the 'CUSTID,CustomerName,ProjectNAme' Automatically in in HTML form 
+then i click insert the html form and store it in another table below given 'CreatePurchaseBasedCosting'model
+
+class CreatePurchaseBasedCosting(models.Model):
+    PROJID = models.CharField(max_length= 100)
+    CUSTID = models.CharField(max_length=255)
+    CustomerName = models.CharField(max_length=255)
+    ProjectNAme = models.CharField(max_length=255)
+    below given feild will be keep it blank
+    InvoiceValues = models.TextField(max_length=255, blank=True)    
+    PartNums = models.TextField(max_length=255, blank=True)
+    PartNames = models.TextField(max_length=255, blank=True)    
+    Qty = models.CharField(max_length=255,blank=True)
+    TotalValue = models.CharField(max_length=255,blank=True)
+    HSN = models.CharField(max_length=255,blank=True)
+    
+create the forms.py
+views.py
+
+with the help of PROJID
+Project_name
+Custmer_id
+Custmer_name will be auto fetch from the 'CreateProject'model
+all the logic will be write inside the single views.py
+
+create the html with the help of below given html code for refrence
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+
+<h1 class="project-header">
+    Purchase-Based Costing Details
+    <div>
+        <input type="text" id="searchBox" placeholder="Search...">
+        <button id="downloadButton" class="btn btn-primary">Download</button>
+    </div>
+</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Side: Project ID Dropdown -->
+        <div class="col-lg-3 col-md-4 left-side">
+            <form method="POST" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="text-center mb-3">Select Project</h5>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <select class="form-control" id="proj_id" name="proj_id" onchange="fetchProjectDetails()">
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in all_projects %}
+                        <option value="{{ project }}" {% if request.GET.proj_id == project %}selected{% endif %}>
+                            {{ project }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="cust_id">Customer ID</label>
+                    <input type="text" class="form-control" id="cust_id" name="cust_id" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" class="form-control" id="customer_name" name="customer_name" readonly>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="project_name">Project Name</label>
+                    <input type="text" class="form-control" id="project_name" name="project_name" readonly>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
+
+        <!-- Right Side: Table Format -->
+        <div class="col-lg-9 col-md-8 right-side">
+            {% if data %}
+            <div class="shadow p-4 rounded bg-white border border-secondary">
+                <h5 class="text-center mb-4">Costing Details</h5>
+                <div class="table-container">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Project ID</th>
+                                <th>Part Numbers</th>
+                                <th>Part Names</th>
+                                <th>Invoice Values</th>
+                                <th>Quantity</th>
+                                <th>Total Value</th>
+                                <th>HSN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ data.PROJID }}</td>
+                                <td id="partNums"></td>
+                                <td id="partNames"></td>
+                                <td id="invoiceDetails" class="text-end"></td>
+                                <td id="quantities"></td>
+                                <td id="totalValue"></td>
+                                <td id="hsn"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Select a Project ID to view details.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function fetchProjectDetails() {
+        const proj_id = document.getElementById('proj_id').value;
+        if (proj_id) {
+            fetch(`/your-url-to-fetch-project-details/?proj_id=${proj_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the form fields with the returned data
+                    document.getElementById('cust_id').value = data.CUSTID || '';
+                    document.getElementById('customer_name').value = data.CustomerName || '';
+                    document.getElementById('project_name').value = data.ProjectNAme || '';
+                });
+        } else {
+            // Clear the form fields if no project is selected
+            document.getElementById('cust_id').value = '';
+            document.getElementById('customer_name').value = '';
+            document.getElementById('project_name').value = '';
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    /* General styling */
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 35px;
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+        flex-direction: row; /* Default layout */
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form {
+        width: 15%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #000000;
+        margin-left: 15px;
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+    }
+
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 48%;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px;
+        margin-left: 42px;
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    .table-container {
+        width: 100%;
+        font-size: 12px;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    /* Table container styling */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;  /* Enables horizontal scrolling */
+    }
+    
+    /* Table styling */
+    .table-responsive {
+      max-height: 500px;  /* Set height for vertical scrolling */
+      overflow-y: auto;   /* Enables vertical scrolling */
+      position: relative;
+    }
+    
+    /* Table width */
+    #PurchaseTable {
+      width: 100%;
+      min-width: 2724px;   /* Minimum width to handle horizontal scroll */
+      border-collapse: collapse; /* Ensures borders don't overlap */
+    }
+    
+    /* Table cell styling */
+    th, td {
+      border: 1px solid #ddd;
+      padding: 1px;
+      text-align: left;
+    }
+    
+    /* Sticky header styling */
+    #PurchaseTable thead th {
+      background-color: #09112d;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Shadow effect for the header */
+    }
+    
+    /* Table row hover effect */
+    #PurchaseTable tbody tr:nth-child(even),
+    #PurchaseTable tbody tr:nth-child(odd) {
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    #PurchaseTable tbody tr:hover {
+      background-color: #F5F5F5;
+      box-shadow: 0 6px 6px -6px #0E1119;
+      transition: all 0.3s ease;
+    }
+    
+    /* Cell hover effect (excluding buttons) */
+    #PurchaseTable tbody td:not(:has(button)):hover {
+      background-color: #FFFF00;
+      color: #403E10;
+      font-weight: bold;
+      box-shadow: #D3D3D3 -1px 1px, #D3D3D3 -2px 2px, #7F7C21 -3px 3px,
+                  #D3D3D3 -4px 4px, #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+      transform: translate3d(6px, -6px, 0);
+      transition: all 0.4s ease;
+    }
+    
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px; 
+        width: auto;
+    }
+
+    .btn-warning:hover {
+        background-color: #DC143C;
+    }
+
+    .btn-danger {
+        background-color: #DC143C;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px;
+        width: auto;
+    }
+
+    #editModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    /* Modal Input Styling */
+    #editModal label {
+        font-size: 10px;
+        color: #000000;
+        width: 30%;
+        text-align: right;
+    }
+
+    #editModal input, #editModal textarea, #editModal select {
+        width: 65%;
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media screen and (max-width: 768px) {
+        .container-flex {
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .form {
+            width: 90%; /* Make form full width on small screens */
+            margin-left: 0;
+            max-height: none; /* Allow form to expand */
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        table {
+            min-width: 600px; /* Ensure table is scrollable */
+        }
+
+        .btn {
+            font-size: 12px; /* Adjust button font size */
+        }
+
+        #editModal {
+            width: 80%; /* Modal becomes wider on small screens */
+        }
+
+        .form input, .form textarea, .form select {
+            font-size: 14px; /* Increase font size in form inputs */
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .form {
+            width: 100%;
+        }
+
+        .form button {
+            width: 100%; /* Make buttons full width */
+            margin-left: 0;
+        }
+
+        #editModal {
+            width: 95%; /* Make modal full width */
+        }
+
+        .table-container {
+            padding: 0 10px; /* Add padding for smaller screens */
+        }
+
+        table {
+            min-width: 500px; /* Ensure small screen tables are scrollable */
+        }
+
+        .table-container table th, .table-container table td {
+            font-size: 10px; /* Reduce text size for small screens */
+        }
+    }
+</style>
+
+<h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+    Purchase-Based Costing Details
+    <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+        <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+            Download
+        </button>
+    </div>
+</h1>
+
+<div class="container-flex">
+    <!-- Form Section -->
+    <div class="form">
+        <form id="costingForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+            {% csrf_token %}
+            <h5 class="mb-3 text-center">Purchase-Based Costing Form</h5>
+        
+            <div class="form-group mb-3">
+                <label for="proj_id">Project ID</label>
+                {{ form.PROJID }}
+            </div>
+        
+            <div class="form-group mb-3">
+                <label for="cost_id">Cost ID</label>
+                <input type="text" class="form-control" name="COSTID" required>
+            </div>
+        
+            <input type="hidden" name="cost_id" id="cost_id">
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+            </div>
+        </form>
+        
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table id="PurchaseTable">
+                <thead>
+                    <tr>
+                        <th>Project ID</th>
+                        <th>Cost ID</th>
+                        <th>Part Numbers</th>
+                        <th>Part Names</th>
+                        <th>Invoice Values</th>
+                        <th>Quantity</th>
+                        <th>Total Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cost in data %}
+                    <tr>
+                        <td>{{ cost.PROJID }}</td>
+                        <td>{{ cost.COSTID }}</td>
+                        <td>{{ cost.PartNums }}</td>
+                        <td>{{ cost.PartNames }}</td>
+                        <td>{{ cost.InvoiceValues }}</td>
+                        <td>{{ cost.Qty }}</td>
+                        <td>{{ cost.TotalValue }}</td>
+                        <td>
+                            <button onclick="editCost('{{ cost.COSTID }}', '{{ cost.PROJID }}', '{{ cost.InvoicePartNumber }}', '{{ cost.CostPerUnit }}', '{{ cost.Qty }}', '{{ cost.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                            <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

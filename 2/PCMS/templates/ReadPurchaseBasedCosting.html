@@ -1,0 +1,627 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    .container {
+        margin-top: 20px;
+    }
+
+    .project-header {
+        text-align: center;
+        color: #cd1129;
+        margin-top: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .project-header input[type="text"],
+    .project-header button {
+        padding: 5px;
+        font-size: 12px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .project-header button {
+        background-color: #4169E1;
+        border: none;
+        color: white;
+        cursor: pointer;
+    }
+
+    .left-side {
+        padding: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+    }
+
+    .left-side h5 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .left-side .form-control {
+        margin-bottom: 10px;
+    }
+
+    .right-side {
+        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+    }
+
+    .right-side h5 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table thead th {
+        background-color: #343a40;
+        color: #fff;
+    }
+
+    .table td ul {
+        padding-left: 20px;
+        list-style-type: disc;
+    }
+
+    .alert-warning {
+        margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .project-header {
+            flex-direction: column;
+        }
+
+        .project-header div {
+            margin-top: 10px;
+        }
+
+        .left-side,
+        .right-side {
+            margin-top: 20px;
+        }
+    }
+</style>
+
+<h1 class="project-header">
+    Purchase-Based Costing Details
+    <div>
+        <input type="text" id="searchBox" placeholder="Search...">
+        <button id="downloadButton" class="btn btn-primary">Download</button>
+    </div>
+</h1>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Side: Project ID Dropdown -->
+        <div class="col-lg-3 col-md-4 left-side">
+            <form method="GET" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="text-center mb-3">Select Project</h5>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <select class="form-control" id="proj_id" name="proj_id" onchange="this.form.submit()">
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in all_projects %}
+                        <option value="{{ project }}" {% if request.GET.proj_id == project %}selected{% endif %}>
+                            {{ project }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side: Table Format -->
+        <div class="col-lg-9 col-md-8 right-side">
+            {% if data %}
+            <div class="shadow p-4 rounded bg-white border border-secondary">
+                <h5 class="text-center mb-4">Costing Details</h5>
+                <div class="table-container">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Project ID</th>
+                                <th>Cost ID</th>
+                                <th>Part Numbers</th>
+                                <th>Part Names</th>
+                                <th>Invoice Values</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ data.PROJID }}</td>
+                                <td>{{ data.COSTID }}</td>
+                                <td id="partNums"></td>
+                                <td id="partNames"></td>
+                                <td id="invoiceDetails" class="text-end"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Select a Project ID to view details.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to populate table cells with comma-separated values
+    function populateTableCell(cellId, commaSeparatedValues) {
+        const values = commaSeparatedValues.split(',');
+        const cell = document.getElementById(cellId);
+
+        if (values.length > 0) {
+            const list = document.createElement('ul'); // Create an unordered list
+
+            values.forEach((value) => {
+                const listItem = document.createElement('li'); // Create a list item
+                listItem.textContent = value.trim(); // Add trimmed value to the list item
+                list.appendChild(listItem); // Append list item to the list
+            });
+
+            cell.appendChild(list); // Append the list to the cell
+        } else {
+            cell.textContent = 'No data available';
+        }
+    }
+
+    // Function to render Invoice Values with Quantity and Total Value
+    function populateInvoiceDetails(cellId, invoiceValuesStr, quantityStr, totalValueStr) {
+        const invoiceValues = invoiceValuesStr.split(',');
+        const cell = document.getElementById(cellId);
+
+        if (invoiceValues.length > 0) {
+            const list = document.createElement('div');
+            list.style.textAlign = 'right'; // Align content to the right
+
+            // Add Invoice Values
+            invoiceValues.forEach((value) => {
+                const valueDiv = document.createElement('div');
+                valueDiv.textContent = value.trim();
+                list.appendChild(valueDiv);
+            });
+
+            // Add Quantity
+            const quantityDiv = document.createElement('div');
+            quantityDiv.innerHTML = `<b>Quantity:</b> ${quantityStr}`;
+            list.appendChild(quantityDiv);
+
+            // Add Total Value
+            const totalValueDiv = document.createElement('div');
+            totalValueDiv.innerHTML = `<b>Total Value:</b> ${totalValueStr}`;
+            list.appendChild(totalValueDiv);
+
+            cell.appendChild(list);
+        } else {
+            cell.textContent = 'No data available';
+        }
+    }
+
+    // Populate the table with data from the context
+    window.onload = function () {
+        const partNums = "{{ data.PartNums|escapejs }}";
+        const partNames = "{{ data.PartNames|escapejs }}";
+        const invoiceValues = "{{ data.InvoiceValues|escapejs }}";
+        const quantities = "{{ data.Qty|escapejs }}";
+        const totalValue = "{{ data.TotalValue|escapejs }}";
+
+        populateTableCell('partNums', partNums); // Populate Part Numbers
+        populateTableCell('partNames', partNames); // Populate Part Names
+        populateInvoiceDetails('invoiceDetails', invoiceValues, quantities, totalValue); // Populate Invoice Details
+    };
+</script>
+{% endblock %}
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1 class="text-center mb-4">Purchase-Based Costing Details</h1>
+
+    <div class="row">
+        <!-- Left Side: Project ID Dropdown -->
+        <div class="col-lg-3 col-md-4">
+            <form method="GET" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="text-center mb-3">Select Project</h5>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <select class="form-control" id="proj_id" name="proj_id" onchange="this.form.submit()">
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in all_projects %}
+                        <option value="{{ project.PROJID }}" {% if request.GET.proj_id == project.PROJID %}selected{% endif %}>
+                            {{ project.PROJID }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side: Table Format -->
+        <div class="col-lg-9 col-md-8">
+            {% if data %}
+            <div class="shadow p-4 rounded bg-white border border-secondary">
+                <h5 class="text-center mb-4">Costing Details</h5>
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Cost ID</th>
+                            <th>Part Numbers</th>
+                            <th>Part Names</th>
+                            <th>Invoice Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ data.PROJID }}</td>
+                            <td>{{ data.COSTID }}</td>
+                            <td id="partNums"></td>
+                            <td id="partNames"></td>
+                            <td id="invoiceDetails" class="text-end"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Select a Project ID to view details.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to populate table cells with comma-separated values
+function populateTableCell(cellId, commaSeparatedValues) {
+    const values = commaSeparatedValues.split(',');
+    const cell = document.getElementById(cellId);
+
+    if (values.length > 0) {
+        const list = document.createElement('ul'); // Create an unordered list
+
+        values.forEach((value) => {
+            const listItem = document.createElement('li'); // Create a list item
+            listItem.textContent = value.trim(); // Add trimmed value to the list item
+            list.appendChild(listItem); // Append list item to the list
+        });
+
+        cell.appendChild(list); // Append the list to the cell
+    } else {
+        cell.textContent = 'No data available';
+    }
+}
+
+// Function to render Invoice Values with Quantity and Total Value
+function populateInvoiceDetails(cellId, invoiceValuesStr, quantityStr, totalValueStr) {
+    const invoiceValues = invoiceValuesStr.split(',');
+    const cell = document.getElementById(cellId);
+
+    if (invoiceValues.length > 0) {
+        const list = document.createElement('div');
+        list.style.textAlign = 'right'; // Align content to the right
+
+        // Add Invoice Values
+        invoiceValues.forEach((value) => {
+            const valueDiv = document.createElement('div');
+            valueDiv.textContent = value.trim();
+            list.appendChild(valueDiv);
+        });
+
+        // Add Quantity
+        const quantityDiv = document.createElement('div');
+        quantityDiv.innerHTML = `<b>Quantity:</b> ${quantityStr}`;
+        list.appendChild(quantityDiv);
+
+        // Add Total Value
+        const totalValueDiv = document.createElement('div');
+        totalValueDiv.innerHTML = `<b>Total Value:</b> ${totalValueStr}`;
+        list.appendChild(totalValueDiv);
+
+        cell.appendChild(list);
+    } else {
+        cell.textContent = 'No data available';
+    }
+}
+
+// Populate the table with data from the context
+window.onload = function () {
+    const partNums = "{{ data.PartNums|escapejs }}";
+    const partNames = "{{ data.PartNames|escapejs }}";
+    const invoiceValues = "{{ data.InvoiceValues|escapejs }}";
+    const quantities = "{{ data.Qty|escapejs }}";
+    const totalValue = "{{ data.TotalValue|escapejs }}";
+
+    populateTableCell('partNums', partNums); // Populate Part Numbers
+    populateTableCell('partNames', partNames); // Populate Part Names
+    populateInvoiceDetails('invoiceDetails', invoiceValues, quantities, totalValue); // Populate Invoice Details
+};
+</script>
+{% endblock %}
+ {% endcomment %}
+
+
+{% comment %} 
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1 class="text-center mb-4">Purchase-Based Costing Details</h1>
+
+    <div class="row">
+        <!-- Left Side: Project ID Dropdown -->
+        <div class="col-lg-3 col-md-4">
+            <form method="GET" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="text-center mb-3">Select Project</h5>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <select class="form-control" id="proj_id" name="proj_id" onchange="this.form.submit()">
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in all_projects %}
+                        <option value="{{ project.PROJID }}" {% if request.GET.proj_id == project.PROJID %}selected{% endif %}>
+                            {{ project.PROJID }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side: Table Format -->
+        <div class="col-lg-9 col-md-8">
+            {% if data %}
+            <div class="shadow p-4 rounded bg-white border border-secondary">
+                <h5 class="text-center mb-4">Costing Details</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Project ID</td>
+                            <td>{{ data.PROJID }}</td>
+                        </tr>
+                        <tr>
+                            <td>Cost ID</td>
+                            <td>{{ data.COSTID }}</td>
+                        </tr>
+                       
+                        <tr>
+                            <td>Part Numbers</td>
+                            <td id="partNums"></td>
+                        </tr>
+                        <tr>
+                            <td>Part Names</td>
+                            <td id="partNames"></td>
+                        </tr>
+                        <tr>
+                            <td>Invoice Values</td>
+                            <td id="invoiceValues"></td>
+                        </tr>
+                        <tr>
+                            <td>Quantity</td>
+                            <td>{{ data.Qty }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Value</td>
+                            <td>{{ data.TotalValue }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Select a Project ID to view details.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to parse and display comma-separated values as separate rows
+function populateTableCell(cellId, commaSeparatedValues) {
+    const values = commaSeparatedValues.split(',');
+    const cell = document.getElementById(cellId);
+
+    if (values.length > 0) {
+        const table = document.createElement('table');
+        table.classList.add('table', 'table-sm', 'table-bordered');
+
+        values.forEach((value) => {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.textContent = value.trim();
+            row.appendChild(cell);
+            table.appendChild(row);
+        });
+
+        cell.appendChild(table);
+    } else {
+        cell.textContent = 'No data available';
+    }
+}
+
+// Populate the table with data from the context
+window.onload = function () {
+    const invoiceValues = "{{ data.InvoiceValues|escapejs }}";
+    const partNums = "{{ data.PartNums|escapejs }}";
+    const partNames = "{{ data.PartNames|escapejs }}";
+
+    populateTableCell('invoiceValues', invoiceValues);
+    populateTableCell('partNums', partNums);
+    populateTableCell('partNames', partNames);
+};
+</script>
+{% endblock %} {% endcomment %}
+
+
+
+
+
+
+
+
+{% comment %} ---------------------------------------------------------------------------{% endcomment %}
+ 
+ 
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h1 class="text-center mb-4">Purchase-Based Costing Details</h1>
+
+    <div class="row">
+        <!-- Left Side: Project ID Dropdown -->
+        <div class="col-lg-3 col-md-4">
+            <form method="GET" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="text-center mb-3">Select Project</h5>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    <select class="form-control" id="proj_id" name="proj_id" onchange="this.form.submit()">
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in all_projects %}
+                        <option value="{{ project.PROJID }}" {% if request.GET.proj_id == project.PROJID %}selected{% endif %}>
+                            {{ project.PROJID }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side: Table Format -->
+        <div class="col-lg-9 col-md-8">
+            {% if data %}
+            <div class="shadow p-4 rounded bg-white border border-secondary">
+                <h5 class="text-center mb-4">Costing Details</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Coloumn Names</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Project ID</td>
+                            <td>{{ data.PROJID }}</td>
+                        </tr>
+                        <tr>
+                            <td>Cost ID</td>
+                            <td>{{ data.COSTID }}</td>
+                        </tr>
+                        <tr>
+                            <td>Part Numbers</td>
+                            <td id="partNums"></td>
+                        </tr>
+                        <tr>
+                            <td>Part Names</td>
+                            <td id="partNames"></td>
+                        </tr>
+                        <tr>
+                            <td>Invoice Values</td>
+                            <td id="invoiceValues"></td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Quantity</td>
+                            <td>{{ data.Qty }}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Value</td>
+                            <td>{{ data.TotalValue }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center">Select a Project ID to view details.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to parse and display comma-separated values as separate rows
+function populateTableCell(cellId, commaSeparatedValues) {
+    const values = commaSeparatedValues.split(',');
+    const cell = document.getElementById(cellId);
+
+    if (values.length > 0) {
+        const table = document.createElement('table');
+        table.classList.add('table', 'table-sm', 'table-bordered');
+
+        values.forEach((value) => {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.textContent = value.trim();
+            row.appendChild(cell);
+            table.appendChild(row);
+        });
+
+        cell.appendChild(table);
+    } else {
+        cell.textContent = 'No data available';
+    }
+}
+
+// Populate the table with data from the context
+window.onload = function () {
+    const invoiceValues = "{{ data.InvoiceValues|escapejs }}";
+    const partNums = "{{ data.PartNums|escapejs }}";
+    const partNames = "{{ data.PartNames|escapejs }}";
+
+    populateTableCell('invoiceValues', invoiceValues);
+    populateTableCell('partNums', partNums);
+    populateTableCell('partNames', partNames);
+};
+</script>
+{% endblock %} {% endcomment %}

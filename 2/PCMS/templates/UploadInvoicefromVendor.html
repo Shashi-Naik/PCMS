@@ -1,0 +1,922 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<style>
+    /* General styling */
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 80px; /* Adjust this value to move the block further down */
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+        flex-direction: row; /* Default layout */
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form {
+        width: 20%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #000000;
+        margin-left: 15px;
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+    }
+
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 48%;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px;
+        margin-left: 42px;
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    .table-container {
+        width: 100%;
+        font-size: 12px;
+        overflow-y: auto;
+        overflow-x: auto;
+
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 2724px;
+         table-layout: fixed; 
+        
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px 0px; /* Vertical padding (5px top/bottom), horizontal padding (10px left/right) */
+        text-align: center; /* Centering text */
+        line-height: 1.2;
+        box-sizing: border-box; /* Include padding in the total width/height */
+      }
+
+    /* Sticky header styling */
+    thead th {
+        background-color: #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5;
+        box-shadow: 0 6px 6px -6px #0E1119;
+        transition: all 0.3s ease;
+    }
+
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00;
+        color: #403E10;
+        font-weight: bold;
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px; 
+        width: auto;
+    }
+
+    .btn-warning:hover {
+        background-color: #DC143C;
+    }
+
+    .btn-danger {
+        background-color: #DC143C;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px;
+        width: auto;
+    }
+
+    #editModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    /* Modal Input Styling */
+    #editModal label {
+        font-size: 10px;
+        color: #000000;
+        width: 30%;
+        text-align: right;
+    }
+
+    #editModal input, #editModal textarea, #editModal select {
+        width: 65%;
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media screen and (max-width: 768px) {
+        .container-flex {
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .form {
+            width: 90%; /* Make form full width on small screens */
+            margin-left: 0;
+            max-height: none; /* Allow form to expand */
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        table {
+            min-width: 600px; /* Ensure table is scrollable */
+        }
+
+        .btn {
+            font-size: 12px; /* Adjust button font size */
+        }
+
+        #editModal {
+            width: 80%; /* Modal becomes wider on small screens */
+        }
+
+        .form input, .form textarea, .form select {
+            font-size: 14px; /* Increase font size in form inputs */
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .form {
+            width: 100%;
+        }
+
+        .form button {
+            width: 100%; /* Make buttons full width */
+            margin-left: 0;
+        }
+
+        #editModal {
+            width: 95%; /* Make modal full width */
+        }
+
+        .table-container {
+            padding: 0 10px; /* Add padding for smaller screens */
+        }
+
+        table {
+            min-width: 500px; /* Ensure small screen tables are scrollable */
+        }
+
+        .table-container table th, .table-container table td {
+            font-size: 10px; /* Reduce text size for small screens */
+        }
+    }
+</style>
+
+
+<h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+    Upload Invoice from Vendor
+    <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+        <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+            Download
+        </button>
+    </div>
+</h1>
+    <div class="container-flex">
+
+    
+        <!-- Invoice Form Section -->
+        <div class="form">
+            <form id="invoiceForm" method="POST">
+                {% csrf_token %}
+                <h5>Invoice Form</h5>
+
+                <div>
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+                <div>
+                    <label for="vend_id">Vendor ID</label>
+                    {{ form.VENDID }}
+                </div>
+
+                <div>
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form" name="VendorInvoiceNumber" placeholder="Enter Invoice Number" required>
+                </div>
+
+                <div>
+                    <label for="vendor_name">Vendor Name</label>
+                    <input type="text" class="form" name="VendorNAme" placeholder="Enter Vendor Name" required>
+                </div>
+
+                <div>
+                    <label for="invoice_date">Date of Invoice</label>
+                    <input type="date" class="form" name="DateofInvoice" required>
+                </div>
+
+                <div>
+                    <label for="unit_measure">Unit of Measure</label>
+                    <select class="form" name="UnitOfMeasure" required style="font-size: 12px;">
+                        <option value="" disabled selected>Select Unit</option>
+                        <option value="NOC">NOC</option>
+                        <option value="KGS">KGS</option>
+                        <option value="ABCD">ABCD</option>
+                        <option value="ASD">ASD</option>
+                        <option value="HHT">HHT</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="qty_received">Quantity Received</label>
+                    <input type="number" class="form" name="QtyReceived" placeholder="Enter Quantity Received" required>
+                </div>
+
+                <div>
+                    <label for="gst_rate">GST Rate</label>
+                    <select class="form" name="GSTRate" required> style="font-size: 12px;"
+                        <option value="" disabled selected>Select GST Rate</option>
+                        <option value="0%">0%</option>
+                        <option value="5%">5%</option>
+                        <option value="12%">12%</option>
+                        <option value="18%">18%</option>
+                        <option value="28%">28%</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="invoice_value">Invoice Value</label>
+                    <input type="text" class="form" name="InvoiceValue" placeholder="Enter Invoice Value" required>
+                </div>
+
+                <div>
+                    <label for="hsn_code">HSN Code</label>
+                    <input type="text" class="form" name="HSN" placeholder="Enter HSN Code" required>
+                </div>
+
+                <div>
+                    <label for="option_type">Option Type</label>
+                    {{ form.OptionType }}
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                </div>
+            </form>
+
+            <div class="mt-4">
+                <h5 class="text-center mb-3">Bulk Upload</h5>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="xlsx_file" accept=".xlsx" class="form-control form-control-sm mb-2" required>
+                    <button type="submit" name="action" value="bulk_insert" class="btn btn-success btn-sm w-100 mb-2">Upload XLSX</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Invoice Table Section -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table id="invoiceTable">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Vendor ID</th>
+                            <th>Invoice Number</th>
+                            <th>Vendor Name</th>
+                            <th>Date of Invoice</th>
+                            <th>Unit of Measure</th>
+                            <th>Qty Received</th>
+                            <th>GST Rate</th>
+                            <th>Invoice Value</th>
+                            <th>HSN Code</th>
+                            <th>Cost Per Unit</th>
+                            <th>Total Value</th>
+                            <th>Part Number</th>
+                            <th>Part Name</th>
+                            <th>CGST</th>
+                            <th>SGST</th>
+                            <th>IGST</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.PROJID }}</td>
+                            <td>{{ invoice.VENDID }}</td>
+                            <td>{{ invoice.VendorInvoiceNumber }}</td>
+                            <td>{{ invoice.VendorNAme }}</td>
+                            <td>{{ invoice.DateofInvoice }}</td>
+                            <td>{{ invoice.UnitOfMeasure }}</td>
+                            <td>{{ invoice.QtyReceived }}</td>
+                            <td>{{ invoice.GSTRate }}</td>
+                            <td>{{ invoice.InvoiceValue }}</td>
+                            <td>{{ invoice.HSN }}</td>
+                            <td>{{ invoice.CostPerunit }}</td>
+                            <td>{{ invoice.TotalValue }}</td>
+                            <td>{{ invoice.Part_number }}</td>
+                            <td>{{ invoice.Part_name }}</td>
+                            <td>{{ invoice.CGST }}</td>
+                            <td>{{ invoice.SGST }}</td>
+                            <td>{{ invoice.IGST }}</td>
+                          
+                                <td>
+                                    
+                                    <button class="btn btn-info edit-btn" 
+                                    <button onclick="editInvoice('{{ invoice.PROJID }}', '{{ invoice.VENDID }}', '{{ invoice.VendorInvoiceNumber }}', '{{ invoice.VendorNAme }}', '{{ invoice.DateofInvoice }}', '{{ invoice.UnitOfMeasure }}', '{{ invoice.QtyReceived }}', '{{ invoice.GSTRate }}', '{{ invoice.InvoiceValue }}', '{{ invoice.HSN }}')">Edit</button>
+                                    <form action="{% url 'UploadInvoicefromVendor' %}" method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="vendor_id" value="{{ invoice.VENDID}}">
+                                        <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                           
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="editInvoiceModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40%; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; padding: 20px; z-index: 1000;">
+        <h5 style="text-align: center; color: #09112d;">Edit Invoice</h5>
+        <form id="editInvoiceForm" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="edit_vend_id" id="edit_invoice_id">
+    
+            <!-- Project ID -->
+            <label for="edit_proj_id">Project ID</label>
+            <input type="text" class="form" name="PROJID" id="edit_proj_id" required>
+    
+            <!-- Vendor ID -->
+            <label for="edit_vend_id">Vendor ID</label>
+            <input type="text" class="form" name="VENDID" id="edit_vend_id" required>
+    
+            <!-- Invoice Number -->
+            <label for="edit_invoice_number">Invoice Number</label>
+            <input type="text" class="form" name="VendorInvoiceNumber" id="edit_invoice_number" required>
+    
+            <!-- Vendor Name -->
+            <label for="edit_vendor_name">Vendor Name</label>
+            <input type="text" class="form" name="VendorNAme" id="edit_vendor_name" required>
+    
+            <!-- Date of Invoice -->
+            <label for="edit_invoice_date">Date of Invoice</label>
+            <input type="date" class="form" name="DateofInvoice" id="edit_invoice_date" required>
+    
+            <!-- Unit of Measure -->
+            <label for="edit_unit_measure">Unit of Measure</label>
+            <select class="form" name="UnitOfMeasure" id="edit_unit_measure" required>
+                <option value="NOC">NOC</option>
+                <option value="KGS">KGS</option>
+                <option value="ABCD">ABCD</option>
+                <option value="ASD">ASD</option>
+                <option value="HHT">HHT</option>
+            </select>
+    
+            <!-- Quantity Received -->
+            <label for="edit_qty_received">Quantity Received</label>
+            <input type="number" class="form" name="QtyReceived" id="edit_qty_received" required>
+    
+            <!-- GST Rate -->
+            <label for="edit_gst_rate">GST Rate</label>
+            <select class="form" name="GSTRate" id="edit_gst_rate" required>
+                <option value="0%">0%</option>
+                <option value="5%">5%</option>
+                <option value="12%">12%</option>
+                <option value="18%">18%</option>
+                <option value="28%">28%</option>
+            </select>
+    
+            <!-- Invoice Value -->
+            <label for="edit_invoice_value">Invoice Value</label>
+            <input type="text" class="form" name="InvoiceValue" id="edit_invoice_value" required>
+    
+            <!-- HSN Code -->
+            <label for="edit_hsn_code">HSN Code</label>
+            <input type="text" class="form" name="HSN" id="edit_hsn_code" required>
+    
+            <div style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+                <button type="button" class="btn btn-danger" onclick="closeInvoiceModal()">Cancel</button>
+                <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+            </div>
+        </form>
+    </div>
+    
+
+    <script>
+
+  // Function to populate the Edit Invoice Modal with values from the selected row
+// Open the Edit Invoice Modal and populate fields
+function editInvoice(invoiceID, projID, vendID, invoiceNumber, vendorName, invoiceDate, unitMeasure, qtyReceived, gstRate, invoiceValue, hsnCode) {
+    console.log("Editing invoice with ID:", invoiceID);  // Debugging line
+    
+    // Populate form fields with data from the clicked row
+    document.getElementById('edit_invoice_id').value = invoiceID;
+    document.getElementById('edit_proj_id').value = projID;
+    document.getElementById('edit_vend_id').value = vendID;
+    document.getElementById('edit_invoice_number').value = invoiceNumber;
+    document.getElementById('edit_vendor_name').value = vendorName;
+    document.getElementById('edit_invoice_date').value = invoiceDate;
+    document.getElementById('edit_unit_measure').value = unitMeasure;
+    document.getElementById('edit_qty_received').value = qtyReceived;
+    document.getElementById('edit_gst_rate').value = gstRate;
+    document.getElementById('edit_invoice_value').value = invoiceValue;
+    document.getElementById('edit_hsn_code').value = hsnCode;
+
+    // Show the modal
+    document.getElementById('editInvoiceModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function closeInvoiceModal() {
+    document.getElementById('editInvoiceModal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+
+
+    document.getElementById('searchBox').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        tableRows.forEach(row => {
+            const rowText = row.textContent.toLowerCase();
+            if (rowText.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    document.getElementById('downloadButton').addEventListener('click', function() {
+        const table = document.querySelector('table');
+        const rows = Array.from(table.rows);
+        const csvContent = rows.map(row => {
+            const cells = Array.from(row.cells).map(cell => `"${cell.textContent}"`);
+            return cells.join(',');
+        }).join('\n');
+    
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'VendorDetails.csv';
+        link.click();
+    });
+</script>
+{% endblock%}
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Invoice Details</h1>
+
+    <div class="row">
+        <!-- Invoice Form Section -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <form id="invoiceForm" method="POST" enctype="multipart/form-data" class="shadow p-3 rounded bg-light border border-secondary">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Invoice Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="vend_id">Vendor ID</label>
+                    {{ form.VENDID }}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form-control" name="VendorInvoiceNumber" placeholder="Enter Invoice Number" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="vendor_name">Vendor Name</label>
+                    <input type="text" class="form-control" name="VendorNAme" placeholder="Enter Vendor Name" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_date">Date of Invoice</label>
+                    <input type="date" class="form-control" name="DateofInvoice" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="unit_measure">Unit of Measure</label>
+                    <select class="form-control" name="UnitOfMeasure" required>
+                        <option value="" disabled selected>Select Unit</option>
+                        <option value="NOC">NOC</option>
+                        <option value="KGS">KGS</option>
+                        <option value="ABCD">ABCD</option>
+                        <option value="ASD">ASD</option>
+                        <option value="HHT">HHT</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="qty_received">Quantity Received</label>
+                    <input type="number" class="form-control" name="QtyReceived" placeholder="Enter Quantity Received" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="gst_rate">GST Rate</label>
+                    <select class="form-control" name="GSTRate" required>
+                        <option value="" disabled selected>Select GST Rate</option>
+                        <option value="0%">0%</option>
+                        <option value="5%">5%</option>
+                        <option value="12%">12%</option>
+                        <option value="18%">18%</option>
+                        <option value="28%">28%</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="invoice_value">Invoice Value</label>
+                    <input type="text" class="form-control" name="InvoiceValue" placeholder="Enter Invoice Value" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="hsn_code">HSN Code</label>
+                    <input type="text" class="form-control" name="HSN" placeholder="Enter HSN Code" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="option_type">Option Type</label>
+                    {{ form.OptionType }}
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+
+            <!-- Bulk Update Section -->
+            <form method="POST" enctype="multipart/form-data" class="shadow p-3 rounded bg-light border border-secondary mt-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Bulk Update</h5>
+                <div class="form-group">
+                    <label for="bulk_update_file">Upload Excel File</label>
+                    <input type="file" class="form-control" name="bulk_update_file" accept=".xlsx, .xls" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3" name="action" value="bulk_update">Upload and Update</button>
+            </form>
+        </div>
+
+        <!-- Invoice Table Section -->
+        <div class="col-lg-9 col-md-8 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Vendor ID</th>
+                            <th>Invoice Number</th>
+                            <th>Vendor Name</th>
+                            <th>Date of Invoice</th>
+                            <th>Unit of Measure</th>
+                            <th>Qty Received</th>
+                            <th>GST Rate</th>
+                            <th>Invoice Value</th>
+                            <th>HSN Code</th>
+                            <th>Cost Per Unit</th>
+                            <th>Total Value</th>
+                            <th>Part Number</th>
+                            <th>Part Name</th>
+                            <th>CGST</th>
+                            <th>SGST</th>
+                            <th>IGST</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr>
+                            <td>{{ invoice.PROJID }}</td>
+                            <td>{{ invoice.VENDID }}</td>
+                            <td>{{ invoice.VendorInvoiceNumber }}</td>
+                            <td>{{ invoice.VendorNAme }}</td>
+                            <td>{{ invoice.DateofInvoice }}</td>
+                            <td>{{ invoice.UnitOfMeasure }}</td>
+                            <td>{{ invoice.QtyReceived }}</td>
+                            <td>{{ invoice.GSTRate }}</td>
+                            <td>{{ invoice.InvoiceValue }}</td>
+                            <td>{{ invoice.HSN }}</td>
+                            <td>{{ invoice.CostPerunit }}</td>
+                            <td>{{ invoice.TotalValue }}</td>
+                            <td>{{ invoice.Part_number }}</td>
+                            <td>{{ invoice.Part_name }}</td>
+                            <td>{{ invoice.CGST }}</td>
+                            <td>{{ invoice.SGST }}</td>
+                            <td>{{ invoice.IGST }}</td>
+                            <td>
+                                <button class="btn btn-info edit-btn" data-id="{{ invoice.id }}">Edit</button>
+                                <button class="btn btn-danger delete-btn" data-id="{{ invoice.id }}">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+
+ {% endcomment %}
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <h1 class="text-center mb-4">Invoice Details</h1>
+
+    <div class="row">
+        <!-- Form for Adding/Editing Invoice Details -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <form id="invoiceForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Invoice Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+                <div class="form-group mb-3">
+                    <label for="proj_id">Vendor ID</label>
+                    {{ form.VENDID }}
+                </div>
+                
+                
+                
+                <div class="form-group mb-3">
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form-control" name="VendorInvoiceNumber" required>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="vendor_name">Vendor Name</label>
+                    <input type="text" class="form-control" name="VendorNAme" required>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="invoice_date">Date of Invoice</label>
+                    <input type="date" class="form-control" name="DateofInvoice" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="unit_measure">Unit of Measure</label>
+                    <select class="form-control" name="UnitOfMeasure" required>
+                        <option value="">Select Unit</option>
+                        <option value="NOC">NOC</option>
+                        <option value="KGS">KGS</option>
+                        <option value="ABCD">ABCD</option>
+                        <option value="ASD">ASD</option>
+                        <option value="HHT">HHT</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="qty_received">Quantity Received</label>
+                    <input type="number" class="form-control" name="QtyReceived" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="gst_rate">GST Rate</label>
+                    <select class="form-control" name="GSTRate" required>
+                        <option value="">Select GST Rate</option>
+                        <option value="0%">0%</option>
+                        <option value="5%">5%</option>
+                        <option value="12%">12%</option>
+                        <option value="18%">18%</option>
+                        <option value="28%">28%</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="hsn_code">Invoice Value</label>
+                    <input type="text" class="form-control" name="InvoiceValue" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="hsn_code">HSN Code</label>
+                    <input type="text" class="form-control" name="HSN" required>
+                </div>
+
+                <input type="hidden" name="vendor_id" id="vendor_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Invoice Details -->
+        <div class="col-lg-9 col-md-8 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="width: 2%;">Project ID</th>
+                            <th style="width: 2%;">Vendor ID</th>
+                            <th style="width: 10%;">Invoice Number</th>
+                            <th style="width: 20%;">Part Name</th>
+                            <th style="width: 20%;">Part Number</th>
+                            <th style="width: 6%;">Vendor Name</th>
+                            <th style="width: 10%;">Dateofnvoice</th>
+                            <th style="width: 5%;">UnitMeasure</th>
+                            <th style="width: 5%;">Qty</th>
+                            <th style="width: 8%;">GSTRate</th>
+                            <th style="width: 8%;">HSN</th>
+                            <th style="width: 2%;">Cost/Unit</th>
+                            <th style="width: 2%;">TotalValue</th>
+                            <th style="width: 5%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in data %}
+                        <tr>
+                            <td>{{ invoice.PROJID }}</td>
+                            <td>{{ invoice.VENDID }}</td>
+                            <td>{{ invoice.VendorInvoiceNumber }}</td>
+                            <td>{{ invoice.Part_name }}</td>
+                            <td>{{ invoice.Part_number }}</td>
+                            <td>{{ invoice.VendorNAme }}</td>
+                            <td>{{ invoice.DateofInvoice }}</td>
+                            <td>{{ invoice.UnitOfMeasure }}</td>
+                            <td>{{ invoice.QtyReceived }}</td>
+                            <td>{{ invoice.GSTRate }}</td>
+                            <td>{{ invoice.HSN }}</td>
+                            <td>{{ invoice.CostPerunit }}</td>      
+                            <td>{{ invoice.TotalValue }}</td>
+                            <td>
+                                <button onclick="editInvoice('{{ invoice.VENDID }}', '{{ invoice.PROJID }}', '{{ invoice.VendorInvoiceNumber }}', '{{ invoice.VendorNAme }}', '{{ invoice.DateofInvoice }}', '{{ invoice.UnitOfMeasure }}', '{{ invoice.QtyReceived }}', '{{ invoice.GSTRate }}', '{{ invoice.HSN }}', '{{ invoice.CostPerunit }}', '{{ invoice.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editInvoice(vendorID, projID, invoiceNumber, vendorName, date, unit, qty, gst, hsn, cost, total) {
+    document.getElementById('vendor_id').value = vendorID;
+    document.getElementsByName('PROJID')[0].value = projID;
+    document.getElementsByName('VendorInvoiceNumber')[0].value = invoiceNumber;
+    document.getElementsByName('VendorNAme')[0].value = vendorName;
+    document.getElementsByName('DateofInvoice')[0].value = date;
+    document.getElementsByName('UnitOfMeasure')[0].value = unit;
+    document.getElementsByName('QtyReceived')[0].value = qty;
+    document.getElementsByName('GSTRate')[0].value = gst;
+    document.getElementsByName('HSN')[0].value = hsn;
+    document.getElementsByName('CostPerunit')[0].value = cost;
+    document.getElementsByName('TotalValue')[0].value = total;
+}
+</script>
+
+{% endblock %}
+
+
+ {% endcomment %}
+
+
+
+
+
+
+
+
+
