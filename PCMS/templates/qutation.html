@@ -1,0 +1,520 @@
+
+{% load static %}
+{% block body %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
+            margin-top: 1px;
+            float: left;
+            width: 280px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h3 {
+            margin-top: 1px;
+            margin-right: 220px;  /* Aligns the text to the left */
+        }
+        p {
+            margin-top: -20px;
+        }
+        .company-details {
+            font-size: 14px; /* Adjust the font size */
+            line-height: 1.6;
+            margin-top: 10px;
+            margin-right: 220px;
+        }
+        
+        .company-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .address, .city, .contact, .gst {
+            text-align: center;
+            margin: 5px 0; /* Adds spacing between lines */
+        }
+        
+        .contact a {
+            color: #007BFF; /* Blue link color */
+            text-decoration: none;
+        }
+        
+        .contact a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+        .quo, .date, .enquiry, .datee, .attn, .no {
+            font-size: small;
+        }
+
+        .right, .rightt, .tot {
+            text-align: right;
+        }
+
+        .center {
+            text-align: center;
+            padding-right: 30px 100px;
+        }
+
+        .to {
+            padding-right: 150px;
+        }
+
+        .contact, .quotation-info, .quotation-details, .footer {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid;
+            padding: 10px;
+            text-align: left;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: black;
+            margin-top: 20px;
+        }
+
+        .create-button {
+            position: fixed;
+            bottom: 20px; /* Move the button to the bottom of the page */
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 100;
+            left: 500;
+            width: 50%;
+            height: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+           
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 100%;
+            max-height: 80vh; /* Set a maximum height */
+            overflow-y: auto; /* Enable vertical scrolling */
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column; /* Ensure the form content is displayed vertically */
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button.close {
+            background-color: #6c757d;
+        }
+
+        .modal-content .item-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .item-row input {
+            width: calc(33.33% - 10px);
+            margin-right: 10px;
+        }
+
+        .modal-content .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .modal-content select {
+            width: calc(33.33% - 10px); /* Set the width to match other inputs */
+            padding: 8px; /* Set padding similar to other inputs */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="{% static 'track.png' %}" alt="error">
+            <h3>QUOTATION</h3>
+            <div class="company-details">
+                <p><strong>TRACKOWORLD</strong></p>
+                <p>1,96/1, Ambika Towers, HAL Layout, Singasandra</p>
+                <p>Bangalore - 560068</p>
+                <p>Ph: +91-9886464599, Email: <a href="mailto:Prashanth.narayana@trackoworld.com">Prashanth.narayana@trackoworld.com</a></p>
+                <p>     GSTIN No: 29AIVPP0151C1Z6</p>
+            </div>
+        </header>
+
+        <!-- Quotation Information Form -->
+        <section class="quotation-info">
+            <table>
+                <tr>
+                    <th rowspan="6" class="to" id="quotationResult">
+                        To,<br>
+                        <span id="customerAddress"></span>
+                    </th>
+                    <th>Quotation No</th>
+                    <td id="inputQuotationNo"></td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td id="inputQuotationDate"></td>
+                </tr>
+                <tr>
+                    <th>Your Enquiry No</th>
+                    <td id="inputEnquiryNo"></td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td id="inputEnquiryDate"></td>
+                </tr>
+                <tr>
+                    <th>Kind Attn.</th>
+                    <td id="inputAttention"></td>
+                </tr>
+                <tr>
+                    <th>Contact no.</th>
+                    <td id="inputContactNo"></td>
+                </tr>
+            </table>
+        </section>
+
+        <section class="quotation-details">
+            <table id="quotationTable">
+                <tr>
+                    <th>Sl.No</th>
+                    <th class="des">Description</th>
+                    <th>HSN</th>
+                    <th>GST %</th>
+                    <th>Qty</th>
+                    <th>Per unit Rate</th>
+                    <th>Amount</th>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="6" class="right"><small>Output CGST@9%:</small></td>
+                    <td id="cgst">0.00</td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="rightt"><small>Output SGST@9%:</small></td>
+                    <td id="sgst">0.00</td>
+                </tr>
+                <tr>
+                    <th colspan="6" class="tot"><small>Total</small></th>
+                    <td id="totalAmount">0.00</td>
+                </tr>
+                <tr>
+                    <td colspan="7"><small><b>Amount in words:</b> <span id="amountInWords">Zero</span></small></td>
+                </tr>
+            
+                <!-- Payment and Validity Details -->
+                <tr>
+                    <td colspan="4" class="Output"><small><b>Payment:</b> Within 4 days from date of invoice</small></td>
+                    <td colspan="2"><small><b>F.O.R.: Bangalore</b></small></td>
+                    <td><small><b>Validity:</b> 30 days</small></td>
+                </tr>
+                <tr>
+                    <td colspan="7" class="Output"><small><b>Notes</b></small></td>
+                </tr>
+            
+                <!-- Bank Details -->
+                <tr>
+                    <th colspan="4" class="space"></th>
+                    <th colspan="3" rowspan="2" class="ms"><small>FOR M/s.TRACKOWORLD</small><br><br><br><br><br><br></th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <u><small><b>Our Bank Details:</b></u><br>
+                        <b>Beneficiary Name:</b> M/s. Trackoworld<br>
+                        <b>Bank Name:</b> HDFC Bank<br>
+                        <b>Branch:</b> JAYANAGAR RVS PARADISE<br>
+                        <b>Bank A/C#:</b> 50200036377698<br>
+                        <b>IFSC Code:</b> HDFC0001226
+                        </small>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7">
+                        <footer>Subject to Bangalore jurisdiction only E. & O.E.</footer>
+                    </td>
+                </tr>
+            </table>
+            
+    </div>
+
+    <!-- Button to show the customer selection form -->
+    <button class="create-button" id="createQuotationButton">Create Quotation</button>
+
+    <!-- Hidden form to select customer -->
+    <div id="customerSelectionForm" class="modal">
+        <div class="modal-content">
+            <h2>Create Quotation</h2>
+            <form id="customerForm">
+                <label for="customerId">Select Customer ID:</label>
+                <select id="customerId" name="customer_id" required>
+                    <option value="">-- Select Customer ID --</option>
+                    {% for id in projects %}
+                        <option value="{{ id }}">{{ id }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" id="inputinputQuotationNo" placeholder="Quotation No" required>
+                <input type="date" id="inputinputQuotationDate" required>
+                <input type="text" id="inputinputEnquiryNo" placeholder="Enquiry No" required>
+                <input type="date" id="inputinputEnquiryDate" required>
+                <input type="text" id="inputinputAttention" placeholder="Kind Attn." required>
+                <input type="text" id="inputinputContactNo" placeholder="Contact No" required>
+
+                <h3>Items</h3>
+                <div id="itemRows"></div>
+                <button type="button" onclick="addItemRow()">Add Item Row</button><br><br>
+
+                <button type="submit">Submit</button>
+                <button type="button" class="close" onclick="closeModal()">Close</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#createQuotationButton').on('click', function () {
+                $('#customerSelectionForm').show(); // Show the customer selection form
+            });
+
+            $('#customerForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const customerId = $('#customerId').val();
+                const quotationNo = $('#inputinputQuotationNo').val();
+                const quotationDate = $('#inputinputQuotationDate').val();
+                const enquiryNo = $('#inputinputEnquiryNo').val();
+                const enquiryDate = $('#inputinputEnquiryDate').val();
+                const attention = $('#inputinputAttention').val();
+                const contactNo = $('#inputinputContactNo').val();
+
+                if (!customerId) {
+                    alert('Please select a Customer ID.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '{% url "qutation" %}',
+                    type: 'POST',
+                    data: {
+                        customer_id: customerId,
+                        quotation_no: quotationNo,
+                        quotation_date: quotationDate,
+                        enquiry_no: enquiryNo,
+                        enquiry_date: enquiryDate,
+                        attention: attention,
+                        contact_no: contactNo,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        $('#customerAddress').text(response.customer_address);
+                        $('#inputQuotationNo').text(quotationNo);
+                        $('#inputQuotationDate').text(quotationDate);
+                        $('#inputEnquiryNo').text(enquiryNo);
+                        $('#inputEnquiryDate').text(enquiryDate);
+                        $('#inputAttention').text(attention);
+                        $('#inputContactNo').text(contactNo);
+
+                        $('#quotationTable tr:gt(0)').remove();
+
+                        $('.item-row').each(function (index) {
+                            const description = $(this).find('input[name="item_description[]"]').val();
+                            const quantity = $(this).find('input[name="item_quantity[]"]').val();
+                            const price = $(this).find('input[name="item_price[]"]').val();
+                            const hsn = $(this).find('input[name="item_hsn[]"]').val();
+                            const gst = $(this).find('select[name="item_gst[]"]').val();
+                            const amount = quantity * price;
+
+                            $('#quotationTable').append(`
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${description}</td>
+                                    <td>${hsn}</td>
+                                    <td>${gst}%</td>
+                                    <td>${quantity}</td>
+                                    <td>${price}</td>
+                                    <td>${amount.toFixed(2)}</td>
+                                </tr>
+                            `);
+                        });
+                        recalculateTotals();
+                    }
+                });
+            });
+        });
+
+        function recalculateTotals() {
+            let total = 0;
+            let cgst = 0;
+            let sgst = 0;
+
+            $('#quotationTable tr:gt(0)').each(function () {
+                const amount = parseFloat($(this).find('td:last').text());
+                total += amount;
+                cgst += amount * 0.09;
+                sgst += amount * 0.09;
+            });
+
+            $('#totalAmount').text(total.toFixed(2));
+            $('#cgst').text(cgst.toFixed(2));
+            $('#sgst').text(sgst.toFixed(2));
+
+            const amountInWords = convertNumberToWords(total);
+            $('#amountInWords').text(amountInWords);
+        }
+
+        function convertNumberToWords(amount) {
+            if (isNaN(amount)) return 'Invalid amount';
+            
+            const words = [
+                'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+                'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen',
+                'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+            ];
+            
+            const scales = ['', 'Thousand', 'Lakh', 'Crore'];
+        
+            // Function to convert a number less than 1000 to words
+            function convertHundreds(n) {
+                if (n === 0) return '';
+                
+                let result = '';
+                
+                if (n >= 100) {
+                    result += words[Math.floor(n / 100)] + ' Hundred';
+                    n %= 100;
+                    if (n > 0) result += ' and ';
+                }
+                
+                if (n < 20) {
+                    result += words[n];
+                } else {
+                    const tens = Math.floor(n / 10);
+                    const ones = n % 10;
+                    result += words[tens + 18];
+                    if (ones > 0) result += ' ' + words[ones];
+                }
+                
+                return result;
+            }
+        
+            // Special case for 0
+            if (amount === 0) return words[0] + ' Rupees';
+        
+            let num = Math.floor(amount);
+            let wordsResult = '';
+            let scaleIndex = 0;
+        
+            // Process groups of three digits
+            while (num > 0) {
+                const hundredsGroup = num % 1000;
+                if (hundredsGroup > 0) {
+                    wordsResult = convertHundreds(hundredsGroup) + ' ' + scales[scaleIndex] + ' ' + wordsResult;
+                }
+                num = Math.floor(num / 1000);
+                scaleIndex++;
+            }
+        
+            // Remove extra space at the end and add 'Rupees'
+            return wordsResult.trim() + ' Rupees';
+        }
+        
+        
+
+        function addItemRow() {
+            // Add a new item row to the form
+            const itemRow = `
+                <div class="item-row">
+                    <input type="text" name="item_description[]" placeholder="Description" required>
+                    <input type="text" name="item_hsn[]" placeholder="HSN" required>
+                    <select name="item_gst[]" required>
+                        <option value="">Select GST%</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18">18%</option>
+                        <option value="28">28%</option>
+                    </select>
+                    <input type="number" name="item_quantity[]" placeholder="Quantity" required>
+                    <input type="number" name="item_price[]" placeholder="Price per Unit" required>
+                    <button type="button" onclick="removeItemRow(this)">Remove</button>
+                </div>
+            `;
+            $('#itemRows').append(itemRow);
+        }
+
+         // Function to remove an item row
+         function removeItemRow(button) {
+            $(button).closest('.item-row').remove();
+        }
+
+
+        function closeModal() {
+            $('#customerSelectionForm').hide();
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,773 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload to Folder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f1f3f6;
+            display: flex;
+            color: #333;
+        }
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, rgb(21, 109, 43), #8b9dc3);
+            color: white;
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
+        }
+        .sidebar h2 {
+            font-size: 1.8em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .tree {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            color: #ecf0f1;
+            font-size: 0.9em;
+        }
+        .tree li {
+            margin: 8px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        .tree label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: color 0.3s ease, transform 0.3s ease;
+            padding: 5px 0;
+            border-radius: 4px;
+        }
+        .tree label:hover {
+            color: #f39c12;
+            transform: scale(1.05);
+        }
+        .tree label i {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+        .tree li ul {
+            display: none;
+            margin-left: 20px;
+            list-style-type: none;
+            padding-left: 20px;
+            border-left: 1px dashed #bdc3c7;
+        }
+        .tree li.expanded ul {
+            display: block;
+        }
+        .tree li.expanded label i {
+            transform: rotate(90deg);
+        }
+        .content1 {
+            flex: 1;
+            padding: 40px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        #file-upload-section {
+            margin-top: 30px;
+        }
+        .selected-folder-display {
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #f1f3f6;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: #34495e;
+        }
+        button {
+            padding: 12px 30px;
+            background-color:rgb(41, 100, 65);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color:rgb(18, 179, 32);
+        }
+        input[type="file"] {
+            font-size: 1.1em;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        td {
+            background-color: #fff;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+        .file-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 80px;
+            height: 100px;
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+        .file-icon:hover {
+            background-color: #ecf0f1;
+        }
+        .file-icon i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        .left, .right {
+            width: 70%;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .container1 {
+            display: flex;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            .right {
+                width: 30%;
+                background-color: #f8f9fa;
+                padding: 20px;
+                border: 1px solid #ddd;
+                height:300px;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                margin-left: 20px;
+                box-sizing: border-box;
+            }
+            
+            #dropdown-section h3 {
+                font-size: 1.4em;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 20px;
+            }
+            
+            .dropdown {
+                width: 100%;
+                padding: 10px;
+                font-size: 1em;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                background-color: #fff;
+                color: #34495e;
+                transition: border-color 0.3s ease;
+            }
+            
+            .dropdown:focus {
+                border-color: #2980b9;
+                outline: none;
+            }
+            
+            #child-files-display {
+                margin-top: 20px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                background-color: #ffffff;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            #child-files-display ul {
+                padding: 0;
+                margin: 0;
+                list-style-type: none;
+            }
+            
+            #child-files-display li {
+                padding: 5px;
+                font-size: 0.95em;
+                color: #2c3e50;
+                border-bottom: 1px solid #f0f0f0;
+            }
+            
+            #child-files-display li:hover {
+                background-color: #f9f9f9;
+                cursor: pointer;
+            }
+                
+           
+    </style>
+    
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <form action="{% url 'PCBProject' %}" method="GET">
+                <button type="submit">Create Folder</button>
+            </form>
+        </div>
+        <h2>Folders</h2>
+        <ul class="tree">
+            {% for folder in parent_folders %}
+                <li>
+                    <label data-folder="{{ folder }}">
+                        <i class="fas fa-folder"></i> {{ folder }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="content1"> 
+        <h1>P C B</h1>
+        <div class="container1">
+        <div class="left">
+            <div id="file-upload-section">
+                <h3>Select a folder and upload a file</h3>
+                <div class="selected-folder-display" id="selected-folder-display">No folder selected</div>
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="selected-folder" name="selected_folder">
+                    <input type="file" name="uploaded_file" required>
+                    <button type="submit">Upload File</button>
+                </form>
+             
+            </div>
+        </div>
+        <div class="right">
+            <div id="file-display-section" style="margin-top: 30px; display: flex; flex-wrap: wrap;"></div>
+        </div>
+
+    </div>
+
+
+       
+        <div id="file-display-section" style="margin-top: 30px; display: flex; flex-wrap: wrap;">
+            
+        </div>
+
+
+        <div id="table-section">
+            <h3>Project Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project ID</th>
+                        <th>Project Name</th>
+                        <th>PCB Name</th>
+                        <th>PCB ID</th>
+                        <th>Path</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                        <tr>
+                            <td>{{ project.ProjectId }}</td>
+                            <td>{{ project.ProjectName }}</td>
+                            <td>{{ project.PCBName }}</td>
+                            <td>{{ project.PCBId }}</td>
+                            <td>{{ project.Path }}</td>
+                            <td>{{ project.Reamrks }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        
+        
+        
+    </div>
+    
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectedFolderDisplay = document.getElementById('selected-folder-display');
+        const fileDisplaySection = document.getElementById('file-display-section');
+
+        const fetchChildFoldersAndFiles = (parentFolder, liElement) => {
+            fetch(`/upload_to_folder/?parent_folder=${parentFolder}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.folders || data.files) {
+                        const ul = document.createElement('ul');
+                        for (const [folder, subFolders] of Object.entries(data.folders)) {
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <label data-folder="${parentFolder}/${folder}">
+                                    <i class="fas fa-folder"></i> ${folder}
+                                </label>`;
+                            ul.appendChild(li);
+
+                            li.querySelector('label').addEventListener('click', (event) => {
+                                const clickedLabel = event.target.closest('label');
+                                const subFolder = clickedLabel.getAttribute('data-folder');
+                                const parentLi = clickedLabel.parentElement;
+
+                                // Expand/Collapse on click
+                                parentLi.classList.toggle('expanded');
+
+                                if (!parentLi.querySelector('ul')) {
+                                    fetchChildFoldersAndFiles(subFolder, parentLi);
+                                }
+
+                                // Update selected folder display and input
+                                selectedFolderDisplay.textContent = `Selected Folder: ${subFolder}`;
+                                document.getElementById('selected-folder').value = subFolder;
+
+                                // Display files
+                                displayFiles(data.files || []);
+                            });
+                        }
+                        liElement.appendChild(ul);
+                    }
+
+                    // Display files for the current folder
+                    displayFiles(data.files || []);
+                })
+                .catch(error => console.error('Error fetching child folders and files:', error));
+        };
+
+        const displayFiles = (files) => {
+            fileDisplaySection.innerHTML = ''; // Clear existing files
+            files.forEach(file => {
+                const fileIcon = document.createElement('div');
+                fileIcon.classList.add('file-icon');
+                fileIcon.innerHTML = `
+                    <i class="fas fa-file"></i>
+                    <span>${file}</span>`;
+                fileDisplaySection.appendChild(fileIcon);
+            });
+        };
+
+        document.querySelectorAll('.tree label').forEach(label => {
+            label.addEventListener('click', (event) => {
+                const clickedLabel = event.target.closest('label');
+                const folder = clickedLabel.getAttribute('data-folder');
+                const parentLi = clickedLabel.parentElement;
+
+                // Expand/Collapse on click
+                parentLi.classList.toggle('expanded');
+
+                if (!parentLi.querySelector('ul')) {
+                    fetchChildFoldersAndFiles(folder, parentLi);
+                }
+
+                // Update selected folder display and input
+                selectedFolderDisplay.textContent = `Selected Folder: ${folder}`;
+                document.getElementById('selected-folder').value = folder;
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const folderDropdown = document.getElementById('folder-dropdown');
+        const childFilesDisplay = document.getElementById('child-files-display');
+
+        folderDropdown.addEventListener('change', () => {
+            const selectedFolder = folderDropdown.value;
+
+            if (selectedFolder) {
+                fetch(`/upload_to_folder/?parent_folder=${selectedFolder}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        childFilesDisplay.innerHTML = '';
+                        const ul = document.createElement('ul');
+                        ul.style.listStyleType = 'none';
+                        const addChildItems = (files, container) => {
+                            files.forEach(file => {
+                                const li = document.createElement('li');
+                                li.textContent = file;
+                                container.appendChild(li);
+                            });
+                        };
+
+                        if (data.files) {
+                            addChildItems(data.files, ul);
+                        }
+
+                        for (const [folder, subData] of Object.entries(data.folders || {})) {
+                            const li = document.createElement('li');
+                            li.textContent = folder;
+                            ul.appendChild(li);
+                            if (subData.files) {
+                                addChildItems(subData.files, ul);
+                            }
+                        }
+
+                        childFilesDisplay.appendChild(ul);
+                    })
+                    .catch(error => console.error('Error fetching child files:', error));
+            }
+        });
+    });
+</script>
+</html>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block body %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload to Folder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+         body {
+            font-family: 'Arial', sans-serif;
+            
+            background-color: #f1f3f6;
+            display: flex;
+            
+            color: #333;
+        } 
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg,rgb(33, 170, 20), #8b9dc3);
+            color: white;
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+        .sidebar h2 {
+            font-size: 1.8em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .tree {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            color: #ecf0f1;
+            font-size: 0.9em;
+        }
+        .tree li {
+            margin: 8px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        .tree label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: color 0.3s ease, transform 0.3s ease;
+            padding: 5px 0;
+            border-radius: 4px;
+        }
+        .tree label:hover {
+            color: #f39c12;
+            transform: scale(1.05);
+        }
+        .tree label i {
+            margin-right: 10px;
+            transition: transform 0.3s ease;
+        }
+        .tree li ul {
+            display: none;
+            margin-left: 20px;
+            list-style-type: none;
+            padding-left: 20px;
+            border-left: 1px dashed #bdc3c7;
+        }
+        .tree li.expanded ul {
+            display: block;
+        }
+        .tree li.expanded label i {
+            transform: rotate(90deg);
+        }
+        .tree li ul li {
+            font-size: 0.9em;
+            color: #bdc3c7;
+            padding-left: 12px;
+            transition: color 0.3s ease;
+        }
+        .tree li ul li:hover {
+            color: #ecf0f1;
+        }
+        .tree li ul li i {
+            font-size: 1em;
+        }
+        .tree li ul li:hover i {
+            color: #f39c12;
+        }
+        .content {
+            flex: 1;
+            padding: 40px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+        #file-upload-section {
+            margin-top: 30px;
+        }
+        .selected-folder-display {
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #f1f3f6;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 500;
+            color: #34495e;
+        }
+        button {
+            padding: 12px 30px;
+            background-color:rgb(95, 158, 104);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color:rgb(165, 243, 77);
+        }
+        input[type="file"] {
+            font-size: 1.1em;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        td {
+            background-color: #fff;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectedFolderDisplay = document.getElementById('selected-folder-display');
+            const fileDisplaySection = document.getElementById('file-display-section');
+    
+            const fetchChildFoldersAndFiles = (parentFolder, liElement) => {
+                fetch(`/upload_to_folder/?parent_folder=${parentFolder}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.folders || data.files) {
+                            const ul = document.createElement('ul');
+                            for (const [folder, subFolders] of Object.entries(data.folders)) {
+                                const li = document.createElement('li');
+                                li.innerHTML = `
+                                    <label data-folder="${parentFolder}/${folder}">
+                                        <i class="fas fa-folder"></i> ${folder}
+                                    </label>`;
+                                ul.appendChild(li);
+    
+                                li.querySelector('label').addEventListener('click', (event) => {
+                                    const clickedLabel = event.target.closest('label');
+                                    const subFolder = clickedLabel.getAttribute('data-folder');
+                                    const parentLi = clickedLabel.parentElement;
+    
+                                    // Expand/Collapse on click
+                                    parentLi.classList.toggle('expanded');
+    
+                                    if (!parentLi.querySelector('ul')) {
+                                        fetchChildFoldersAndFiles(subFolder, parentLi);
+                                    }
+    
+                                    // Update selected folder display and input
+                                    selectedFolderDisplay.textContent = `Selected Folder: ${subFolder}`;
+                                    document.getElementById('selected-folder').value = subFolder;
+    
+                                    // Display files
+                                    displayFiles(data.files || []);
+                                });
+                            }
+                            liElement.appendChild(ul);
+                        }
+    
+                        // Display files for the current folder
+                        displayFiles(data.files || []);
+                    })
+                    .catch(error => console.error('Error fetching child folders and files:', error));
+            };
+    
+            const displayFiles = (files) => {
+                fileDisplaySection.innerHTML = ''; // Clear existing files
+                files.forEach(file => {
+                    const fileIcon = document.createElement('div');
+                    fileIcon.classList.add('file-icon');
+                    fileIcon.innerHTML = `
+                        <i class="fas fa-file"></i>
+                        <span>${file}</span>`;
+                    fileDisplaySection.appendChild(fileIcon);
+                });
+            };
+    
+            document.querySelectorAll('.tree label').forEach(label => {
+                label.addEventListener('click', (event) => {
+                    const clickedLabel = event.target.closest('label');
+                    const folder = clickedLabel.getAttribute('data-folder');
+                    const parentLi = clickedLabel.parentElement;
+    
+                    // Expand/Collapse on click
+                    parentLi.classList.toggle('expanded');
+    
+                    if (!parentLi.querySelector('ul')) {
+                        fetchChildFoldersAndFiles(folder, parentLi);
+                    }
+    
+                    // Update selected folder display and input
+                    selectedFolderDisplay.textContent = `Selected Folder: ${folder}`;
+                    document.getElementById('selected-folder').value = folder;
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    
+    <div class="sidebar">
+        <div>
+            <form action="{% url 'PCBProject' %}" method="GET">
+                <button type="submit">Create Folder</button>
+            </form>
+        </div>
+        <h2>Folders</h2>
+        <ul class="tree">
+            {% for folder in parent_folders %}
+                <li>
+                    <label data-folder="{{ folder }}">
+                        <i class="fas fa-folder"></i> {{ folder }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="content">
+        <h1>PCB</h1>
+        <div id="file-upload-section">
+            <h3>Select a folder and upload a file</h3>
+            <div class="selected-folder-display" id="selected-folder-display">No folder selected</div>
+            <form id="upload-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" id="selected-folder" name="selected_folder">
+                <input type="file" name="uploaded_file" required>
+                <button type="submit">Upload File</button>
+            </form>
+        </div>
+        <div id="table-section">
+            <h3>Project Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Project ID</th>
+                        <th>Project Name</th>
+                        <th>PCB Name</th>
+                        <th>PCB ID</th>
+                        <th>Path</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                        <tr>
+                            <td>{{ project.ProjectId }}</td>
+                            <td>{{ project.ProjectName }}</td>
+                            <td>{{ project.PCBName }}</td>
+                            <td>{{ project.PCBId }}</td>
+                            <td>{{ project.Path }}</td>
+                            <td>{{ project.Reamrks }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+{% endblock %}
+ {% endcomment %}

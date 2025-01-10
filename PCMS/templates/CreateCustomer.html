@@ -1,73 +1,369 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="container mt-5">
-  <h1 class="text-center mb-4">Customer Details</h1>
-  
-  <div class="row">
-    <!-- Form for Adding/Editing Customer Details -->
-    <div class="col-lg-3 col-md-5 mb-4">
-        <form id="customerForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+{% block body %}
+
+<style>
+    /* General styling */
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 80px; /* Adjust this value to move the block further down */
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+        flex-direction: row; /* Default layout */
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form {
+        width: 20%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #000000;
+        margin-left: 15px;
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+    }
+
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 48%;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px;
+        margin-left: 42px;
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    .table-container {
+        width: 100%;
+        font-size: 12px;
+        overflow-y: auto;
+        overflow-x: auto;
+
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 2724px;
+         table-layout: fixed; 
+        
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px 0px; /* Vertical padding (5px top/bottom), horizontal padding (10px left/right) */
+        text-align: center; /* Centering text */
+        line-height: 1.2;
+        box-sizing: border-box; /* Include padding in the total width/height */
+      }
+
+    /* Sticky header styling */
+    thead th {
+        background-color: #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5;
+        box-shadow: 0 6px 6px -6px #0E1119;
+        transition: all 0.3s ease;
+    }
+
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00;
+        color: #403E10;
+        font-weight: bold;
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px; 
+        width: auto;
+    }
+
+    .btn-warning:hover {
+        background-color: #DC143C;
+    }
+
+    .btn-danger {
+        background-color: #DC143C;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px;
+        width: auto;
+    }
+
+    #editModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    /* Modal Input Styling */
+    #editModal label {
+        font-size: 10px;
+        color: #000000;
+        width: 30%;
+        text-align: right;
+    }
+
+    #editModal input, #editModal textarea, #editModal select {
+        width: 65%;
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media screen and (max-width: 768px) {
+        .container-flex {
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .form {
+            width: 90%; /* Make form full width on small screens */
+            margin-left: 0;
+            max-height: none; /* Allow form to expand */
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        table {
+            min-width: 600px; /* Ensure table is scrollable */
+        }
+
+        .btn {
+            font-size: 12px; /* Adjust button font size */
+        }
+
+        #editModal {
+            width: 80%; /* Modal becomes wider on small screens */
+        }
+
+        .form input, .form textarea, .form select {
+            font-size: 14px; /* Increase font size in form inputs */
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .form {
+            width: 100%;
+        }
+
+        .form button {
+            width: 100%; /* Make buttons full width */
+            margin-left: 0;
+        }
+
+        #editModal {
+            width: 95%; /* Make modal full width */
+        }
+
+        .table-container {
+            padding: 0 10px; /* Add padding for smaller screens */
+        }
+
+        table {
+            min-width: 500px; /* Ensure small screen tables are scrollable */
+        }
+
+        .table-container table th, .table-container table td {
+            font-size: 10px; /* Reduce text size for small screens */
+        }
+    }
+</style>
+
+
+<h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+    Customer Details
+    <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+        <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+            Download
+        </button>
+    </div>
+</h1>
+<div class="container-flex">
+    <!-- Form Section -->
+    <div class="form">
+        <form id="customerForm" method="POST">
             {% csrf_token %}
-            <h5 class="mb-3 text-center">Customer Form</h5>
+            <h5>Customer Form</h5>
             
-            <div class="form-group mb-3">
+            <div>
                 <label for="CustomerName">Customer Name</label>
-                <input type="text" class="form-control" name="CustomerName" required>
+                <input type="text" class="form" name="CustomerName" required>
             </div>
             
-            <div class="form-group mb-3">
+            <div>
                 <label for="CUSTID">Customer ID</label>
-                <input type="text" class="form-control" name="CUSTID" required>
+                <input type="text" class="form" name="CUSTID" required>
             </div>
             
-            <div class="form-group mb-3">
+            <div>
                 <label for="CustomerGSTIN">GSTIN</label>
-                <input type="text" class="form-control" name="CustomerGSTIN" required>
+                <input type="text" class="form" name="CustomerGSTIN" required>
             </div>
             
-            <div class="form-group mb-3">
+            <div>
                 <label for="CustomerADdress">Address</label>
-                <textarea class="form-control" name="CustomerADdress" required></textarea>
+                <textarea class="form" name="CustomerADdress" required></textarea>
             </div>
             
-            <div class="form-group mb-3">
+            <div>
                 <label for="TypeofCustomer">Type of Customer</label>
-                <select class="form-control" name="TypeofCustomer" required>
+                <select class="form" name="TypeofCustomer" required  style="font-size: 12px">
                     <option value="" disabled selected>Select Type</option>
                     <option value="B2B">B2B</option>
                     <option value="B2C">B2C</option>
                 </select>
             </div>
 
-            <div class="form-group mb-3">
+            <div>
                 <label for="BankAcc">Bank Account</label>
-                <input type="text" class="form-control" name="BankAcc" required>
+                <input type="text" class="form" name="BankAcc" required>
             </div>
 
-            <div class="form-group mb-3">
+            <div>
                 <label for="IFSC">IFSC Code</label>
-                <input type="text" class="form-control" name="IFSC" required>
+                <input type="text" class="form" name="IFSC" required>
             </div>
 
-            <div class="form-group mb-3">
+            <div>
                 <label for="Branch">Branch</label>
-                <input type="text" class="form-control" name="Branch" required>
+                <input type="text" class="form" name="Branch" required>
             </div>
 
             <input type="hidden" name="customer_id" id="customer_id">
             <div class="d-flex justify-content-between mt-3">
                 <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
-                <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
-                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
             </div>
         </form>
+        <div class="mt-4">
+            <h5 class="text-center mb-3">Bulk Upload</h5>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="xlsx_file" accept=".xlsx" class="form-control form-control-sm mb-2" required>
+                <button type="submit" name="action" value="bulk_insert" class="btn btn-success btn-sm w-100 mb-2">Upload XLSX</button>
+            </form>
+        </div>
     </div>
 
     <!-- Table for Displaying Customer Details -->
-    <div class="col-lg-9 col-md-7 mb-4">
+    <div class="table-container">
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table id="customerTable">
                 <thead>
                     <tr>
                         <th>Customer Name</th>
@@ -95,8 +391,19 @@
                         <td>{{ customer.IFSC }}</td>
                         <td>{{ customer.Branch }}</td>
                         <td>
-                            <button onclick="editCustomer('{{ customer.CUSTID }}', '{{ customer.CustomerName }}', '{{ customer.CustomerGSTIN }}', '{{ customer.CustomerADdress }}', '{{ customer.CustomerPAN }}', '{{ customer.TypeofCustomer }}')" class="btn btn-warning btn-sm">Edit</button>
+                            <!-- Edit Button -->
+                            <button 
+                                onclick="editCustomer('{{ customer.CUSTID }}', '{{ customer.CustomerName }}', '{{ customer.CustomerGSTIN }}', '{{ customer.CustomerADdress }}', '{{ customer.CustomerPAN }}', '{{ customer.TypeofCustomer }}')" 
+                                class="btn btn-warning btn-sm">Edit
+                            </button>
+                            
+                            <form action="{% url 'CreateCustomer' %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="customer_id" value="{{ customer.CUSTID }}">
+                                <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                            </form>
                         </td>
+                        
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -106,14 +413,124 @@
   </div>
 </div>
 
+<!-- Modal for Editing customer -->
+<div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40%; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; padding: 20px; z-index: 1000;">
+    <h5 style="text-align: center; color: #09112d;">Edit customer</h5>
+    <form id="editcustomerForm" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="customer_id" id="edit_customer_id">
+
+        <label for="edit_customer_name">Customer Name</label>
+        <input type="text" class="form" name="customerNAme" id="edit_customer_name" required>
+
+        <label for="edit_customer_code">Customer ID</label>
+        <input type="text" class="form" name="VENDID" id="edit_customer_code" required>
+
+        <label for="edit_gstin">GSTIN</label>
+        <input type="text" class="form" name="customerGSTIN" id="edit_gstin" required>
+
+        <label for="edit_address">Address</label>
+        <textarea class="form" name="customerAddress" id="edit_address" required></textarea>
+
+        <label for="edit_type_of_customer">Type of Customer</label>
+        <select class="form" name="Typeofcustomer" id="edit_type_of_customer" required style="font-size: 12px;">
+            <option value="B2B">B2B</option>
+            <option value="B2C">B2C</option>
+        </select>
+
+        <label for="edit_bank_acc">Bank Account</label>
+        <input type="text" class="form" name="BankAcc" id="edit_bank_acc" required>
+
+        <label for="edit_ifsc">IFSC Code</label>
+        <input type="text" class="form" name="IFSC" id="edit_ifsc" required>
+
+        <label for="edit_branch">Branch</label>
+        <input type="text" class="form" name="Branch" id="edit_branch" required>
+
+        <div style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+        </div>
+        
+    </form>
+</div>
+
+
+
 <script>
-function editCustomer(custID, customerName, gstin, address, pan, type) {
-    document.getElementById('customer_id').value = custID;
-    document.getElementsByName('CustomerName')[0].value = customerName;
-    document.getElementsByName('CUSTID')[0].value = custID;
-    document.getElementsByName('CustomerGSTIN')[0].value = gstin;
-    document.getElementsByName('CustomerADdress')[0].value = address;
-    document.getElementsByName('TypeofCustomer')[0].value = type;
+    function editCustomer(customerID, customerName, gstin, address, type, bankAcc, ifsc, branch) {
+        document.getElementById('edit_customer_id').value = customerID;
+        document.getElementById('edit_customer_name').value = customerName;
+        document.getElementById('edit_customer_code').value = customerID;
+        document.getElementById('edit_gstin').value = gstin;
+        document.getElementById('edit_address').value = address;
+        document.getElementById('edit_type_of_customer').value = type;
+        document.getElementById('edit_bank_acc').value = bankAcc;
+        document.getElementById('edit_ifsc').value = ifsc;
+        document.getElementById('edit_branch').value = branch;
+        
+        // Show the modal and overlay
+        document.getElementById('editModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+    
+    // Close the modal
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+document.getElementById('searchBox').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+document.getElementById('downloadButton').addEventListener('click', function() {
+    const table = document.querySelector('table');
+    const rows = Array.from(table.rows);
+    const csvContent = rows.map(row => {
+        const cells = Array.from(row.cells).map(cell => `"${cell.textContent}"`);
+        return cells.join(',');
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'VendorDetails.csv';
+    link.click();
+});
+
+function deleteCustomer(customerID) {
+    if (confirm('Are you sure you want to delete this customer?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '';  // Your delete action URL
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'customer_id';
+        input.value = customerID;
+        form.appendChild(input);
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete';
+        form.appendChild(actionInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 {% endblock %}
+
+
+

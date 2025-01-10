@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSTR2B Records</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>GSTR2B Records</h2>
+
+        <!-- Form for uploading file -->
+        <form id="uploadForm" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload Excel File</label>
+                <input type="file" class="form-control" id="file" name="file" required>
+            </div>
+            <input type="hidden" name="action" value="bulk_insert">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+
+        <!-- Dropdown to select trade_name -->
+        <div class="mt-4">
+            <label for="tradeNameDropdown" class="form-label">Select Trade Name</label>
+            <select id="tradeNameDropdown" class="form-select">
+                <option value="">-- Select Trade Name --</option>
+                {% for record in gstr2b_records %}
+                    <option value="{{ record.trade_name }}">{{ record.trade_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Table to display data -->
+        <div class="mt-4">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>GSTIN Supplier</th>
+                        <th>Trade Name</th>
+                        <th>Invoice Number</th>
+                        <th>Invoice Date</th>
+                        <th>Invoice Value</th>
+                        <th>Taxable Value</th>
+                        <th>Integrated Tax</th>
+                        <th>State/UT Tax</th>
+                        <th>ITC Availability</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    <!-- Rows will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Handle dropdown change
+            $('#tradeNameDropdown').on('change', function () {
+                const tradeName = $(this).val();
+
+                if (tradeName) {
+                    // Fetch filtered data
+                    $.ajax({
+                        url: '',
+                        type: 'POST',
+                        data: {
+                            trade_name: tradeName,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        success: function (response) {
+                            const records = response.records;
+                            const tableBody = $('#recordsTableBody');
+                            tableBody.empty();
+
+                            // Populate table with records
+                            records.forEach(record => {
+                                const row = `
+                                    <tr>
+                                        <td>${record.gstin_supplier}</td>
+                                        <td>${record.trade_name}</td>
+                                        <td>${record.invoice_number}</td>
+                                        <td>${record.invoice_date}</td>
+                                        <td>${record.invoice_value}</td>
+                                        <td>${record.taxable_value}</td>
+                                        <td>${record.integrated_tax}</td>
+                                        <td>${record.state_ut_tax}</td>
+                                        <td>${record.itc_availability}</td>
+                                    </tr>
+                                `;
+                                tableBody.append(row);
+                            });
+                        },
+                        error: function (error) {
+                            console.error('Error fetching records:', error);
+                        }
+                    });
+                } else {
+                    // Clear table if no trade name selected
+                    $('#recordsTableBody').empty();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSTR2B Bulk Insert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>GSTR2B Data</h1>
+
+    <!-- Form to upload file -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="file">Upload GSTR2B Excel File:</label>
+        <input type="file" id="file" name="file" required>
+        <button type="submit">Bulk Insert</button>
+    </form>
+
+    <!-- Table to display data -->
+    <h2>Uploaded Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>GSTIN of Supplier</th>
+                <th>Trade/Legal Name</th>
+                <th>Invoice Number</th>
+                <th>Invoice Type</th>
+                <th>Invoice Date</th>
+                <th>Invoice Value</th>
+                <th>Place of Supply</th>
+                <th>Supply Attract Reverse Charge</th>
+                <th>Rate (%)</th>
+                <th>Taxable Value</th>
+                <th>Integrated Tax</th>
+                <th>Central Tax</th>
+                <th>State/UT Tax</th>
+                <th>Cess</th>
+                <th>GSTR Period</th>
+                <th>GSTR Filing Date</th>
+                <th>ITC Availability</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in gstr2b_records %}
+            <tr>
+                <td>{{ record.gstin_supplier }}</td>
+                <td>{{ record.trade_name }}</td>
+                <td>{{ record.invoice_number }}</td>
+                <td>{{ record.invoice_type }}</td>
+                <td>{{ record.invoice_date }}</td>
+                <td>{{ record.invoice_value }}</td>
+                <td>{{ record.place_of_supply }}</td>
+                <td>{{ record.supply_reverse_charge }}</td>
+                <td>{{ record.rate }}</td>
+                <td>{{ record.taxable_value }}</td>
+                <td>{{ record.integrated_tax }}</td>
+                <td>{{ record.central_tax }}</td>
+                <td>{{ record.state_ut_tax }}</td>
+                <td>{{ record.cess }}</td>
+                <td>{{ record.gstr_period }}</td>
+                <td>{{ record.gstr_filing_date }}</td>
+                <td>{{ record.itc_availability }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> {% endcomment %}

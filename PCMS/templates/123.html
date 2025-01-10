@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
+            margin-top: 1px;
+            float: left;
+            width: 280px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h3 {
+            margin-top: 1px;
+            margin-right: 270px;  /* Aligns the text to the left */
+        }
+        p {
+            margin-top: -20px;
+        }
+
+        .quo, .date, .enquiry, .datee, .attn, .no {
+            font-size: small;
+        }
+
+        .right, .rightt, .tot {
+            text-align: right;
+        }
+
+        .center {
+            text-align: center;
+            padding-right: 30px 100px;
+        }
+
+        .to {
+            text-align: right;
+            padding-left: 150px;
+        }
+
+        .contact, .quotation-info, .quotation-details, .footer {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid;
+            padding: 10px;
+            text-align: left;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: black;
+            margin-top: 20px;
+        }
+
+        .create-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 50%;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button.close {
+            background-color: #6c757d;
+        }
+
+        .modal-content .item-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .item-row input {
+            width: calc(33.33% - 10px);
+            margin-right: 10px;
+        }
+
+        .modal-content .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .modal-content select {
+            width: calc(33.33% - 10px); /* Set the width to match other inputs */
+            padding: 8px; /* Set padding similar to other inputs */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Print-Specific Styles */
+        @media print {
+            body {
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+
+            .container {
+                width: 100%;
+                padding: 10mm;
+                box-shadow: none;
+                margin: 0;
+            }
+
+            .header {
+                text-align: center;
+            }
+
+            .quotation-info, .quotation-details {
+                margin-top: 10px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            table th, table td {
+                padding: 5px;
+                text-align: left;
+                font-size: 10pt;
+            }
+
+            .create-button {
+                display: none;
+            }
+
+            footer {
+                font-size: 10pt;
+                text-align: center;
+            }
+
+            .action-buttons {
+                display: none;
+            }
+
+            .modal {
+                display: none;
+            }
+
+            .modal-content {
+                display: none;
+            }
+
+            img {
+                width: 100%;
+                float: none;
+                display: block;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="tackoworld.png" alt="error">
+            <h3>Project Costing</h3>
+            <p>TRACKOWORLD</p>
+            <p>"1,96/1, Ambika Towers, HAL Layout, Singasandra</p>
+            <p>Bangalore -560068</p>
+            <p>Ph: +91-9886464599, Email: Prashanth.narayana@trackoworld.com</p>
+            <p>GSTIN No: 29AIVPP0151C1Z6</p>
+        </header>
+        
+        <!-- Quotation Information -->
+        <section class="quotation-info">
+            <table>
+                <tr>
+                    <th>Customer ID</th>
+                    <td id="inputCustomerID"></td>
+                    <th rowspan="6" class="to"><br><br><br><br><br><br><br><br><br></th>
+                </tr>
+                <tr>
+                    <th>Customer Name</th>
+                    <td id="inputCustomerName"></td>
+                </tr>
+                <tr>
+                    <th>Project ID</th>
+                    <td id="inputProjectID"></td>
+                </tr>
+                <tr>
+                    <th>Project Name</th>
+                    <td id="inputProjectName"></td>
+                </tr>
+                <tr>
+                    <th>Req ID</th>
+                    <td id="inputReqID"></td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Quotation Details Section -->
+        <section class="quotation-details">
+            <table id="quotationTable">
+                <tr>
+                    <th>Sl.No</th>
+                    <th class="des">Description</th>
+                    <th>HSN</th>
+                    <th>GST %</th>
+                    <th>Qty</th>
+                    <th>Per unit Rate</th>
+                    <th>Amount</th>
+                </tr>
+                <!-- Dynamic rows will be added here -->
+            </table>
+
+            <!-- Total Calculations and Amount in Words -->
+            <table>
+                <tr>
+                    <td colspan="6" class="right"><small>CGST@9%:</small></td>
+                    <td id="cgst"></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="rightt"><small>SGST@9%:</small></td>
+                    <td id="sgst"></td>
+                </tr>
+                <tr>
+                    <th colspan="6" class="tot"><small>Total</small></th>
+                    <td id="totalAmount"></td>
+                </tr>
+                <tr>
+                    <td colspan="7"><small><b>Amount in words:</b> <span id="amountInWords"></span></small></td>
+                </tr>
+ 
+                <tr>
+                    <td colspan="7" class="Output"><small><b>Notes</b></small></td>
+                </tr>
+
+                <!-- Bank Details -->
+                <tr>
+                    <td colspan="3" class="ms" style="text-align: left;">
+                        <u><small><b>Terms and Conditions:</b></u><br>
+                        
+                        </small>
+                    </td>
+                    <td colspan="4" class="ms" style="text-align: right;">
+                        <u><small><b>FOR M/s.TRACKOWORLD</b></u>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7">
+                        <footer>Generated by computer</footer>
+                        
+                    </td>
+                </tr>
+            </table>
+        </section>
+           <!-- Download and Print buttons -->
+           <div class="action-buttons">
+            <button onclick="downloadQuotation()">Download PDF</button>
+            <button class="print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+
+
+        <!-- Create Quotation Button -->
+        <button class="create-button" onclick="openModal()">Create Quotation</button>
+    </div>
+
+    <!-- Modal for Adding Items -->
+    <div class="modal" id="modal">
+
+        <div class="modal-content">
+
+            <h2>Create Quotation</h2>
+            <input type="text" id="inputCustomerID" placeholder="Customer ID">
+            <input type="text" id="inputCustomerName" placeholder="Customer Name">
+            <input type="text" id="inputProjectID" placeholder="Project ID">
+            <input type="text" id="inputProjectName" placeholder="Project Name">
+            <input type="text" id="inputReqID" placeholder="Req ID">
+
+             
+    <!-- File upload input -->
+    <label for="uploadPhoto">Upload Photo:</label>
+    <input type="file" id="uploadPhoto" accept="image/*" onchange="previewPhoto()">
+    
+    <!-- Image preview -->
+    <div style="margin-top: 10px;">
+        <img id="uploadedPhotoPreview" src="" alt="Uploaded Photo" style="width: 100px; height: auto; display: none; border: 1px solid #ccc;">
+    </div>
+
+            <h3>Items</h3>
+
+            <div id="itemRows"></div>
+
+            <button onclick="addItemRow()">Add Item Row</button>
+
+            <button onclick="submitForm()">Submit</button>
+
+            <button class="close" onclick="closeModal()">Close</button>
+
+        </div>
+      
+    </div>
+    <script>
+        let itemCount = 0;
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function addItemRow() {
+            itemCount++;
+            const itemRow = document.createElement('div');
+            itemRow.classList.add('item-row');
+            itemRow.setAttribute('id', `itemRow${itemCount}`); // Assign a unique ID to the row
+        
+            itemRow.innerHTML = `
+                <input type="text" id="inputItemDescription${itemCount}" placeholder="Item Description">
+                <input type="text" id="inputHSN${itemCount}" placeholder="HSN Code">
+              <select id="inputGST${itemCount}" style="width: calc(33% - 10px); padding: 5px; border-radius: 4px;">
+        <option value="">Select GST %</option>
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18">18%</option>
+        <option value="28">28%</option>
+    </select>
+                <input type="number" id="inputQuantity${itemCount}" placeholder="Quantity">
+                <input type="number" id="inputUnitRate${itemCount}" placeholder="Per Unit Rate">
+                <button type="button" onclick="removeItemRow(${itemCount})" style="background-color: #FF4B5C; color: white; border: none; padding: 3px 3px; font-size: 7px; cursor: pointer;">Remove</button>
+
+            `;
+        
+            document.getElementById('itemRows').appendChild(itemRow);
+        }
+
+          function removeItemRow(rowId) {
+          const itemRow = document.getElementById(`itemRow${rowId}`);
+           if (itemRow) {
+             itemRow.remove();
+            }
+        }
+
+
+
+
+
+       // Function to convert number to words
+function numberToWords(num) {
+    const ones = [
+        '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'
+    ];
+    const tens = [
+        '', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+    ];
+    const thousands = [
+        '', 'Thousand', 'Million', 'Billion'
+    ];
+
+    // Handle numbers greater than 999
+    let word = '';
+    if (num === 0) return 'Zero';
+    
+    let i = 0; // For tracking the scale (Thousand, Million, etc.)
+    
+    while (num > 0) {
+        if (num % 1000 !== 0) {
+            word = convertHundreds(num % 1000) + thousands[i] + ' ' + word;
+        }
+        num = Math.floor(num / 1000);
+        i++;
+    }
+    return word.trim();
+}
+
+// Helper function to convert numbers less than 1000
+function convertHundreds(num) {
+    const ones = [
+        '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'
+    ];
+    const tens = [
+        '', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+    ];
+
+    let word = '';
+    
+    if (num > 99) {
+        word += ones[Math.floor(num / 100)] + ' Hundred ';
+        num %= 100;
+    }
+    if (num > 19) {
+        word += tens[Math.floor(num / 10)] + ' ';
+        num %= 10;
+    }
+    if (num > 0) {
+        word += ones[num] + ' ';
+    }
+
+    return word.trim();
+}
+
+//load customer adresss
+function fetchCustomerAddress() {
+    const customerID = document.getElementById('inputCustomerID').value;
+
+    if (customerID) {
+        fetch(`/get-customer-address/?cust_id=${customerID}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Populate the 'To' section with customer address
+                    document.querySelector('.to').innerHTML = `
+                        <b>To,</b><br>
+                        ${data.address}
+                    `;
+                } else {
+                    document.querySelector('.to').innerHTML = '<b>To,</b><br><small>Customer not found</small>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching customer address:', error);
+                document.querySelector('.to').innerHTML = '<b>To,</b><br><small>Error loading address</small>';
+            });
+    }
+}
+
+// Function to submit the form
+// Function to handle photo preview
+function previewPhoto() {
+    const file = document.getElementById('uploadPhoto').files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+        // Set the uploaded image as the source for the preview
+        const imagePreview = document.getElementById('uploadedPhotoPreview');
+        imagePreview.src = event.target.result;
+        imagePreview.style.display = 'block'; // Make the preview visible
+    };
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+}
+
+// Function to submit the form and update the layout
+function submitForm() {
+    const inputCustomerID = document.getElementById('inputCustomerID').value;
+    const inputCustomerName = document.getElementById('inputCustomerName').value;
+    const inputProjectID = document.getElementById('inputProjectID').value;
+    const inputProjectName = document.getElementById('inputProjectName').value;
+    const inputReqID = document.getElementById('inputReqID').value;
+
+    // Update Quotation Information in the Table
+    document.getElementById('inputCustomerID').innerText = inputCustomerID;
+    document.getElementById('inputCustomerName').innerText = inputCustomerName;
+    document.getElementById('inputProjectID').innerText = inputProjectID;
+    document.getElementById('inputProjectName').innerText = inputProjectName;
+    document.getElementById('inputReqID').innerText = inputReqID;
+
+    // Replace the "To" section with the uploaded image
+    const uploadedPhotoPreview = document.getElementById('uploadedPhotoPreview');
+    if (uploadedPhotoPreview.src) {
+        // If there is an uploaded photo, add it in place of the "To" section
+        const toSection = document.querySelector('.to');
+        toSection.innerHTML = ''; // Clear the existing "To" section
+        toSection.appendChild(uploadedPhotoPreview); // Add the photo to the section
+    }
+
+    // Reset previous quotation rows (if any)
+    document.querySelectorAll('#quotationTable tr:nth-child(n+2)').forEach(row => row.remove());
+
+    let totalAmount = 0;
+
+    // Process Each Item Row
+    for (let i = 1; i <= itemCount; i++) {
+        const itemDescription = document.getElementById(`inputItemDescription${i}`).value;
+        const hsnCode = document.getElementById(`inputHSN${i}`).value;
+        const gst = parseFloat(document.getElementById(`inputGST${i}`).value);
+        const quantity = parseFloat(document.getElementById(`inputQuantity${i}`).value);
+        const unitRate = parseFloat(document.getElementById(`inputUnitRate${i}`).value);
+        const amount = quantity * unitRate;
+
+        totalAmount += amount;
+
+        // Create new row for the quotation table
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${i}</td>
+            <td>${itemDescription}</td>
+            <td>${hsnCode}</td>
+            <td>${gst}%</td>
+            <td>${quantity}</td>
+            <td>${unitRate}</td>
+            <td>${amount.toFixed(2)}</td>
+        `;
+        document.getElementById('quotationTable').appendChild(row);
+    }
+
+    // Calculate CGST, SGST, and Final Total
+    const cgst = (totalAmount * 9) / 100;
+    const sgst = (totalAmount * 9) / 100;
+    const finalTotal = totalAmount + cgst + sgst;
+
+    // Display Calculations in Table
+    document.getElementById('cgst').innerText = cgst.toFixed(2);
+    document.getElementById('sgst').innerText = sgst.toFixed(2);
+    document.getElementById('totalAmount').innerText = finalTotal.toFixed(2);
+
+    // Convert total amount to words and display it
+    const amountInWords = numberToWords(finalTotal);
+    document.getElementById('amountInWords').innerText = amountInWords + ' only';
+
+    // Close the modal after submission
+    closeModal();
+}
+
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4'); // A4 size (210mm x 297mm)
+
+    // Get the HTML content that will be converted into PDF
+    const content = document.querySelector('.container');
+    
+    // We need to scale the content properly to fit on an A4 page
+    doc.html(content, {
+        margin: [10, 10, 10, 10], // Adjust margins around the page
+        autoPaging: true,          // Auto page breaks
+        html2canvas: { scale: 2 }, // High resolution for clarity
+        callback: function (doc) {
+            doc.save('quotation.pdf'); // Save as 'quotation.pdf'
+        },
+    });
+}
+
+
+    </script>
+</body>
+</html>

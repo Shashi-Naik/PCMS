@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanical Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+
+        form div {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="file"] {
+            margin-top: 5px;
+        }
+
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .child-input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .child-input-group input {
+            flex: 1;
+        }
+
+        .child-input-group button {
+            margin-left: 10px;
+        }
+    </style>
+    <script>
+        function addChildInput() {
+            const container = document.getElementById('childNamesContainer');
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'child-input-group';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'ChildName';
+            input.placeholder = 'Enter Child Name';
+            input.required = true;
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = 'Remove';
+            removeButton.onclick = () => container.removeChild(inputGroup);
+
+            inputGroup.appendChild(input);
+            inputGroup.appendChild(removeButton);
+            container.appendChild(inputGroup);
+        }
+    </script>
+</head>
+<body>
+    <h2>Create Mechanical Project</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <label for="ProjectId">Project ID:</label>
+            <input type="text" id="ProjectId" name="ProjectId">
+        </div>
+        <div>
+            <label for="ProjectName">Project Name:</label>
+            <input type="text" id="ProjectName" name="ProjectName">
+        </div>
+        <div>
+            <label for="ParentId">Parent ID:</label>
+            <input type="text" id="ParentId" name="ParentId">
+        </div>
+        <div>
+            <label for="ParentName">Parent Name:</label>
+            <input type="text" id="ParentName" name="ParentName">
+        </div>
+        <div>
+            <label>Child Names:</label>
+            <div id="childNamesContainer">
+                <div class="child-input-group">
+                    <input type="text" name="ChildName" placeholder="Enter Child Name" required>
+                </div>
+            </div>
+            <button type="button" onclick="addChildInput()">Add Another Child Name</button>
+        </div>
+        <div>
+            <label for="SubChildName">Sub-Child Name (optional):</label>
+            <input type="text" id="SubChildName" name="SubChildName">
+        </div>
+        <div>
+            <label for="DrawingName">Drawing Name:</label>
+            <input type="text" id="DrawingName" name="DrawingName">
+        </div>
+        <div>
+            <label for="DrawingId">Drawing ID:</label>
+            <input type="text" id="DrawingId" name="DrawingId">
+        </div>
+        <div>
+            <label for="DrawingPath">Drawing Path:</label>
+            <input type="text" id="DrawingPath" name="DrawingPath">
+        </div>
+        <div>
+            <label for="Reamrks">Remarks:</label>
+            <textarea id="Reamrks" name="Reamrks"></textarea>
+        </div>
+        <div>
+            <label for="uploaded_file_1">Upload File:</label>
+            <input type="file" id="uploaded_file_1" name="uploaded_file_1">
+        </div>
+        <div>
+            <button type="submit">Create Project</button>
+        </div>
+    </form>
+</body>
+
+</html>
+<div>
+    <form action="{% url 'upload_to_folder' %}" method="GET">
+        <button type="submit">Click Here Upload Data to Created Folder</button>
+    </form>
+</div>

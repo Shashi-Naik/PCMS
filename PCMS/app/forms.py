@@ -45,11 +45,30 @@ class CreateCustomerForm(forms.ModelForm):
     class Meta:
         model = CreateCustomer
         fields = ['CUSTID', 'CustomerName', 'CustomerGSTIN', 'CustomerADdress', 'TypeofCustomer','BankAcc', 'IFSC', 'Branch']
+
+
+from django import forms
+from .models import InternationalCustomers
+
+class InternationalCustomersForm(forms.ModelForm):
+    class Meta:
+        model = InternationalCustomers
+        fields = ['customer_name', 'cust_id', 'address', 'type_of_customer','account_number','swift_code', 'branch', 'aba_routing_code']
+
+from django import forms
+from .models import InternationalCustomers2
+
+class InternationalCustomersForm2(forms.ModelForm):
+    class Meta:
+        model = InternationalCustomers2
+        fields = ['customer_name', 'cust_id', 'address', 'type_of_customer','account_number','swift_code', 'branch', 'aba_routing_code']        
+        
+        
         
 class CreateProjectForm(forms.ModelForm):
     class Meta:
         model = CreateProject
-        fields = ['PROJID', 'CUSTID', 'ProjectNAme', 'Description', 'ProjCodePArtNumberSuffix', 'ProjCodePartNameSuffix','FY']
+        fields = ['PROJID', 'CUSTID','CustomerName', 'ProjectNAme', 'Description', 'ProjCodePArtNumberSuffix', 'ProjCodePartNameSuffix','FY']
 
 
 
@@ -120,9 +139,17 @@ class CreateInvoiceBasedPartNumberForm(forms.ModelForm):
 #     class Meta:
 #         model = CreatePurchaseBasedCosting
 #         fields = ['PROJID']
+
+
+
+
+
+#******************************************************************************************************************************************************
+from django import forms
+from .models import CreatePurchaseBasedCosting
+
 class CreatePurchaseBasedCostingForm(forms.ModelForm):
     PROJID = forms.ChoiceField(
-        choices=[(proj_id, proj_id) for proj_id in UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct()],
         label="Project ID",
         required=True
     )
@@ -134,20 +161,137 @@ class CreatePurchaseBasedCostingForm(forms.ModelForm):
 
 
 
+
+# from django import forms
+# from .models import Costing
+
+# class CostingForm(forms.ModelForm):
+#     PROJID = forms.ChoiceField(
+#         label="Project ID",
+#         required=True
+#     )
+
+#     class Meta:
+#         model = CreatePurchaseBasedCosting
+#         fields = ['PROJID', 'Project_name','Custmer_id','Custmer_name','InvoiceValues','PartNums','PartNames','Qty','TotalValue','HSN']
+
+
+
+
+#**************************************************************************************************************************************************************************8
+from django import forms
+from .models import ReadPurchaseBasedCosting, UploadInvoicefromVendor
+
 class ReadPurchaseBasedCostingForm(forms.ModelForm):
     PROJID = forms.ChoiceField(
-        choices=[(proj_id, proj_id) for proj_id in UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct()],
         label="Project ID",
         required=True
     )
+
     class Meta:
-        model = ReadPurchaseBasedCosting
-        fields = ['PROJID']   
+        model = CreatePurchaseBasedCosting
+        fields = ['PROJID']
+
+
+# class ReadPurchaseBasedCostingForm(forms.ModelForm):
+#     PROJID = forms.ChoiceField(
+#         choices=[(proj_id, proj_id) for proj_id in UploadInvoicefromVendor.objects.values_list('PROJID', flat=True).distinct()],
+#         label="Project ID",
+#         required=True
+#     )
+#     class Meta:
+#         model = ReadPurchaseBasedCosting
+#         fields = ['PROJID']   
+
+#======================================================================================================================================================================================================================================================================================
+from .models import SchArtifactUpload,EnggBOMUpload,PCBArtifactUpload,PCBOrderDetailsUpload,MechanicalDrawingUpload,MechBOMUpload
+
+class SchArtifactUploadForm(forms.ModelForm):
+    class Meta:
+        model = SchArtifactUpload
+        fields = ['SCHID', 'PROJID','ProjectName', 'SchName', 'SCHPDFPath', 'SCHDSNPath', 'SchCreatedOn', 'SchVersion','Last_Updated']
+    
+
+#======================================================================================================================================================================================================================================================================================
+
+
+from django import forms
+from .models import EnggBOMUpload
+
+class EnggBOMUploadForm(forms.ModelForm):
+    class Meta:
+        model = EnggBOMUpload
+        fields = ['SCHID', 'PROJID', 'SCHEnggBOMPath', 'SchEnggBOMCreatedOn', 'EnggBOMVersionNumber']
+
+
+
+#======================================================================================================================================================================================================================================================================================
+from django import forms
+from .models import PCBArtifactUpload
+
+class PCBArtifactUploadForm(forms.ModelForm):
+    class Meta:
+        model = PCBArtifactUpload
+        fields = ['SCHID', 'PROJID', 'PCBID', 'PCBLegendName', 'PCBNAme', 'PCBCreatedOn', 'PCBGerberPath', 
+                  'PCBGerberUploadDatetime', 'PCBPanelGerberPath', 'PCBPanelGerberUploadDateTime', 'PCBPhoto']
+
+
+
+#======================================================================================================================================================================================================================================================================================
+class PCBOrderDetailsUploadForm(forms.ModelForm):
+    class Meta:
+        model = PCBOrderDetailsUpload
+        fields = ['PCBID','PROJID','PCBOrderDateTime','PCBOrderQuantity','PCBVendorID','PCBVendorName','PCBReceiptDateTime']
+
+#======================================================================================================================================================================================================================================================================================
+from django import forms
+from .models import MechanicalDrawingUpload
+
+class MechanicalDrawingUploadForm(forms.ModelForm):
+    class Meta:
+        model = MechanicalDrawingUpload
+        fields = [
+            'MECHID', 'PROJID','ProjectName','MechDrawingName', 'MechStepFileCreatedOn',
+            'MechStepFilePath', 'MechCADDrawingCreatedOn', 'MechCADDrawingPath',
+            'MechBOMPath', 'MechBOMCreatedOn'
+        ]
+
+#============================================================================================================================
+from django import forms
+from .models import MechBOMUpload
+
+class MechBOMUploadForm(forms.ModelForm):
+    class Meta:
+        model = MechBOMUpload
+        fields = ['MECHID', 'PROJID','ProjectName','SlNo', 'QuantityPerUnit', 'PART', 'Part_Description']
+        
+
+
+#======================================================================================================================================================================================================================================================================================
+
+
+
+
+#======================================================================================================================================================================================================================================================================================
 
 
 
 
 
+
+#======================================================================================================================================================================================================================================================================================
+from django import forms
+from .models import CreateVendorStoresInward
+
+class createVendorStoreInwardForm(forms.ModelForm):
+    class Meta:
+        model = CreateVendorStoresInward  # Use "=" instead of ":"
+        fields = [
+            'PROJID', 'VENDID', 'VendorInvoiceNumber', 'VendorDCNumber', 
+            'DescriptionofItem', 'QuantityReceived', 'UnitofMEasure', 
+            'BatchID', 'PurchaseORderNumber', 'AcceptedQuantity', 
+            'RejectedQuantity', 'Remarks', 'Receivedby', 'LocationinStore'
+        ]
 
 
 

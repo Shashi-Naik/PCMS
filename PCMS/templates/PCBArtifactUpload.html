@@ -1,0 +1,470 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+
+<style>
+    /* General styling */
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 80px; /* Adjust this value to move the block further down */
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+        flex-direction: row; /* Default layout */
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form {
+        width: 20%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #000000;
+        margin-left: 15px;
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+    }
+
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 48%;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px;
+        margin-left: 42px;
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    .table-container {
+        width: 100%;
+        font-size: 12px;
+        overflow-y: auto;
+        overflow-x: auto;
+
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 2724px;
+         table-layout: fixed; 
+        
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px 0px; /* Vertical padding (5px top/bottom), horizontal padding (10px left/right) */
+        text-align: center; /* Centering text */
+        line-height: 1.2;
+        box-sizing: border-box; /* Include padding in the total width/height */
+      }
+
+    /* Sticky header styling */
+    thead th {
+        background-color: #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5;
+        box-shadow: 0 6px 6px -6px #0E1119;
+        transition: all 0.3s ease;
+    }
+
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00;
+        color: #403E10;
+        font-weight: bold;
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px; 
+        width: auto;
+    }
+
+    .btn-warning:hover {
+        background-color: #DC143C;
+    }
+
+    .btn-danger {
+        background-color: #DC143C;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px;
+        width: auto;
+    }
+
+    #editModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    /* Modal Input Styling */
+    #editModal label {
+        font-size: 10px;
+        color: #000000;
+        width: 30%;
+        text-align: right;
+    }
+
+    #editModal input, #editModal textarea, #editModal select {
+        width: 65%;
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+    .form input[type="file"] {
+        width: 90%; /* Increase the width */
+        padding: 10px; /* Increase the padding */
+        font-size: 14px; /* Increase font size */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        cursor: pointer; /* Show pointer cursor on hover */
+        margin-bottom: 10px;
+    }
+</style>
+
+<h1 style="text-align: center; color:#cd1129; margin-top: -10px; font-size:20px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+  PCB Details
+    <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+        <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+            Download
+        </button>
+    </div>
+</h1>
+<div class="container-flex">
+    <!-- Form Section -->
+    <div class="form">
+        <form id="PCBForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h5>PCB Form</h5>
+            
+            <div>
+                <label for="pcb_name">SCHID</label>
+                <input type="text" class="form" name="SCHID" required>
+            </div>
+            
+            <div>
+                <label for="project_id">PROJID</label>
+                <input type="text" class="form" name="PROJID" required>
+            </div>
+            
+            <div>
+                <label for="pcb_id">PCBID</label>
+                <input type="text" class="form" name="PCBID" required>
+            </div>
+            
+            <div>
+                <label for="pcb_legendname">PCBLegendName</label>
+                <textarea class="form" name="PCBLegendName" required></textarea>
+            </div>
+            <div>
+                <label for="pcb_name">PCBNAme</label>
+                <input type="text" class="form" name="PCBNAme" required>
+            </div>
+            <div>
+                <label for="pcb_created">PCBCreatedOn</label>
+                <input type="date" class="form" name="PCBCreatedOn" required>
+            </div>
+            <div>
+                <label for="pcb_ger_path">PCBGerberPath</label>
+                <input type="text" class="form" name="PCBGerberPath" required>
+            </div>
+            <div>
+                <label for="pcb_gerber_upload">PCBGerberUploadDatetime</label>
+                <input type="datetime" class="form" name="PCBGerberUploadDatetime " required>
+            </div>
+            <div>
+                <label for="pcb_panel_gpath">PCBPanelGerberPath</label>
+                <input type="text" class="form" name="PCBPanelGerberPath" required>
+            </div>
+            <div>
+                <label for="pcb_gerber_panelupload">PCBPanelGerberUploadDateTime</label>
+                <input type="text" class="form" name="PCBPanelGerberUploadDateTime" required>
+            </div>
+            <div>
+                <label for="PCBPhoto">PCB Photo</label>
+                <input type="file" class="form" name="PCBPhoto" required>
+            </div>
+            <input type="hidden" name="PCB_id" id="PCB_id">
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                {% comment %} <button type="submit" class="btn btn-success" name="action" value="update">Update</button> {% endcomment %}
+                
+            </div>
+        </form>
+    </div>
+
+    <!-- Table for Displaying PCB Details -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table id="PCBTable">
+                <thead>
+                    <tr>
+                        <th>SCHID</th>
+                        <th>PROJID</th>
+                        <th>PCBID</th>
+                        <th>PCBLegendName</th>
+                        <th>PCBNAme</th>
+                        <th>PCBCreatedOn</th>
+                        <th>PCBGerberPath</th>
+                        <th>PCBGerberUploadDatetime</th>
+                        <th>PCBPanelGerberPath</th>
+                        <th>PCBPanelGerberUploadDateTime</th>
+                        <th>PCBPhoto</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pcb in pcbs %}
+                    <tr>
+                        <td>{{ pcb.SCHID }}</td>
+                        <td>{{ pcb.PROJID }}</td>
+                        <td>{{ pcb.PCBID }}</td>
+                        <td>{{ pcb.PCBLegendName }}</td>
+                        <td>{{ pcb.PCBNAme }}</td>
+                        <td>{{ pcb.PCBCreatedOn }}</td>
+                        <td>{{ pcb.PCBGerberPath }}</td>
+                        <td>{{ pcb.PCBGerberUploadDatetime }}</td>
+                        <td>{{ pcb.PCBPanelGerberPath }}</td>
+                        <td>{{ pcb.PCBPanelGerberUploadDateTime }}</td>
+                        <td><img src="{{ pcb.PCBPhoto.url }}" alt="PCB Photo" width="100"></td>
+                        <td>
+                            <button onclick="editPCB('{{ pcb.SCHID }}', '{{pcb.PROJID}}', '{{ pcb.PCBID }}', '{{ pcb.PCBLegendName }}', '{{ pcb.PCBNAme }}', '{{ pcb.PCBCreatedOn }}', '{{ pcb.PCBGerberPath }}', '{{ pcb.PCBGerberUploadDatetime }}', '{{ pcb.PCBPanelGerberPath }}', '{{ pcb.PCBPanelGerberUploadDateTime }}', '{{ pcb.PCBPhoto.url }}')" class="btn btn-warning btn-sm">Edit</button>
+                            <form action="{% url 'pcbartifactupload_view' %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing PCB -->
+<!-- Modal for Editing PCB -->
+<div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40%; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; padding: 20px; z-index: 1000;">
+    <h5 style="text-align: center; color: #09112d;">Edit PCB</h5>
+    <form id="editPCBForm" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="PCB_id" id="edit_PCB_id">
+
+        <label for="edit_SCHID">SCHID</label>
+        <input type="text" class="form" name="SCHID" id="edit_SCHID" required>
+
+        <label for="edit_PROJID">PROJID</label>
+        <input type="text" class="form" name="PROJID" id="edit_PROJID" required>
+
+        <label for="edit_PCBID">PCBID</label>
+        <input type="text" class="form" name="PCBID" id="edit_PCBID" required>
+
+        <label for="edit_PCBName">PCB Name</label>
+        <input type="text" class="form" name="PCBNAme" id="edit_PCBName" required>
+
+        <label for="edit_PCBLegendName">PCB Legend Name</label>
+        <textarea class="form" name="PCBLegendName" id="edit_PCBLegendName" required></textarea>
+
+        <label for="edit_PCBCreatedOn">PCB Created On</label>
+        <input type="text" class="form" name="PCBCreatedOn" id="edit_PCBCreatedOn" required>
+
+        <label for="edit_PCBGerberPath">PCB Gerber Path</label>
+        <input type="text" class="form" name="PCBGerberPath" id="edit_PCBGerberPath" required>
+
+        <label for="edit_PCBGerberUploadDatetime">PCB Gerber Upload Datetime</label>
+        <input type="text" class="form" name="PCBGerberUploadDatetime" id="edit_PCBGerberUploadDatetime" required>
+
+        <label for="edit_PCBPanelGerberPath">PCB Panel Gerber Path</label>
+        <input type="text" class="form" name="PCBPanelGerberPath" id="edit_PCBPanelGerberPath" required>
+
+        <label for="edit_PCBPanelGerberUploadDateTime">PCB Panel Gerber Upload Datetime</label>
+        <input type="text" class="form" name="PCBPanelGerberUploadDateTime" id="edit_PCBPanelGerberUploadDateTime" required>
+
+        <label for="edit_PCBPhoto">PCB Photo</label>
+        <input type="file" class="form" name="PCBPhoto" id="edit_PCBPhoto" required>
+
+        <div style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    function editPCB(SCHID, PROJID, PCBID, PCBLegendName, PCBNAme, PCBCreatedOn, PCBGerberPath, PCBGerberUploadDatetime, PCBPanelGerberPath, PCBPanelGerberUploadDateTime, PCBPhoto) {
+        // Setting values in the modal inputs
+        document.getElementById('edit_PCB_id').value = PCBID;
+        document.getElementById('edit_SCHID').value = SCHID;
+        document.getElementById('edit_PROJID').value = PROJID;
+        document.getElementById('edit_PCBID').value = PCBID;
+        document.getElementById('edit_PCBName').value = PCBNAme;
+        document.getElementById('edit_PCBLegendName').value = PCBLegendName;
+        document.getElementById('edit_PCBCreatedOn').value = PCBCreatedOn;
+        document.getElementById('edit_PCBGerberPath').value = PCBGerberPath;
+        document.getElementById('edit_PCBGerberUploadDatetime').value = PCBGerberUploadDatetime;
+        document.getElementById('edit_PCBPanelGerberPath').value = PCBPanelGerberPath;
+        document.getElementById('edit_PCBPanelGerberUploadDateTime').value = PCBPanelGerberUploadDateTime;
+    
+        // Ensure the photo is not populated, as file inputs cannot be set programmatically
+        // Instead, show the current photo (if available) as a reference, or you can choose to remove the photo input field
+        if (PCBPhoto) {
+            document.getElementById('edit_PCBPhoto').disabled = false; // Enable file input if the photo can be changed
+        } else {
+            document.getElementById('edit_PCBPhoto').disabled = true; // Disable file input if no photo
+        }
+    
+        // Show the modal and overlay
+        document.getElementById('editModal').style.display = 'block';
+    }
+    
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+document.getElementById('searchBox').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+document.getElementById('downloadButton').addEventListener('click', function() {
+    const table = document.querySelector('table');
+    const rows = Array.from(table.rows);
+    const csvContent = rows.map(row => {
+        const cells = Array.from(row.cells).map(cell => `"${cell.textContent}"`);
+        return cells.join(',');
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'PCBDetails.csv';
+    link.click();
+});
+</script>
+{% endblock %}

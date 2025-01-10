@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% load static%}
+{% block body %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
+            margin-top: 1px;
+            float: left;
+            width: 280px;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h3 {
+            margin-top: 1px;
+            margin-right: 270px;  /* Aligns the text to the left */
+        }
+        p {
+            margin-top: -20px;
+        }
+
+        .quo, .date, .enquiry, .datee, .attn, .no {
+            font-size: small;
+        }
+
+        .right, .rightt, .tot {
+            text-align: right;
+        }
+
+        .center {
+            text-align: center;
+            padding-right: 30px 100px;
+        }
+
+        .to {
+            text-align: right;
+            padding-left: 150px;
+        }
+
+        .contact, .quotation-info, .quotation-details, .footer {
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            border: 1px solid;
+            padding: 10px;
+            text-align: left;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: black;
+            margin-top: 20px;
+        }
+
+        .create-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            width: 50%;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content input, .modal-content textarea {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-content button.close {
+            background-color: #6c757d;
+        }
+
+        .modal-content .item-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .item-row input {
+            width: calc(33.33% - 10px);
+            margin-right: 10px;
+        }
+
+        .modal-content .buttons-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .modal-content select {
+            width: calc(33.33% - 10px); /* Set the width to match other inputs */
+            padding: 8px; /* Set padding similar to other inputs */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            {% comment %} <img src="tackoworld.png" alt="error"> {% endcomment %}
+        
+            <p>TRACKOWORLD</p>
+            <p>"1,96/1, Ambika Towers, HAL Layout, Singasandra</p>
+            <p>TRACKOWORLD</p>
+            <p>"1,96/1, Ambika Towers, HAL Layout, Singasandra</p>
+            <p>TRACKOWORLD</p>
+            <p>"1,96/1, Ambika Towers, HAL Layout, Singasandra</p>
+            <p>Bangalore -560068</p>
+            <p>Ph: +91-9886464599, Email: Prashanth.narayana@trackoworld.com</p>
+            <p>GSTIN No: 29AIVPP0151C1Z6</p>
+        </header>
+        
+        <!-- Quotation Information -->
+        <section class="quotation-info">
+            <table>
+                <tr>
+                    <th>Project ID</th>
+                    <td>{{ costing_entries.0.PROJID }}</td> <!-- First entry data -->
+                </tr>
+                <tr>
+                    <th>Project Name</th>
+                    <td>{{ costing_entries.0.Project_name }}</td>
+                </tr>
+                <tr>
+                    <th>Customer ID</th>
+                    <td>{{ costing_entries.0.Custmer_id }}</td>
+                </tr>
+                <tr>
+                    <th>Customer Name</th>
+                    <td>{{ costing_entries.0.Custmer_name }}</td>
+                </tr>
+                <tr>
+                    <th>Req ID</th>
+                    <td>{{ costing_entries.0.ReqID }}</td>
+                </tr>
+            </table>
+        </section>
+        
+        
+
+        <!-- Quotation Details Section -->
+        <section class="quotation-details">
+            <table id="quotationTable">
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Description</th>
+                    <th>HSN</th>
+                    <th>GST %</th>
+                    <th>Qty</th>
+                    <th>Per Unit Rate</th>
+                    <th>Amount</th>
+                </tr>
+                {% for entry in costing_entries %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ entry.PartName }}</td>
+                    <td>{{ entry.HSN }}</td>
+                    <td>{{ entry.GSTRate }}</td>
+                    <td>{{ entry.Qty }}</td>
+                    <td>{{ entry.CostPerunit }}</td>
+                    <td>{{ entry.TotalValue }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </section>
+        
+            <!-- Total Calculations and Amount in Words -->
+            <table>
+                <tr>
+                    <td colspan="6" class="right"><small>CGST@9%:</small></td>
+                    <td id="cgst"></td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="rightt"><small>SGST@9%:</small></td>
+                    <td id="sgst"></td>
+                </tr>
+                <tr>
+                    <th colspan="6" class="tot"><small>Total</small></th>
+                    <td id="totalAmount"></td>
+                </tr>
+                <tr>
+                    <td colspan="7"><small><b>Amount in words:</b> <span id="amountInWords"></span></small></td>
+                </tr>
+ 
+                <tr>
+                    <td colspan="7" class="Output"><small><b>Notes</b></small></td>
+                </tr>
+
+                <!-- Bank Details -->
+                <tr>
+                    <td colspan="3" class="ms" style="text-align: left;">
+                        <u><small><b>Terms and Conditions:</b></u><br>
+                        
+                        </small>
+                    </td>
+                    <td colspan="4" class="ms" style="text-align: right;">
+                        <u><small><b>FOR M/s.TRACKOWORLD</b></u>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7">
+                        <footer>Generated by computer</footer>
+                        
+                    </td>
+                </tr>
+            </table>
+        </section>
+           <!-- Download and Print buttons -->
+           <div class="action-buttons">
+            <button onclick="downloadQuotation()">Download PDF</button>
+            <button class="print" onclick="window.print()">Print</button>
+        </div>
+    </div>
+
+
+        <!-- Create Quotation Button -->
+        <button class="create-button" onclick="openModal()">Create Quotation</button>
+    </div>
+
+    <!-- Modal for Adding Items -->
+    <div class="modal" id="modal">
+
+        <div class="modal-content">
+
+            <h2>Create Project costing</h2> 
+            <section>
+                <h3>Select a Project ID</h3>
+                <form method="post" action="{% url 'select_project' %}">
+                    {% csrf_token %}
+                    <label for="project_id">Project ID:</label>
+                    <select name="project_id" id="project_id" required>
+                        <option value="">-- Select Project ID --</option>
+                        {% for project in projects %}
+                            <option value="{{ project }}">{{ project }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    <button type="submit">Submit</button>
+                </form>
+            </section>  
+           <button class="close" onclick="closeModal()">Close</button>
+
+        </div>
+      
+    </div>
+    <script>
+        let itemCount = 0;
+
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        
+            // Function to calculate the total amount and display it
+            function calculateTotal() {
+                const table = document.getElementById("quotationTable");
+                const rows = table.getElementsByTagName("tr");
+                let subtotal = 0;
+        
+                // Start loop from index 1 to skip the table header
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName("td");
+                    if (cells.length > 0) {
+                        const amount = parseFloat(cells[6].innerText || 0); // Assuming the 7th cell contains the amount
+                        subtotal += amount;
+                    }
+                }
+        
+                // Calculate CGST and SGST
+                const cgst = subtotal * 0.09;
+                const sgst = subtotal * 0.09;
+        
+                // Calculate total amount (subtotal + CGST + SGST)
+                const total = subtotal + cgst + sgst;
+        
+                // Display the subtotal, CGST, SGST, and total amount
+                document.getElementById("cgst").innerText = cgst.toFixed(2);
+                document.getElementById("sgst").innerText = sgst.toFixed(2);
+                document.getElementById("totalAmount").innerText = total.toFixed(2);
+        
+                // Convert total amount to words and display it
+                document.getElementById("amountInWords").innerText = numberToWords(total);
+            }
+        
+            function numberToWords(num) {
+                const a = [
+                    '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+                    'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+                    'Seventeen', 'Eighteen', 'Nineteen'
+                ];
+                const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+                const units = ['Crore', 'Lakh', 'Thousand', 'Hundred', ''];
+            
+                const divisors = [1e7, 1e5, 1e3, 1e2, 1];
+            
+                if (num === 0) return 'Zero';
+            
+                // Function to convert numbers below 1000
+                function convertToWords(n) {
+                    if (n < 20) return a[n];
+                    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+                    if (n < 1000)
+                        return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + convertToWords(n % 100) : '');
+                    return '';
+                }
+            
+                // Ensure two decimal places
+                const parts = num.toFixed(2).split('.');
+                const integerPart = parseInt(parts[0], 10);
+                const decimalPart = parts[1]; // Keep as string for precision
+            
+                let words = '';
+                let remainder = integerPart;
+            
+                // Loop through each unit (Crore, Lakh, Thousand, Hundred)
+                for (let i = 0; i < divisors.length; i++) {
+                    const divisor = divisors[i];
+                    const quotient = Math.floor(remainder / divisor);
+                    if (quotient > 0) {
+                        words += convertToWords(quotient) + ' ' + units[i] + ' ';
+                        remainder %= divisor;
+                    }
+                }
+            
+                // Handle decimal part
+                if (decimalPart && parseInt(decimalPart, 10) > 0) {
+                    words += 'Point';
+                    for (const digit of decimalPart) {
+                        words += ' ' + a[parseInt(digit, 10)];
+                    }
+                }
+            
+                return words.trim();
+            }
+            
+            
+            
+            
+            // Call calculateTotal when the page loads
+            window.onload = calculateTotal;
+        
+    </script>
+</body>
+</html>
+
+{% endblock %}

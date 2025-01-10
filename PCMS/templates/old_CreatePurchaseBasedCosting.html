@@ -1,0 +1,812 @@
+
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 35px;
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+         margin-top: 8px;
+         margin-bottom: 5px;
+    }
+    .form {
+        width: 15%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size:12px;
+        color: #000000;
+        margin-left: 15px
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+        
+    }
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 28%;
+        padding: 5px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px; 
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger {
+        background-color: #DC143C; /* Crimson */
+        border: none;
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    /* Table container with horizontal scroll */
+    .table-container {
+        width: 75%;
+        font-size: 9px;
+    }
+
+    .table-container {
+        width: 85%;
+        font-size: 9.6px;
+        overflow-y: auto;
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 825px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: center;
+    }
+
+    /* Sticky header styling */
+    thead th {
+        {% comment %} background-color: #5B84B1FF; /* Rich Blue */ {% endcomment %}
+        background-color:  #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table row styling */
+    tbody tr:nth-child(even) {
+        {% comment %} background-color: #FFF0F5; /* Lavender Blush */ {% endcomment %}
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #F0F8FF; /* Alice Blue */
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5; /* Dark gray background */
+        box-shadow: 0 6px 6px -6px #0E1119; /* Subtle shadow under the row */
+        transition: all 0.3s ease; /* Smooth transition for row hover */
+    }
+    
+    /* Pop effect for cells without buttons on hover */
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00; /* Bright yellow for cell hover */
+        color: #403E10; /* Dark yellow text for contrast */
+        font-weight: bold;
+        
+        /* 3D shadow effect */
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        
+        /* Slight shift effect */
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+    
+    /* Specific styling for the button */
+    tbody td button {
+        box-shadow: none; /* Remove shadow from button */
+        transform: none;  /* Remove any transformation */
+    }
+    
+    /* Button hover effect itself (no 3D or pop) */
+    .btn-warning:hover {
+        background-color: #DC143C; /* No additional effects */
+        box-shadow: none;
+        transform: none;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px; /* decreases the height and width of the tabel*/
+        font-size: 8px; 
+        width: auto;
+    }
+    
+    /* Remove hover effect for the edit button */
+    .btn-warning:hover {
+        background-color: #DC143C; 
+       
+    }
+   
+</style>
+{% comment %} <div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %} {% endcomment %}
+  
+    {% comment %} <h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold;">Project Details</h1> {% endcomment %}
+    <h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+        Purchase-Based Costing Details
+        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+            <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+            <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+                Download
+            </button>
+        </div>
+    </h1>
+    <div class="container-flex">
+        <!-- Form Section -->
+        <div class="form">
+            <form id="costingForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Purchase-Based Costing Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+
+               <div class="form-group mb-3">
+                    <label for="cost_id">Cost ID</label>
+                    <input type="text" class="form-control" name="COSTID" required>
+                </div>
+
+                <input type="hidden" name="cost_id" id="cost_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Purchase-Based Costing Details -->
+        <div class=" class="table-container"">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Cost ID</th>
+                            <th>Part Numuber's</th>
+                            <th>Part Name's</th>
+                            <th>InvoiceValues's</th>
+                            <th>Quantity</th>
+                            <th>Total Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cost in data %}
+                        <tr>
+                            <td>{{ cost.PROJID }}</td>
+                            <td>{{ cost.COSTID }}</td>
+                            <td>{{ cost.PartNums }}</td>
+                            <td>{{ cost.PartNames }}</td>
+                            <td>{{ cost.InvoiceValues }}</td>
+                            <td>{{ cost.Qty }}</td>              
+                            <td>{{ cost.TotalValue }}</td>
+                            <td>
+                                <button onclick="editCost('{{ cost.COSTID }}', '{{ cost.PROJID }}', '{{ cost.InvoicePartNumber }}', '{{ cost.CostPerUnit }}', '{{ cost.Qty }}', '{{ cost.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+    
+</script>
+{% endblock %}
+
+
+
+
+{% comment %} 
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 35px;
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+         margin-top: 8px;
+         margin-bottom: 5px;
+    }
+    .form {
+        width: 15%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size:12px;
+        color: #000000;
+        margin-left: 15px
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+        
+    }
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 28%;
+        padding: 5px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px; 
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger {
+        background-color: #DC143C; /* Crimson */
+        border: none;
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    /* Table container with horizontal scroll */
+    .table-container {
+        width: 75%;
+        font-size: 9px;
+    }
+
+    .table-container {
+        width: 85%;
+        font-size: 9.6px;
+        overflow-y: auto;
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 825px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: center;
+    }
+
+    /* Sticky header styling */
+    thead th {
+        {% comment %} background-color: #5B84B1FF; /* Rich Blue */ {% endcomment %}
+        background-color:  #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table row styling */
+    tbody tr:nth-child(even) {
+        {% comment %} background-color: #FFF0F5; /* Lavender Blush */ {% endcomment %}
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #F0F8FF; /* Alice Blue */
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5; /* Dark gray background */
+        box-shadow: 0 6px 6px -6px #0E1119; /* Subtle shadow under the row */
+        transition: all 0.3s ease; /* Smooth transition for row hover */
+    }
+    
+    /* Pop effect for cells without buttons on hover */
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00; /* Bright yellow for cell hover */
+        color: #403E10; /* Dark yellow text for contrast */
+        font-weight: bold;
+        
+        /* 3D shadow effect */
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        
+        /* Slight shift effect */
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+    
+    /* Specific styling for the button */
+    tbody td button {
+        box-shadow: none; /* Remove shadow from button */
+        transform: none;  /* Remove any transformation */
+    }
+    
+    /* Button hover effect itself (no 3D or pop) */
+    .btn-warning:hover {
+        background-color: #DC143C; /* No additional effects */
+        box-shadow: none;
+        transform: none;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px; /* decreases the height and width of the tabel*/
+        font-size: 8px; 
+        width: auto;
+    }
+    
+    /* Remove hover effect for the edit button */
+    .btn-warning:hover {
+        background-color: #DC143C; 
+       
+    }
+    #editModal .form-group {
+        display: flex;
+        align-items: center; 
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    #editModal label {
+        font-size: 10px;  
+        color: #000000;
+        {% comment %} margin-right: 12px; {% endcomment %}
+        width: 30%;  
+        text-align: right; 
+    }
+    
+    #editModal input,
+    #editModal textarea,
+    #editModal select {
+        width: 65%;  /* Take up the remaining space for inputs */
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;  /* Ensure inputs don't overflow */
+        margin-bottom: 10px;  /* Space between form groups */
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+</style>
+{% comment %} <div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %} {% endcomment %}
+  
+    {% comment %} <h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold;">Project Details</h1> {% endcomment %}
+    <h1 style="text-align: center; color:#cd1129; margin-top: 5px; font-size:18px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+        Purchase-Based Costing Details
+        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+            <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+            <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+                Download
+            </button>
+        </div>
+    </h1>
+    <div class="container-flex">
+        <!-- Form Section -->
+        <div class="form">
+            <form id="costingForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Purchase-Based Costing Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+
+               <div class="form-group mb-3">
+                    <label for="cost_id">Cost ID</label>
+                    <input type="text" class="form-control" name="COSTID" required>
+                </div>
+
+                <input type="hidden" name="cost_id" id="cost_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Purchase-Based Costing Details -->
+        <div class=" class="table-container"">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Cost ID</th>
+                            <th>Part Numuber's</th>
+                            <th>Part Name's</th>
+                            <th>InvoiceValues's</th>
+                            <th>Quantity</th>
+                            <th>Total Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cost in data %}
+                        <tr>
+                            <td>{{ cost.PROJID }}</td>
+                            <td>{{ cost.COSTID }}</td>
+                            <td>{{ cost.PartNums }}</td>
+                            <td>{{ cost.PartNames }}</td>
+                            <td>{{ cost.InvoiceValues }}</td>
+                            <td>{{ cost.Qty }}</td>              
+                            <td>{{ cost.TotalValue }}</td>
+                            <td>
+                                <button onclick="editCost('{{ cost.COSTID }}', '{{ cost.PROJID }}', '{{ cost.InvoicePartNumber }}', '{{ cost.CostPerUnit }}', '{{ cost.Qty }}', '{{ cost.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                                <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Form Modal -->
+<div class="edit-form" id="editForm">
+    <h5 class="text-center">Edit Costing Details</h5>
+    <form id="editCostingForm">
+        <input type="hidden" id="edit_cost_id">
+        <div class="form-group">
+            <label for="edit_proj_id">Project ID</label>
+            <input type="text" class="form-control" id="edit_proj_id" name="proj_id" required>
+        </div>
+        <div class="form-group">
+            <label for="edit_invoice_part">Invoice Part Number</label>
+            <input type="text" class="form-control" id="edit_invoice_part" name="invoice_part_number">
+        </div>
+        <div class="form-group">
+            <label for="edit_cost_per_unit">Cost Per Unit</label>
+            <input type="number" class="form-control" id="edit_cost_per_unit" name="cost_per_unit">
+        </div>
+        <div class="form-group">
+            <label for="edit_qty">Quantity</label>
+            <input type="number" class="form-control" id="edit_qty" name="qty">
+        </div>
+        <div class="form-group">
+            <label for="edit_total_value">Total Value</label>
+            <input type="number" class="form-control" id="edit_total_value" name="total_value">
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+            <button type="submit" class="btn btn-primary" name="action" value="update">Update</button>
+            <button type="button" class="btn btn-danger" onclick="closeEditForm()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+
+
+<script>
+    function editCost(costID, projID, invoicePartNumber, costPerUnit, qty, totalValue) {
+        document.getElementById('edit_cost_id').value = costID;
+        document.getElementById('edit_proj_id').value = projID;
+        document.getElementById('edit_invoice_part').value = invoicePartNumber;
+        document.getElementById('edit_cost_per_unit').value = costPerUnit;
+        document.getElementById('edit_qty').value = qty;
+        document.getElementById('edit_total_value').value = totalValue;
+
+        document.getElementById('editForm').style.display = 'block';
+    }
+
+    function closeEditForm() {
+        document.getElementById('editForm').style.display = 'none';
+    }
+</script>
+{% endblock %} {% endcomment %}
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+  
+    <h1 class="text-center mb-4">Purchase-Based Costing Details</h1>
+
+    <div class="row">
+        <!-- Form for Adding/Editing Purchase-Based Costing Details -->
+        <div class="col-lg-3 col-md-5 mb-4">
+            <form id="costingForm" method="POST" class="shadow p-3 rounded bg-light border border-secondary mb-4">
+                {% csrf_token %}
+                <h5 class="mb-3 text-center">Purchase-Based Costing Form</h5>
+
+                <div class="form-group mb-3">
+                    <label for="proj_id">Project ID</label>
+                    {{ form.PROJID }}
+                </div>
+
+               <div class="form-group mb-3">
+                    <label for="cost_id">Cost ID</label>
+                    <input type="text" class="form-control" name="COSTID" required>
+                </div>
+
+                {% comment %} <div class="form-group mb-3">
+                    <label for="invoice_part_number">Invoice Part Number</label>
+                    <input type="text" class="form-control" name="InvoicePartNumber" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="cost_per_unit">Cost per Unit</label>
+                    <input type="number" step="0.01" class="form-control" name="CostPerUnit" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="qty">Quantity</label>
+                    <input type="number" class="form-control" name="Qty" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="total_value">Total Value</label>
+                    <input type="number" step="0.01" class="form-control" name="TotalValue" required>
+                </div>  {% endcomment %}
+                {% comment %} <input type="hidden" name="cost_id" id="cost_id">
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                    <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+                    <button type="submit" class="btn btn-danger" name="action" value="delete">Delete</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Table for Displaying Purchase-Based Costing Details -->
+        <div class="col-lg-9 col-md-7 mb-4">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Project ID</th>
+                            <th>Cost ID</th>
+                            <th>Part Numuber's</th>
+                            <th>Part Name's</th>
+                            <th>InvoiceValues's</th>
+                            <th>Quantity</th>
+                            <th>Total Value</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cost in data %}
+                        <tr>
+                            <td>{{ cost.PROJID }}</td>
+                            <td>{{ cost.COSTID }}</td>
+                            <td>{{ cost.PartNums }}</td>
+                            <td>{{ cost.PartNames }}</td>
+                            <td>{{ cost.InvoiceValues }}</td>
+                            <td>{{ cost.Qty }}</td>              
+                            <td>{{ cost.TotalValue }}</td>
+                            <td>
+                                <button onclick="editCost('{{ cost.COSTID }}', '{{ cost.PROJID }}', '{{ cost.InvoicePartNumber }}', '{{ cost.CostPerUnit }}', '{{ cost.Qty }}', '{{ cost.TotalValue }}')" class="btn btn-warning btn-sm">Edit</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editCost(costID, projID, invoicePartNumber, costPerUnit, qty, totalValue) {
+    document.getElementById('cost_id').value = costID;
+    document.getElementsByName('PROJID')[0].value = projID;
+    document.getElementsByName('InvoicePartNumber')[0].value = invoicePartNumber;
+    document.getElementsByName('CostPerUnit')[0].value = costPerUnit;
+    document.getElementsByName('Qty')[0].value = qty;
+    document.getElementsByName('TotalValue')[0].value = totalValue;
+}
+</script>
+{% endblock %} {% endcomment %} 

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mechanical Project</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+           
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .child-container, .subchild-container {
+            margin-bottom: 20px;
+        }
+        .add-button {
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+        .remove-button {
+            background-color: #dc3545;
+            color: #fff;
+            cursor: pointer;
+        }
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<div>
+    <form action="{% url 'upload_to_folder_sch' %}" method="GET">
+        <button type="submit">Click Here Upload Data to Created Folder</button>
+    </form>
+</div>
+<body>
+   
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="ProjectId">Project ID:</label>
+        <input type="text" id="ProjectId" name="ProjectId" placeholder="Enter Project ID">
+
+        <label for="ProjectName">Project Name:</label>
+        <input type="text" id="ProjectName" name="ProjectName" placeholder="Enter Project Name">
+
+        <label for="ParentId">Parent ID:</label>
+        <input type="text" id="ParentId" name="ParentId" placeholder="Enter Parent ID">
+
+        <label for="ParentName">Parent Name:</label>
+        <input type="text" id="ParentName" name="ParentName" placeholder="Enter Parent Name" required>
+
+        <div id="child-container" class="child-container">
+            <label>Child Names:</label>
+            <input type="text" name="ChildName" placeholder="Enter Child Name">
+        </div>
+        <button type="button" class="add-button" onclick="addChild()">Add Child</button>
+
+        <div id="subchild-container" class="subchild-container">
+            <label>SubChild Names:</label>
+            <input type="text" name="SubChildName" placeholder="Enter SubChild Name">
+        </div>
+        <button type="button" class="add-button" onclick="addSubChild()">Add SubChild</button>
+
+        <label for="DrawingName">SCH Name:</label>
+        <input type="text" id="DrawingName" name="DrawingName" placeholder="Enter Drawing Name">
+
+        <label for="DrawingId">SCH ID:</label>
+        <input type="text" id="DrawingId" name="DrawingId" placeholder="Enter Drawing ID">
+
+
+        <label for="Remarks">Remarks:</label>
+        <textarea id="Remarks" name="Remarks" rows="4" placeholder="Enter Remarks"></textarea>
+
+        <label for="uploaded_file_1">Upload File:</label>
+        <input type="file" id="uploaded_file_1" name="uploaded_file_1">
+
+        <div class="btn-container">
+            <button type="submit" class="add-button">Submit</button>
+        </div>
+    </form>
+
+  
+
+    <script>
+        function addChild() {
+            const container = document.getElementById('child-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'ChildName';
+            input.placeholder = 'Enter Child Name';
+            container.appendChild(input);
+        }
+
+        function addSubChild() {
+            const container = document.getElementById('subchild-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'SubChildName';
+            input.placeholder = 'Enter SubChild Name';
+            container.appendChild(input);
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Vendor Store Inward</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .left-container {
+            width: 40%;
+            padding: 20px;
+            background-color: #f7f7f7;
+            box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+        .right-container {
+            width: 60%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .actions button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            color: white;
+            background-color: #007bff;
+            border-radius: 4px;
+        }
+        .actions .delete {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Left Container: Form -->
+        <div class="left-container">
+            <h2>Create Vendor Store Inward</h2>
+            <form method="post" action="{% url 'createVendorStoreInward' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px;">
+                    Submit
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Container: Table -->
+        <div class="right-container">
+            <h2>Vendor Store Inward Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Project ID</th>
+                        <th>Vendor ID</th>
+                        <th>Invoice Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inward_list %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.PROJID }}</td>
+                        <td>{{ item.VENDID }}</td>
+                        <td>{{ item.VendorInvoiceNumber }}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="{% url 'editVendorStoreInward' item.id %}">
+                                    <button>Edit</button>
+                                </a>
+                                <form method="post" action="{% url 'deleteVendorStoreInward' item.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">No records found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<option value="{{ folder.path }}" style="padding-left: {{ level|add:1 }}0px;">
+    {{ folder.name }}
+</option>
+{% for child in folder.children %}
+    {% include 'folder_dropdown.html' with folder=child level=level|add:1 %}
+{% endfor %}

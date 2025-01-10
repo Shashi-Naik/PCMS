@@ -1,242 +1,260 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <link rel="icon" href="/static_files/images/favicon.png" />
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/dd5559ee21.js" crossorigin="anonymous"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
-  <style>
-    /* Font styles */
-    .fontStyle2 {
-      font-family: 'Manrope', sans-serif;
-    }
-
-    .fontStyle1 {
-      font-family: 'Anton', sans-serif;
-    }
-
-    /* General styles */
-    .compact {
-      line-height: 1.5em;
-    }
-
-    a.customNav {
-      color: #fff;
-      text-decoration: none;
-      display: inline-block;
-      min-width: 80px;
-      text-align: center;
-      border-right: 1px solid #e55c69;
-      padding: 14px 18px;
-      transition: background 0.3s, border-color 0.3s;
-    }
-
-    a.active,
-    a.customNav:hover {
-      background: rgba(255, 255, 255, 0.2) !important;
-      border-color: transparent;
-    }
-
-    .form-control {
-      border-radius: 0;
-      box-shadow: none;
-    }
-
-    .form-check-input {
-      cursor: pointer;
-    }
-
-    .table thead th {
-      background-color: #343a40;
-      color: #fff;
-      text-transform: uppercase;
-    }
-
-    .table-bordered td,
-    .table-bordered th {
-      border-color: #dee2e6;
-    }
-
-    .table-responsive {
-      overflow-x: auto;
-      margin-top: 20px;
-    }
-
-    .btn-danger {
-      background-color: #e55c69;
-      border-color: #e55c69;
-    }
-
-    .btn-danger:hover {
-      background-color: #dc3545;
-      border-color: #dc3545;
-    }
-
-    .navbar-brand img {
-      transition: transform 0.3s;
-    }
-
-    .navbar-brand img:hover {
-      transform: scale(1.05);
-    }
-
-    /* Dropdown styles */
-    .dropdown-menu {
-      background-color: #dc3545;
-      border: none;
-      box-shadow: none;
-    }
-
-    .dropdown-item {
-      color: #fff;
-      padding: 10px 20px;
-    }
-
-    .dropdown-item:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .dropdown-menu .dropdown-submenu {
-      position: relative;
-    }
-
-    .dropdown-menu .dropdown-submenu .dropdown-menu {
-      top: 0;
-      left: 100%;
-      margin-top: -6px;
-      margin-left: -1px;
-      border-radius: 0.25rem;
-      display: none; /* Hide nested dropdown by default */
-    }
-
-    .dropdown-menu .dropdown-submenu:hover .dropdown-menu {
-      display: block; /* Show nested dropdown on hover */
-    }
-
-    @media screen and (min-width: 797px) {
-      #bottomNavbar.collapse {
-        display: block;
-      }
-    }
-
-    @media screen and (max-width: 796px) {
-      #bottomNavbar {
-        padding: 14px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Project Management System{% endblock title %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+      /* Main Navbar */
+      .main-navbar {
+          background-color: #09112d;
+          position: fixed;
+          top: 0;
+          width: 100%;
+          z-index: 1030;
+          padding-top: 1.5px;  /* Reduced top padding */
+          padding-bottom: 1.5px;  /* Reduced bottom padding */
       }
 
-      #bottomNavbar a.customNav {
-        display: block !important;
-        border: none;
-        background: rgba(0, 0, 0, 0.2);
-        margin: 4px 0;
-        margin-left: -5px;
-        margin-right: -5px;
+        .main-navbar .navbar-brand,
+        .main-navbar .nav-link {
+            color: white !important;
+        }
+
+        #logoutButton {
+            color: white;
+            background-color: #DC143C; /* Red */
+            padding: 4px 6px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        #logoutButton:hover {
+            background-color: #b02a37;
+        }
+
+        /* Secondary Navbar */
+        .secondary-navbar {
+          background-color: #e3f2fd;
+          position: fixed;
+          top: 45px; /* Adjusted for the reduced main navbar height */
+          width: 100%;
+          z-index: 1020;
+          padding-top: 1px;  /* Reduced top padding */
+          padding-bottom: 1px;  /* Reduced bottom padding */
       }
 
-      #removeFlex {
-        display: block !important;
-        text-align: center;
+        .secondary-navbar .nav-link {
+            color: #0056b3 !important;
+        }
+
+        .secondary-navbar .dropdown-item:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        /* Avoid overlapping by giving proper padding */
+        body {
+            margin-top: 112px; /* Adjust based on the combined height of both navbars */
+        }
+
+        /* Ensure that the content section does not overlap */
+        .container {
+            z-index: 1000;
+        }
+        .dropdown-submenu {
+          position: relative;
       }
-    }
-
-    /* Ensure nested dropdowns are visible on small screens */
-    @media (max-width: 768px) {
-      .dropdown-menu .dropdown-submenu .dropdown-menu {
-        position: static;
-        display: block; /* Always display nested dropdowns */
-        margin-left: 0; /* Reset margin to avoid horizontal scroll */
+      
+      .dropdown-submenu > .dropdown-menu {
+          top: 0;
+          left: 100%;
+          margin-top: -0.5rem;
       }
-    }
-
-    /* Custom top navbar color */
-    .bg-custom {
-      background-color:#000000; /* Replace this with the color of your choice */
-    }
-
-  </style>
-
-  <title>Project Costing Management System</title>
-  <meta name="description" content="Navbar bottom designed with bootstrap 5">
-  <script src="https://code.jquery.com/jquery-3.1.1.min.js"
-    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+      
+      .dropdown-submenu:hover > .dropdown-menu {
+          display: block;
+      }
+    </style>
 </head>
 
 <body>
-  <!-- Header Section -->
-  <div class="bg-custom">
-    <div class="container-fluid">
-      <div class='d-flex justify-content-between align-items-center'>
-        <!-- Updated logo with track.png -->
-        
-        <!-- Removed "Call Us Today" and "FREE ESTIMATE" sections -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Navbar Section -->
-{% block navbar %}
-<div class="bg-danger fontStyle2">
-  <button type="button" data-bs-toggle="collapse" data-bs-target="#bottomNavbar"
-    class="btn btn-danger w-100 d-lg-none d-md-none d-sm-block d-xs-block rounded-0 p-2">
-    <i class="fas fa-bars me-2"></i> Menu
-  </button>
-
-  <div class="collapse navbar-collapse px-2" id="bottomNavbar">
-    <div class="container-fluid">
-      <div class="d-flex justify-content-between align-items-center" id="removeFlex">
-
-        <!-- Left Side Navigation Items -->
-        <div class="flex-grow-1">
-          <!-- Dropdown for Store Master -->
-          <div class="dropdown d-inline-block">
-            <a href="#" class="customNav dropdown-toggle" id="storeMasterDropdown" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-             Project Costing Management System
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="storeMasterDropdown">
-              <li><a class="dropdown-item" href="{% url 'CreateVendor' %}">CreateVendor</a></li>
-              <li><a class="dropdown-item" href="{% url 'CreateCustomer' %}">CreateCustomer</a></li>
-              <li><a class="dropdown-item" href="{% url 'CreateProject' %}">CreateProject</a></li>
-              <li><a class="dropdown-item" href="{% url 'UploadInvoicefromVendor' %}">UploadInvoicefromVendor</a></li>
-              <li><a class="dropdown-item" href="{% url 'CreateInvoiceBasedPartNumber' %}">CreateInvoiceBasedPartNumber</a></li>
-              <li><a class="dropdown-item" href="{% url 'CreatePurchaseBasedCosting' %}">CreatePurchaseBasedCosting</a></li>
-              <li><a class="dropdown-item" href="{% url 'ReadPurchaseBasedCosting' %}">ReadPurchaseBasedCosting</a></li>
-            </ul>
-          </div>
-          
-        </div>
-  
-        <!-- Logout Button -->
-        <div class="ms-3">
-          <form action="#" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-light btn-sm text-danger border-0">
-              <i class="fas fa-sign-out-alt me-2"></i>Logout
+    <!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg main-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Project Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
             </button>
-          </form>
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a href="#" id="logoutButton">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %}
+    </nav>
 
-<!-- Main Content -->
-<div class="container">
-  {% block content %}
-  <!-- Page-specific content goes here -->
-  {% endblock %}
-</div>
+    <!-- Secondary Navbar -->
+    {% comment %} <nav class="navbar navbar-expand-lg secondary-navbar">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#secondaryNavbar"
+                aria-controls="secondaryNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="secondaryNavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="secondaryDropdown" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Options
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="secondaryDropdown">
+                            <li><a class="dropdown-item" href="{% url 'CreateVendor' %}">Create Vendor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'CreateCustomer' %}">Create Customer</a></li>
+                            <li><a class="dropdown-item" href="{% url 'CreateProject' %}">Create Project</a></li>
+                            <li><a class="dropdown-item" href="{% url 'UploadInvoicefromVendor' %}">Upload Invoice from Vendor</a></li>
+                            <li><a class="dropdown-item" href="{% url 'CreateInvoiceBasedPartNumber' %}">Create Invoice Based on Part Number</a></li>
+                            <li><a class="dropdown-item" href="{% url 'CreatePurchaseBasedCosting' %}">Create Purchase Based Costing</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ReadPurchaseBasedCosting' %}">Read Purchase Based Costing</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav> {% endcomment %}
+    <!-- Secondary Navbar -->
+<nav class="navbar navbar-expand-lg secondary-navbar">
+  <div class="container-fluid">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#secondaryNavbar"
+          aria-controls="secondaryNavbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="secondaryNavbar">
+          <ul class="navbar-nav me-auto">
+              <!-- Customer Dropdown -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="customerDropdown" role="button" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      Customer
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="customerDropdown">
+                      <li><a class="dropdown-item" href="{% url 'CreateCustomer' %}">Domestic Customer</a></li>
+                      <li><a class="dropdown-item" href="{% url 'international_customer_2' %}">International Customer</a>
+                      <li><a class="dropdown-item" href="{% url 'qutation' %}">Customer Qutation</a></li>
+                  </ul>
+              </li>
+
+              <!-- Vendor Dropdown -->
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="vendorDropdown" role="button" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      Vendor
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="vendorDropdown">
+                      <li><a class="dropdown-item" href="{% url 'CreateVendor' %}">Domestic Vendor</a></li>
+                      <li><a class="dropdown-item" href="{% url 'international_customer' %}">International Vendor</a></li>
+                      <li><a class="dropdown-item" href="{% url 'UploadInvoicefromVendor' %}">Vendor Invoices</a></li>
+                      <li><a class="dropdown-item" href="{% url 'gstr2b' %}">GSTR2B</a></li>
+                      <!-- You can add more vendor-related options here -->
+                  </ul>
+              </li>
+
+              
+              <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="projectDropdown" role="button" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      Project
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="projectDropdown">
+                      <li><a class="dropdown-item" href="{% url 'CreateProject' %}">Create Project</a></li>
+                      <li><a class="dropdown-item" href="{% url 'select_project' %}">Create Costing</a></li>
+                      {% comment %} <li><a class="dropdown-item" href="{% url 'CreatePurchaseBasedCosting' %}">Create Costing</a></li>
+                      <li><a class="dropdown-item" href="{% url 'ReadPurchaseBasedCosting' %}">Read Costing</a></li> {% endcomment %}
+                      
+                      
+                  </ul>
+              </li>
+
+             <!-- Engineering Dropdown -->
+<li class="nav-item dropdown">
+  <a class="nav-link dropdown-toggle" href="#" id="engineeringDropdown" role="button" data-bs-toggle="dropdown"
+      aria-expanded="false">
+      Engineering
+  </a>
+  <ul class="dropdown-menu" aria-labelledby="engineeringDropdown">
+      {% comment %} <!-- Hardware -->{% url 'schematicdetails' %}{% url 'EnggBOM' %} {% endcomment %}
+      <li class="dropdown-submenu">
+          <a class="dropdown-item dropdown-toggle" href="#" id="hardwareDropdown">Hardware</a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'upload_to_folder_sch' %}">Schematic Details</a></li>
+              <li><a class="dropdown-item" href="{% url 'engg_bom_upload' %}">Engineering BOM</a></li>
+          </ul>
+      </li>
+
+      <!-- PCB -->
+      <li class="dropdown-submenu">
+          <a class="dropdown-item dropdown-toggle" href="#" id="pcbDropdown">PCB</a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'upload_to_folder_pcb' %}">PCB Details</a></li>
+              <li><a class="dropdown-item" href="{% url 'PCBOrderDetailsUpload' %}">PCB Order Master</a></li>
+          </ul>
+      </li>
+
+      <!-- Mechanical -->
+      <li class="dropdown-submenu">
+          <a class="dropdown-item dropdown-toggle" href="#" id="mechanicalDropdown">Mechanical</a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'upload_to_folder' %}">Mechanical Project</a></li>
+              <li><a class="dropdown-item" href="{% url 'MechBOMUpload' %}">Mech BOMU </a></li>
+          </ul>
+      </li>
+
+      {% comment %} <!-- Firmware -->
+      <li class="dropdown-submenu">
+          <a class="dropdown-item dropdown-toggle" href="#" id="firmwareDropdown">Firmware</a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Firmware Updates</a></li>
+              <li><a class="dropdown-item" href="#">Firmware Logs</a></li>
+          </ul>
+      </li>
+
+      <!-- Software -->
+      <li class="dropdown-submenu">
+          <a class="dropdown-item dropdown-toggle" href="#" id="softwareDropdown">Software</a>
+          <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#">Software Releases</a></li>
+              <li><a class="dropdown-item" href="#">Bug Tracking</a></li>
+          </ul>
+      </li> {% endcomment %}
+  </ul>
+</li>
+
+          </ul>
+      </div>
+  </div>
+</nav>
+
+    {% block body %}{% endblock body %}
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Optional JavaScript for logout (for demo purposes) -->
+    <script>
+        document.getElementById("logoutButton").addEventListener("click", function () {
+            alert("You have logged out.");
+            // Redirect to login page (replace with actual URL)
+            window.location.href = "login.html"; // Change this URL as needed
+        });
+    </script>
 </body>
-</html> 
+</html>

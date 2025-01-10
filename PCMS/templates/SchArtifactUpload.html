@@ -1,0 +1,477 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block body %}
+
+
+<style>
+    /* General styling */
+    .container-flex {
+        display: flex;
+        gap: 8px;
+        margin-top: 80px; /* Adjust this value to move the block further down */
+        position: fixed;
+        width: 100%;
+        top: 50px;
+        bottom: 0;
+        overflow: hidden;
+        flex-direction: row; /* Default layout */
+    }
+
+    /* Form styling with vertical scroll */
+    .form h5 {
+        text-align: center; 
+        margin-bottom: 15px; 
+        color: #09112d;
+        font-size: 18px;
+        margin-top: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form {
+        width: 20%;
+        max-height: calc(100vh - 90px);
+        padding: 1px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #E6E6FA;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        margin-left: 10px;
+    }
+
+    /* Label styling */
+    .form label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 12px;
+        color: #000000;
+        margin-left: 15px;
+    }
+
+    /* Input field styling */
+    .form input[type="text"],
+    .form input[type="number"],
+    .form input[type="date"],
+    .form input[type="hidden"],
+    .form input[type="email"],
+    .form select {
+        width: 90%;
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color:#FFFFFF;
+    }
+
+    .form textarea {
+        width: 90%; /* Match the width of input elements */
+        padding: 2px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        resize: vertical; /* Allow vertical resizing if needed */
+    }
+
+    /* Button styling */
+    .form button {
+        width: 48%;
+        padding: 8px;
+        border-radius: 4px;
+        box-sizing: border-box;
+        color: white;
+        font-weight: bold;
+        font-size: 9px;
+        margin-left: 42px;
+    }
+
+    /* Button colors */
+    .form .btn-primary {
+        background-color: #4169E1; /* Royal Blue */
+        border: none;
+    }
+
+    .form .btn-primary:hover {
+        background-color: #3A5BB0; /* Darker Royal Blue */
+    }
+
+    .form .btn-success {
+        background-color: #3CB371; /* Medium Sea Green */
+        border: none;
+    }
+
+    .form .btn-success:hover {
+        background-color: #2E8B57; /* Darker Sea Green */
+    }
+
+    .form .btn-danger:hover {
+        background-color: #B22222; /* Darker Crimson */
+    }
+
+    .table-container {
+        width: 100%;
+        font-size: 12px;
+        overflow-y: auto;
+        overflow-x: auto;
+
+    }
+
+    /* Table styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2px;
+        min-width: 2724px;
+         table-layout: fixed; 
+        
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 5px 0px; /* Vertical padding (5px top/bottom), horizontal padding (10px left/right) */
+        text-align: center; /* Centering text */
+        line-height: 1.2;
+        box-sizing: border-box; /* Include padding in the total width/height */
+      }
+
+    /* Sticky header styling */
+    thead th {
+        background-color: #09112d;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    tbody tr:nth-child(even),
+    tbody tr:nth-child(odd) {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:hover {
+        background-color: #F5F5F5;
+        box-shadow: 0 6px 6px -6px #0E1119;
+        transition: all 0.3s ease;
+    }
+
+    tbody td:not(:has(button)):hover {
+        background-color: #FFFF00;
+        color: #403E10;
+        font-weight: bold;
+        box-shadow: #D3D3D3 -1px 1px,  #D3D3D3 -2px 2px, #7F7C21 -3px 3px, 
+                    #D3D3D3 -4px 4px,  #D3D3D3 -5px 5px, #7F7C21 -6px 6px;
+        transform: translate3d(6px, -6px, 0);
+        transition: all 0.4s ease;
+    }
+
+    .btn-warning {
+        background-color: #DC143C; /* Crimson color */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px; 
+        width: auto;
+    }
+
+    .btn-warning:hover {
+        background-color: #DC143C;
+    }
+
+    .btn-danger {
+        background-color: #DC143C;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        font-size: 8px;
+        width: auto;
+    }
+
+    #editModal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40%;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    /* Modal Input Styling */
+    #editModal label {
+        font-size: 10px;
+        color: #000000;
+        width: 30%;
+        text-align: right;
+    }
+
+    #editModal input, #editModal textarea, #editModal select {
+        width: 65%;
+        padding: 6px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #FFFFFF;
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media screen and (max-width: 768px) {
+        .container-flex {
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .form {
+            width: 90%; /* Make form full width on small screens */
+            margin-left: 0;
+            max-height: none; /* Allow form to expand */
+        }
+
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        table {
+            min-width: 600px; /* Ensure table is scrollable */
+        }
+
+        .btn {
+            font-size: 12px; /* Adjust button font size */
+        }
+
+        #editModal {
+            width: 80%; /* Modal becomes wider on small screens */
+        }
+
+        .form input, .form textarea, .form select {
+            font-size: 14px; /* Increase font size in form inputs */
+        }
+    }
+
+    @media screen and (max-width: 480px) {
+        .form {
+            width: 100%;
+        }
+
+        .form button {
+            width: 100%; /* Make buttons full width */
+            margin-left: 0;
+        }
+
+        #editModal {
+            width: 95%; /* Make modal full width */
+        }
+
+        .table-container {
+            padding: 0 10px; /* Add padding for smaller screens */
+        }
+
+        table {
+            min-width: 500px; /* Ensure small screen tables are scrollable */
+        }
+
+        .table-container table th, .table-container table td {
+            font-size: 10px; /* Reduce text size for small screens */
+        }
+    }
+</style>
+
+<h1 style="text-align: center; color:#cd1129; margin-top: -10px; font-size:20px; font-weight:bold; display: flex; justify-content: center; align-items: center; position: relative;">
+   Schemnatic Details
+    <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+        <input type="text" id="searchBox" placeholder="Search..." style="padding: 4px; font-size: 12px; border-radius: 4px; border: 1px solid #ccc;">
+        <button id="downloadButton" class="btn btn-primary" style="font-size: 12px; padding: 5px 10px; background-color: #4169E1; border: none; color: white; cursor: pointer;">
+            Download
+        </button>
+    </div>
+</h1>
+<div class="container-flex">
+    <!-- Form Section -->
+    <div class="form">
+        <form method="POST" id="schForm">
+            {% csrf_token %}
+            <h5>SchArtifactUpload</h5>
+            <div>
+                <label for="sch_id">Schemnatic ID</label>
+                <input type="text" class="form" name="SCHID" required>
+            </div>
+            <div>
+                <label for="project_id">Project ID</label>
+                <input type="text" class="form" name="PROJID" required>
+            </div>
+            <div>
+                <label for="project_id">Project Name</label>
+                <input type="text" class="form" name="ProjectName" required>
+            </div>
+            
+            <div>
+                <label for="sch_name">Schemnatic Name</label>
+                <input type="text" class="form" name="SchName" required>
+            </div>
+            
+            <div>
+                <label for="schpdf_path">Schemnatic PDF Path</label>
+                <textarea class="form" name="SCHPDFPath" required></textarea>
+            </div>
+            
+            <div>
+                <label for="schdsn_path">Schemnatic DSN Path</label>
+                <input type="text" class="form" name="SCHDSNPath" required>
+            </div>
+            <div>
+                <label for="schcreated_on">Schemnatic CreatedOn</label>
+                <input type="date" class="form" name="SchCreatedOn" required>
+            </div>
+            <div>
+                <label for="sch_version">Schemnatic Version</label>
+                <input type="text" class="form" name="SchVersion" required>
+            </div>
+            <div>
+                <label for="last_upated">Last Updated</label>
+                <input type="date" class="form" name="Last_Updated" required>
+            </div>
+            <div class="d-flex justify-content-between mt-3">
+                <button type="submit" class="btn btn-primary" name="action" value="insert">Insert</button>
+                {% comment %} <button type="submit" class="btn btn-success" name="action" value="update">Update</button> {% endcomment %}
+                
+            </div>
+        </form>
+        
+    </div>
+
+    <!-- Table for Displaying  SCHDetails -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table id="SCHTable">
+                <thead>
+                    <tr>
+                        <th>Schemnatic ID</th>
+                        <th>Project ID</th>
+                        <th>Project NAME</th>
+                        <th>Schemnatic NAME</th>
+                        <th>Schemnatic PDF Path</th>
+                        <th>Schemnatic DSN Path</th>
+                        <th>Schemnatic CreatedOn</th>
+                        <th>Schemnatic Version</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td>{{ project.SCHID }}</td>
+                        <td>{{ project.PROJID }}</td>
+                        <td>{{ project.ProjectName }}</td>
+                        <td>{{ project.SchName }}</td>
+                        <td>{{ project.SCHPDFPath }}</td>
+                        <td>{{ project.SCHDSNPath }}</td>
+                        <td>{{ project.SchCreatedOn }}</td>
+                        <td>{{ project.SchVersion }}</td>
+                        <td>{{ project.Last_Updated }}</td>
+                    
+                        
+                        <td>
+                            <button onclick="editSCH('{{  project.SCHID }}', '{{ project.PROJID }}', '{{ project.SchName }}', '{{  project.SCHPDFPath }}', '{{ project.SCHDSNPath  }}', '{{ project.SchCreatedOn }}', '{{ project.SchVersion }}', '{{ project.Last_Updated }}')" class="btn btn-warning btn-sm">Edit</button>
+                            <form action="{% url 'SchArtifactUpload' %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" name="action" value="delete" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Editing SCH -->
+<div id="editModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40%; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); border-radius: 8px; padding: 20px; z-index: 1000;">
+    <h5 style="text-align: center; color: #09112d;">Edit SCH</h5>
+    <form id="editSchForm" method="POST">
+        {% csrf_token %}
+      
+        <label for="edit_sch_id">SCHID</label>
+        <input type="text" class="form" name="SCHID" id="edit_sch_id" required>
+
+        <label for="edit_schname">SchNAME</label>
+        <input type="text" class="form" name="SchName" id="edit_schname" required>
+
+        <label for="edit_sch_pdf">SCHPDFPATH</label>
+        <textarea class="form" name="SCHPDFPath" id="edit_sch_pdf" required></textarea>
+
+        <label for="edit_sch_dsn">SCHDSNPath</label>
+        <input type="text" class="form" name="SCHDSNPath" id="edit_sch_dsn" required>
+
+        <label for="edit_sch_created">SchCreatedOn</label>
+        <input type="text" class="form" name="SchCreatedOn" id="edit_sch_created" required>
+
+        <label for="edit_schversion">SchVersion</label>
+        <input type="text" class="form" name="SchVersion" id="edit_schversion" required>
+
+        <div style="display: flex; justify-content: center; margin-top: 20px; gap: 10px;">
+            <button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-success" name="action" value="update">Update</button>
+        </div>
+        
+    </form>
+</div>
+
+<script>
+function editSCH(SCHID,PROJID, SchName, SCHPDFPath, SCHDSNPath, SchCreatedOn, SchVersion) {
+    document.getElementById('edit_sch_id').value = SCHID;
+    document.getElementById('edit_schname').value = SchName;
+    document.getElementById('edit_sch_pdf').value = SCHPDFPath;
+    document.getElementById('edit_sch_dsn').value = SCHDSNPath;
+    document.getElementById('edit_sch_created').value = SchCreatedOn;
+    document.getElementById('edit_schversion').value = SchVersion;
+    // Show the modal and overlay
+    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+function closeModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+document.getElementById('searchBox').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('tbody tr');
+    
+    tableRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+document.getElementById('downloadButton').addEventListener('click', function() {
+    const table = document.querySelector('table');
+    const rows = Array.from(table.rows);
+    const csvContent = rows.map(row => {
+        const cells = Array.from(row.cells).map(cell => `"${cell.textContent}"`);
+        return cells.join(',');
+    }).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'SCHDETAILS.csv';
+    link.click();
+});
+</script>
+{% endblock %}
